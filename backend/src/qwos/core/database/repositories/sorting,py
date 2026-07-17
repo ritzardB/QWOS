@@ -1,0 +1,67 @@
+"""
+QWOS Sorting
+
+Shared sorting models used throughout the repository layer.
+
+These classes are intentionally independent of:
+- FastAPI
+- SQLAlchemy
+- Pydantic
+
+Repositories translate these objects into ORM expressions.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from enum import Enum
+
+
+# ----------------------------------------------------------------------
+# Sort Direction
+# ----------------------------------------------------------------------
+
+class SortDirection(str, Enum):
+    """
+    Supported sort directions.
+    """
+
+    ASC = "asc"
+    DESC = "desc"
+
+
+# ----------------------------------------------------------------------
+# Sort
+# ----------------------------------------------------------------------
+
+@dataclass(frozen=True, slots=True)
+class Sort:
+    """
+    Represents a single sort criterion.
+
+    Example:
+        Sort.asc("last_name")
+        Sort.desc("created_at")
+    """
+
+    field: str
+
+    direction: SortDirection = SortDirection.ASC
+
+    # --------------------------------------------------------------
+    # Factory Methods
+    # --------------------------------------------------------------
+
+    @classmethod
+    def asc(cls, field: str) -> "Sort":
+        return cls(
+            field=field,
+            direction=SortDirection.ASC,
+        )
+
+    @classmethod
+    def desc(cls, field: str) -> "Sort":
+        return cls(
+            field=field,
+            direction=SortDirection.DESC,
+        )
