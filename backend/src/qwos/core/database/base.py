@@ -16,13 +16,8 @@ Author:
 
 from datetime import datetime
 
-from sqlalchemy import DateTime
-from sqlalchemy import Integer
-from sqlalchemy import func
-from sqlalchemy import String
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
+from sqlalchemy import DateTime, Integer, String, func
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
@@ -46,8 +41,8 @@ class BaseEntity(Base):
     __abstract__ = True
 
     id: Mapped[str] = mapped_column(
-    String(26),
-    primary_key=True,
+        String(26),
+        primary_key=True,
     )
 
     created_at: Mapped[datetime] = mapped_column(
@@ -74,8 +69,8 @@ class BaseEntity(Base):
     )
 
     deleted_at: Mapped[datetime | None] = mapped_column(
-    DateTime(timezone=True),
-    nullable=True,
+        DateTime(timezone=True),
+        nullable=True,
     )
 
     deleted_by: Mapped[str | None] = mapped_column(

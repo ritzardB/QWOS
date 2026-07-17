@@ -23,9 +23,7 @@ class Settings(BaseSettings):
     APP_VERSION: str = "0.1.0"
     ENVIRONMENT: str = "development"
 
-    DATABASE_URL: str = (
-        "postgresql+psycopg://richardbalabarcon@localhost/qwos_dev"
-    )
+    DATABASE_URL: str = "postgresql+psycopg://richardbalabarcon@localhost/qwos_dev"
 
     model_config = SettingsConfigDict(
         env_file=".env",

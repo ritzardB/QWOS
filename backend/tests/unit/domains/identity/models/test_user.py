@@ -60,10 +60,7 @@ def test_default_authentication_provider() -> None:
         email="john.doe@example.com",
     )
 
-    assert (
-        user.authentication_provider
-        == AuthenticationProvider.LOCAL
-    )
+    assert user.authentication_provider == AuthenticationProvider.LOCAL
 
 
 def test_default_user_type() -> None:

@@ -9,6 +9,7 @@ User Profile Model
 """
 
 from __future__ import annotations
+from typing import Any
 
 from sqlalchemy import ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column
@@ -30,12 +31,12 @@ class UserProfile(BaseEntity):
     # Tenant
     # -------------------------------------------------------------------------
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         kwargs.setdefault("locale", "en-US")
         kwargs.setdefault("language_code", "en")
         kwargs.setdefault("timezone", "UTC")
         super().__init__(**kwargs)
-        
+
     tenant_id: Mapped[str] = mapped_column(
         ULID,
         nullable=False,

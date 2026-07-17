@@ -47,6 +47,11 @@ dev = [
     "mypy>=1.17.0",
 ]
 
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+]
+
 # Leave out [project.urls]
 
 
@@ -55,11 +60,6 @@ select = [
     "E",
     "F",
     "I",
-]
-
-docs = [
-    "mkdocs",
-    "mkdocs-material",
 ]
 
 [tool.mypy]

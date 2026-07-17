@@ -38,14 +38,14 @@ class AndSpecification(
     left: Specification[T]
     right: Specification[T]
 
-    def as_expression(
+    def to_expression(
         self,
         model: type[T],
     ) -> ColumnElement[bool]:
 
         return and_(
-            self.left.as_expression(model),
-            self.right.as_expression(model),
+            self.left.to_expression(model),
+            self.right.to_expression(model),
         )
 
 
@@ -62,14 +62,14 @@ class OrSpecification(
     left: Specification[T]
     right: Specification[T]
 
-    def as_expression(
+    def to_expression(
         self,
         model: type[T],
     ) -> ColumnElement[bool]:
 
         return or_(
-            self.left.as_expression(model),
-            self.right.as_expression(model),
+            self.left.to_expression(model),
+            self.right.to_expression(model),
         )
 
 
@@ -85,11 +85,9 @@ class NotSpecification(
 ):
     specification: Specification[T]
 
-    def as_expression(
+    def to_expression(
         self,
         model: type[T],
     ) -> ColumnElement[bool]:
 
-        return not_(
-            self.specification.as_expression(model)
-        )
+        return not_(self.specification.to_expression(model))

@@ -25,6 +25,7 @@ T = TypeVar("T")
 # Page Request
 # ----------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class PageRequest:
     """
@@ -62,6 +63,7 @@ class PageRequest:
 # ----------------------------------------------------------------------
 # Page Result
 # ----------------------------------------------------------------------
+
 
 @dataclass(slots=True)
 class PageResult(Generic[T]):

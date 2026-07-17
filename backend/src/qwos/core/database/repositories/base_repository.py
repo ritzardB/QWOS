@@ -13,6 +13,7 @@ Design Principles:
 
 from __future__ import annotations
 
+from itertools import count
 from typing import Generic, TypeVar
 
 from sqlalchemy import func, select
@@ -84,10 +85,7 @@ class BaseRepository(Generic[T]):
         """
         Retrieve entity by primary key.
         """
-        stmt = (
-            select(self._model)
-            .where(self._model.id == entity_id)
-        )
+        stmt = select(self._model).where(self._model.id == entity_id)
 
         return self._session.scalar(stmt)
 
@@ -101,7 +99,12 @@ class BaseRepository(Generic[T]):
             .where(self._model.id == entity_id)
         )
 
-        return self._session.scalar(stmt) > 0
+        count = self._session.scalar(stmt)
+
+        if count is None:
+            return False
+        
+        return (count or 0) > 0
 
     def count(self) -> int:
         """
@@ -109,7 +112,12 @@ class BaseRepository(Generic[T]):
         """
         stmt = select(func.count()).select_from(self._model)
 
-        return self._session.scalar(stmt)
+        count = self._session.scalar(stmt)
+
+        if count is None:
+            return 0
+
+        return count
 
     def list(
         self,
@@ -122,15 +130,9 @@ class BaseRepository(Generic[T]):
 
         Pagination support included.
         """
-        stmt = (
-            select(self._model)
-            .offset(offset)
-            .limit(limit)
-        )
+        stmt = select(self._model).offset(offset).limit(limit)
 
-        return list(
-            self._session.scalars(stmt).all()
-        )
+        return list(self._session.scalars(stmt).all())
 
     # ------------------------------------------------------------------
     # Session Helpers

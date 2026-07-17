@@ -1,9 +1,9 @@
-from .specification import Specification
 from .combinators import (
     AndSpecification,
-    OrSpecification,
     NotSpecification,
+    OrSpecification,
 )
+from .specification import Specification
 
 __all__ = [
     "Specification",

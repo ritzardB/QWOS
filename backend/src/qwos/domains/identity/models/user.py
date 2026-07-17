@@ -21,17 +21,15 @@ Author:
 """
 
 from __future__ import annotations
+from typing import Any
 
 from datetime import datetime
 
-from sqlalchemy import DateTime
-from sqlalchemy import Integer
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
+from sqlalchemy import DateTime, Integer
+from sqlalchemy.orm import Mapped, mapped_column
 
 from qwos.core.database.base import BaseEntity
-from qwos.core.database.types import ULID
-from qwos.core.database.types import enum_column
+from qwos.core.database.types import ULID, enum_column
 from qwos.domains.identity.enums.account_status import AccountStatus
 from qwos.domains.identity.enums.authentication_provider import (
     AuthenticationProvider,
@@ -50,8 +48,7 @@ class User(BaseEntity):
 
     __tablename__ = "users"
 
-
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         kwargs.setdefault(
             "account_status",
             AccountStatus.PENDING,
@@ -105,9 +102,7 @@ class User(BaseEntity):
     # Authentication
     # -------------------------------------------------------------------------
 
-    authentication_provider: Mapped[
-        AuthenticationProvider
-    ] = mapped_column(
+    authentication_provider: Mapped[AuthenticationProvider] = mapped_column(
         enum_column(AuthenticationProvider),
         nullable=False,
         default=AuthenticationProvider.LOCAL,

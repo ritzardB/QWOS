@@ -15,6 +15,7 @@ Author:
 """
 
 from fastapi import FastAPI
+from typing import Any
 
 app = FastAPI(
     title="Quantum Workforce OS API",
@@ -24,17 +25,15 @@ app = FastAPI(
 
 
 @app.get("/")
-def root():
+def root() -> dict[str, Any]:
     """
     Root endpoint.
     """
-    return {
-        "message": "Welcome to Quantum Workforce OS API"
-    }
+    return {"message": "Welcome to Quantum Workforce OS API"}
 
 
 @app.get("/health")
-def health():
+def health() -> dict[str, Any]:
     """
     Health check endpoint.
     """

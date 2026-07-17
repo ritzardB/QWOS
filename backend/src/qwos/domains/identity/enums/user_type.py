@@ -2,7 +2,6 @@ from enum import StrEnum
 
 
 class UserType(StrEnum):
-
     SYSTEM = "SYSTEM"
 
     EMPLOYEE = "EMPLOYEE"

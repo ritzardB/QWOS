@@ -13,8 +13,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
-from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy import and_, not_, or_
+from sqlalchemy.sql.elements import ColumnElement
 
 T = TypeVar("T")
 
@@ -60,13 +60,14 @@ class Specification(Generic[T], ABC):
         self,
     ) -> "Specification[T]":
         return NotSpecification(self)
-    
+
+
 # --------------------------------------------------------------
 # And Specification
 # --------------------------------------------------------------
 
-class AndSpecification(Specification[T]):
 
+class AndSpecification(Specification[T]):
     def __init__(
         self,
         left: Specification[T],
@@ -84,13 +85,14 @@ class AndSpecification(Specification[T]):
             self.left.to_expression(model),
             self.right.to_expression(model),
         )
-    
+
+
 # ----------------------------------------------------------------------
 # Or Specification
 # ----------------------------------------------------------------------
 
-class OrSpecification(Specification[T]):
 
+class OrSpecification(Specification[T]):
     def __init__(
         self,
         left: Specification[T],
@@ -108,13 +110,14 @@ class OrSpecification(Specification[T]):
             self.left.to_expression(model),
             self.right.to_expression(model),
         )
-    
+
+
 # ----------------------------------------------------------------------
 # Not Specification
 # ----------------------------------------------------------------------
 
-class NotSpecification(Specification[T]):
 
+class NotSpecification(Specification[T]):
     def __init__(
         self,
         specification: Specification[T],
@@ -126,8 +129,4 @@ class NotSpecification(Specification[T]):
         model: type[T],
     ) -> ColumnElement[bool]:
 
-        return not_(
-            self.specification.to_expression(model)
-        )
-
-    
+        return not_(self.specification.to_expression(model))

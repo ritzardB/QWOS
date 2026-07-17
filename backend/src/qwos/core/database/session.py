@@ -16,11 +16,9 @@ Author:
 
 from collections.abc import Generator
 
-from sqlalchemy.orm import Session
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 from qwos.core.database.engine import engine
-
 
 SessionLocal = sessionmaker(
     bind=engine,
