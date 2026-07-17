@@ -1,0 +1,17 @@
+-- =============================================================================
+-- Quantum Workforce OS (QWOS)
+-- Database Reset Script
+-- =============================================================================
+--
+-- File        : reset.sql
+-- Version     : 1.0.0
+-- Status      : Placeholder
+--
+-- Description :
+-- Drops and recreates the development database.
+--
+-- NOTE:
+-- This script will be implemented after all database domains
+-- are completed.
+--
+-- =============================================================================
