@@ -14,8 +14,9 @@ Author:
 ===============================================================================
 """
 
-from fastapi import FastAPI
 from typing import Any
+
+from fastapi import FastAPI
 
 app = FastAPI(
     title="Quantum Workforce OS API",

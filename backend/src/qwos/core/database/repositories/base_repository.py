@@ -13,7 +13,6 @@ Design Principles:
 
 from __future__ import annotations
 
-from itertools import count
 from typing import Generic, TypeVar
 
 from sqlalchemy import func, select
