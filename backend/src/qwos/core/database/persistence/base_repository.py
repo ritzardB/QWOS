@@ -13,12 +13,13 @@ Design Principles:
 
 from __future__ import annotations
 
-from typing import Generic, TypeVar
-
+from typing import Any, Generic, TypeVar
+import builtins
+ 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from qwos.core.database.base import BaseEntity
+from qwos.core.database.entity_base import BaseEntity
 
 T = TypeVar("T", bound=BaseEntity)
 
@@ -102,7 +103,7 @@ class BaseRepository(Generic[T]):
 
         if count is None:
             return False
-        
+
         return (count or 0) > 0
 
     def count(self) -> int:
@@ -156,3 +157,35 @@ class BaseRepository(Generic[T]):
         Remove entity from current session.
         """
         self._session.expunge(entity)
+
+
+    # ------------------------------------------------------------------
+    # Read
+    # ------------------------------------------------------------------
+
+    async def first_by(self, **kwargs: Any) -> T | None:
+        """
+        Retrieve the first entity matching the given keyword criteria.
+        """
+        # Note: If your app uses async drivers, change self._session.scalar to await self._session.scalar
+        stmt = select(self._model).filter_by(**kwargs).limit(1)
+        return self._session.scalar(stmt)
+
+    async def list_by(self, **kwargs: Any) -> builtins.list[T]:
+        """
+        Retrieve all entities matching the given keyword criteria.
+        """
+        stmt = select(self._model).filter_by(**kwargs)
+        return list(self._session.scalars(stmt).all())
+
+    async def exists_by(self, **kwargs: Any) -> bool:
+        """
+        Check whether an entity exists matching the given keyword criteria.
+        """
+        stmt = (
+            select(func.count())
+            .select_from(self._model)
+            .filter_by(**kwargs)
+        )
+        count = self._session.scalar(stmt)
+        return (count or 0) > 0

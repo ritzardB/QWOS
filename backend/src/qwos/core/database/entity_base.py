@@ -51,7 +51,7 @@ class BaseEntity(Base):
         nullable=False,
     )
 
-    created_by: Mapped[str] = mapped_column(
+    created_by: Mapped[str | None] = mapped_column(
         String(26),
         nullable=False,
     )
@@ -63,7 +63,7 @@ class BaseEntity(Base):
         nullable=False,
     )
 
-    updated_by: Mapped[str] = mapped_column(
+    updated_by: Mapped[str | None] = mapped_column(
         String(26),
         nullable=False,
     )
@@ -82,4 +82,18 @@ class BaseEntity(Base):
         Integer,
         default=1,
         nullable=False,
+    )
+
+
+class TenantEntity(BaseEntity):
+    """
+    Base class for tenant-owned entities.
+    """
+
+    __abstract__ = True
+
+    tenant_id: Mapped[str] = mapped_column(
+        String(26),
+        nullable=False,
+        index=True,
     )

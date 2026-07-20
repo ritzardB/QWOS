@@ -185,9 +185,8 @@ class Filter:
 # Filter Collection
 # ----------------------------------------------------------------------
 
-
 @dataclass(frozen=True, slots=True)
-class FilterCollection:
+class Filters:
     """
     Immutable collection of filters.
     """
@@ -195,12 +194,12 @@ class FilterCollection:
     items: tuple[Filter, ...] = field(default_factory=tuple)
 
     @classmethod
-    def empty(cls) -> "FilterCollection":
+    def empty(cls) -> "Filters":
         """Return an empty filter collection."""
         return cls()
 
     @classmethod
-    def of(cls, *filters: Filter) -> "FilterCollection":
+    def of(cls, *filters: Filter) -> "Filters":
         """Create a collection from filters."""
         return cls(items=tuple(filters))
 

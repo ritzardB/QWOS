@@ -28,7 +28,7 @@ from typing import Any
 from sqlalchemy import DateTime, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
-from qwos.core.database.base import BaseEntity
+from qwos.core.database.entity_base import BaseEntity
 from qwos.core.database.types import ULID, enum_column
 from qwos.domains.identity.enums.account_status import AccountStatus
 from qwos.domains.identity.enums.authentication_provider import (
@@ -86,6 +86,17 @@ class User(BaseEntity):
 
     email: Mapped[str] = mapped_column(
         nullable=False,
+    )
+    # Add this line to fix line 89
+    username: Mapped[str] = mapped_column(
+        nullable=False,
+        unique=True,
+    )
+
+    # Add this line to fix line 73
+    external_id: Mapped[str | None] = mapped_column(
+        nullable=True,
+        unique=True,
     )
 
     password_hash: Mapped[str | None] = mapped_column(

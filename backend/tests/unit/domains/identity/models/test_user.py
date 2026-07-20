@@ -8,7 +8,7 @@ Tests for User Entity
 ===============================================================================
 """
 
-from qwos.core.database.base import BaseEntity
+from qwos.core.database.entity_base import BaseEntity
 from qwos.domains.identity.enums.account_status import AccountStatus
 from qwos.domains.identity.enums.authentication_provider import (
     AuthenticationProvider,

@@ -15,7 +15,7 @@ from typing import Any
 from sqlalchemy import ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from qwos.core.database.base import BaseEntity
+from qwos.core.database.entity_base import BaseEntity
 from qwos.core.database.types import ULID
 
 

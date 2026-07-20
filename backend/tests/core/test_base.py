@@ -8,7 +8,7 @@ Test:
 ===============================================================================
 """
 
-from qwos.core.database.base import BaseEntity
+from qwos.core.database.entity_base import BaseEntity
 
 
 def test_base_entity_is_abstract() -> None:

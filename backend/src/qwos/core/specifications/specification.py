@@ -68,11 +68,13 @@ class Specification(Generic[T], ABC):
 
 
 class AndSpecification(Specification[T]):
+    __slots__ = ("left", "right")
+
     def __init__(
         self,
         left: Specification[T],
         right: Specification[T],
-    ):
+    ) -> None:
         self.left = left
         self.right = right
 

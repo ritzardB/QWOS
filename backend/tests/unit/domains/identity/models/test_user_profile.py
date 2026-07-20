@@ -8,7 +8,7 @@ Tests for UserProfile Entity
 ===============================================================================
 """
 
-from qwos.core.database.base import BaseEntity
+from qwos.core.database.entity_base import BaseEntity
 from qwos.domains.identity.models.user_profile import UserProfile
 
 
