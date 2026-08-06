@@ -1,77 +1,102 @@
 """
-QWOS Permission Repository
+===============================================================================
+Quantum Workforce OS (QWOS)
 
-Repository implementation for the Permission aggregate.
+Identity Domain
+
+File:
+    permission_repository.py
+
+Description:
+    Repository contract for the Permission aggregate.
 
 Responsibilities:
-- Permission persistence
-- Permission lookups
-- No business logic
-- No transaction management
+    - Define permission persistence operations.
+    - Remain independent of persistence technology.
+    - Serve as the abstraction used by application use cases.
 
-All generic CRUD functionality is inherited from BaseRepository.
+Notes:
+    This contract belongs to the Domain layer. Implementations reside in the
+    Infrastructure layer (e.g. SQLAlchemyPermissionRepository).
+
+Author:
+    Richard Balabarcon
+===============================================================================
 """
 
 from __future__ import annotations
 
-import builtins # Prevents name-clashing errors if 'list' is shadowed
-from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from typing import Protocol
 
-from qwos.core.database.persistence.base_repository import BaseRepository
+from abc import ABC, abstractmethod
 from qwos.domains.identity.models.permission import Permission
 
 
-class PermissionRepository(BaseRepository[Permission]):
+class PermissionRepository(Protocol):
     """
-    Repository for Permission aggregate.
+    Contract for Permission persistence.
 
-    Inherits generic CRUD operations from BaseRepository and
-    previews permission-specific queries.
+    The Domain defines WHAT operations are required.
+    Infrastructure defines HOW they are implemented.
     """
 
-    def __init__(self, session: Session) -> None:
-        super().__init__(
-            session=session,
-            model=Permission,
-        )
+    def get_by_id(
+        self,
+        permission_id: str,
+    ) -> Permission | None:
+        """
+        Retrieve a permission by its unique identifier.
+        """
+        ...
 
-    # ------------------------------------------------------------------
-    # Identity
-    # ------------------------------------------------------------------
-
-    def get_by_name(self, name: str) -> Permission | None:
+    def get_by_name(
+        self,
+        name: str,
+    ) -> Permission | None:
         """
         Retrieve a permission by name.
 
-        Comparison is case-insensitive.
+        Name comparison should be case-insensitive.
         """
-        stmt = select(Permission).where(func.lower(Permission.name) == name.lower())
+        ...
 
-        return self._session.scalar(stmt)
-
-    def exists_by_code(self, code: str) -> bool:
+    def get_by_code(
+        self,
+        code: str,
+    ) -> Permission | None:
         """
-        Determine whether a permission code already exists.
+        Retrieve a permission by its unique code.
         """
-        # Fixes Line 45: Call the base repository 'first_by' helper instead of the missing method
-        return self._session.scalar(select(Permission).where(Permission.code == code)) is not None
-
-    # ------------------------------------------------------------------
-    # Module
-    # ------------------------------------------------------------------
+        ...
 
     def list_by_module(
         self,
         module: str,
-    ) -> builtins.list[Permission]:
+    ) -> list[Permission]:
         """
-        Retrieve all permissions for a given module.
+        Retrieve all permissions belonging to a module.
 
-        Results are ordered by permission name.
+        Module comparison should be case-insensitive.
         """
-        stmt = select(Permission).where(func.lower(Permission.module) == module.lower())
+        ...
 
-        # Fixes Line 64: Wrap execution results with .all() inside a builtins.list call
-        return builtins.list(self._session.scalars(stmt).all())
+    def exists_by_code(
+        self,
+        code: str,
+    ) -> bool:
+        """
+        Determine whether a permission code already exists.
+        """
+        ...
 
+    def save(
+        self,
+        permission: Permission,
+    ) -> None:
+        """
+        Persist a Permission aggregate.
+
+        Implementations may insert or update the aggregate
+        as appropriate.
+        """
+        ...

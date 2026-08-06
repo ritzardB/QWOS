@@ -21,6 +21,7 @@ Author:
 from __future__ import annotations
 
 import builtins
+
 from qwos.core.services.base_service import BaseService
 from qwos.domains.identity.models.permission import Permission
 from qwos.domains.identity.repositories.permission_repository import (
@@ -97,10 +98,12 @@ class PermissionService(BaseService):
         """
         raise NotImplementedError()
 
-    async def list(self, offset: int = 0, limit: int = 100) -> builtins.list[Permission]:
+    async def list(
+        self,
+        offset: int = 0,
+        limit: int = 100,
+    ) -> builtins.list[Permission]:
         """
         Retrieve all permissions.
         """
         raise NotImplementedError()
-
-      

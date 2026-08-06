@@ -22,6 +22,7 @@ Author:
 from __future__ import annotations
 
 import builtins
+
 from qwos.core.services.base_service import BaseService
 from qwos.domains.identity.models.role import Role
 from qwos.domains.identity.repositories.role_repository import RoleRepository

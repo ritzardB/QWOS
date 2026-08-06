@@ -34,7 +34,9 @@ dependencies = [
     "psycopg[binary]>=3.2.9",
     "pydantic>=2.11.7",
     "pydantic-settings>=2.10.1",
-    "python-dotenv>=1.1.1"
+    "python-dotenv>=1.1.1",
+    "bcrypt>=5.0.0",
+    "python-ulid>=4.0.1",
 ]
 
 [project.optional-dependencies]
@@ -70,11 +72,11 @@ strict = true
 source = ["src/qwos"]
 
 [tool.black]
-line-length = 88
+line-length = 120
 target-version = ["py313"]
 
 [tool.ruff]
-line-length = 88
+line-length = 120
 target-version = "py313"
 
 [tool.pytest.ini_options]

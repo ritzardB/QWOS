@@ -43,6 +43,42 @@ class UserProfile(BaseEntity):
         nullable=False,
     )
 
+        # -------------------------------------------------------------------------
+    # Factory
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        id: str,
+        tenant_id: str,
+        user_id: str,
+        first_name: str,
+        last_name: str,
+        middle_name: str | None = None,
+        preferred_name: str | None = None,
+    ) -> "UserProfile":
+        """
+        Create a new user profile.
+        """
+
+        first_name = first_name.strip()
+        last_name = last_name.strip()
+
+        display_name = f"{first_name} {last_name}".strip()
+
+        return cls(
+            id=id,
+            tenant_id=tenant_id,
+            user_id=user_id,
+            first_name=first_name,
+            middle_name=middle_name,
+            last_name=last_name,
+            display_name=display_name,
+            preferred_name=preferred_name,
+        )
+
     # -------------------------------------------------------------------------
     # Identity
     # -------------------------------------------------------------------------

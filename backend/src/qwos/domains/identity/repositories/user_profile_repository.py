@@ -4,11 +4,9 @@ Quantum Workforce OS (QWOS)
 
 Identity Domain
 
-File:
-    user_profile_repository.py
+Repository Contract
 
-Description:
-    Repository for UserProfile entities.
+User Profile Repository
 
 Author:
     Richard Balabarcon
@@ -17,35 +15,50 @@ Author:
 
 from __future__ import annotations
 
-from qwos.core.database.persistence.base_repository import BaseRepository
+from typing import Protocol
+
 from qwos.domains.identity.models.user_profile import UserProfile
 
 
-class UserProfileRepository(BaseRepository[UserProfile]):
+class UserProfileRepository(Protocol):
     """
-    Repository for managing user profiles.
+    Contract for UserProfile persistence.
     """
 
-    model = UserProfile
+    # ------------------------------------------------------------------
+    # Base Operations
+    # ------------------------------------------------------------------
 
-    async def get_by_user_id(
+    def get_by_id(
+        self,
+        profile_id: str,
+    ) -> UserProfile | None:
+        ...
+
+    def save(
+        self,
+        profile: UserProfile,
+    ) -> None:
+        ...
+
+    # ------------------------------------------------------------------
+    # User Profile Queries
+    # ------------------------------------------------------------------
+
+    def get_by_user_id(
         self,
         user_id: str,
     ) -> UserProfile | None:
         """
-        Retrieve the profile associated with a user.
+        Retrieve a profile by user id.
         """
-        return await self.first_by(
-            user_id=user_id,
-        )
+        ...
 
-    async def exists_by_user_id(
+    def exists_by_user_id(
         self,
         user_id: str,
     ) -> bool:
         """
-        Determine whether a profile exists for a user.
+        Determine whether a profile exists.
         """
-        return await self.exists_by(
-            user_id=user_id,
-        )
+        ...

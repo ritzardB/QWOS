@@ -71,6 +71,36 @@ class User(BaseEntity):
 
         super().__init__(**kwargs)
 
+        # -------------------------------------------------------------------------
+    # Factory
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        id: str,
+        tenant_id: str,
+        email: str,
+        username: str,
+        password_hash: str,
+        user_type: UserType = UserType.EMPLOYEE,
+    ) -> "User":
+        """
+        Create a new user aggregate.
+
+        Applies domain defaults and normalizes identity fields.
+        """
+
+        return cls(
+            id=id,
+            tenant_id=tenant_id,
+            email=email.strip().lower(),
+            username=username.strip().lower(),
+            password_hash=password_hash,
+            user_type=user_type,
+        )
+
     # -------------------------------------------------------------------------
     # Tenant
     # -------------------------------------------------------------------------

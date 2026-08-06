@@ -8,7 +8,16 @@ File:
     user_role_repository.py
 
 Description:
-    Repository for UserRole entities.
+    Repository contract for the UserRole aggregate.
+
+Responsibilities:
+    - Define user role assignment persistence operations.
+    - Remain independent of persistence technology.
+    - Serve as the abstraction used by application use cases.
+
+Notes:
+    This contract belongs to the Domain layer. Implementations reside in the
+    Infrastructure layer (e.g. SQLAlchemyUserRoleRepository).
 
 Author:
     Richard Balabarcon
@@ -17,46 +26,64 @@ Author:
 
 from __future__ import annotations
 
-from qwos.core.database.persistence.base_repository import BaseRepository
+from typing import Protocol
+
 from qwos.domains.identity.models.user_role import UserRole
-from typing import Any, Generic, TypeVar
 
 
-class UserRoleRepository(BaseRepository[UserRole]):
+class UserRoleRepository(Protocol):
     """
-    Repository for managing user role assignments.
+    Contract for UserRole persistence.
+
+    The Domain defines WHAT operations are required.
+    Infrastructure defines HOW they are implemented.
     """
 
-    model = UserRole
-
-    async def get_primary_role(self, user_id: str) -> UserRole | None:
+    def get_by_id(
+        self,
+        user_role_id: str,
+    ) -> UserRole | None:
         """
-        Retrieve the user's primary role.
+        Retrieve a user role assignment by its unique identifier.
         """
-        return await self.first_by(
-            user_id=user_id,
-            is_primary=True,
-            is_enabled=True,
-        )
+        ...
 
-    async def list_active_roles(self, user_id: str) -> list[UserRole]:
+    def get_primary_role(
+        self,
+        user_id: str,
+    ) -> UserRole | None:
+        """
+        Retrieve the user's primary role assignment.
+        """
+        ...
+
+    def list_active_roles(
+        self,
+        user_id: str,
+    ) -> list[UserRole]:
         """
         Retrieve all active role assignments for a user.
         """
-        return await self.list_by(
-            user_id=user_id,
-            is_enabled=True,
-        )
+        ...
 
-    async def exists_assignment(
+    def exists_assignment(
         self,
         user_id: str,
         role_id: str,
     ) -> bool:
         """
-        Check whether a role assignment already exists.
+        Determine whether a role assignment already exists.
         """
-        return await self.exists_by(
-            user_id=user_id,
-            role_id=role_id,
-        )
+        ...
+
+    def save(
+        self,
+        user_role: UserRole,
+    ) -> None:
+        """
+        Persist a UserRole aggregate.
+
+        Implementations may insert or update the aggregate
+        as appropriate.
+        """
+        ...

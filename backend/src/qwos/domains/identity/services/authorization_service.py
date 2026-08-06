@@ -20,9 +20,9 @@ Author:
 
 from __future__ import annotations
 
-from typing import Any
-
 from qwos.core.services.base_service import BaseService
+from qwos.domains.identity.models.role_permission import RolePermission
+from qwos.domains.identity.models.user_role import UserRole
 from qwos.domains.identity.repositories.permission_repository import (
     PermissionRepository,
 )
@@ -38,9 +38,6 @@ from qwos.domains.identity.repositories.user_repository import (
 from qwos.domains.identity.repositories.user_role_repository import (
     UserRoleRepository,
 )
-
-from qwos.domains.identity.models.user_role import UserRole
-from qwos.domains.identity.models.role_permission import RolePermission
 
 
 class AuthorizationService(BaseService):
@@ -158,7 +155,7 @@ class AuthorizationService(BaseService):
         self,
         user_id: str,
     ) -> bool:
-        """""
+        """ ""
         Retrieve every effective permission granted to a user.
         """
         raise NotImplementedError()

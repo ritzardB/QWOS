@@ -18,6 +18,7 @@ Author:
 from __future__ import annotations
 
 from typing import Any
+
 from qwos.core.services.base_service import BaseService
 from qwos.domains.identity.repositories.user_repository import (
     UserRepository,

@@ -1,63 +1,85 @@
 """
-QWOS Role Repository
+===============================================================================
+Quantum Workforce OS (QWOS)
 
-Repository implementation for the Role aggregate.
+Identity Domain
 
-Responsibilities:
-- Role persistence
-- Role lookups
-- No business logic
-- No transaction management
+Repository Contract
+
+Role Repository
+===============================================================================
 """
 
 from __future__ import annotations
 
-from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from typing import Protocol
 
-from qwos.core.database.persistence.base_repository import BaseRepository
 from qwos.domains.identity.models.role import Role
 
 
-class RoleRepository(BaseRepository[Role]):
+class RoleRepository(Protocol):
     """
-    Repository for Role aggregate.
+    Contract for Role persistence.
     """
-
-    def __init__(self, session: Session) -> None:
-        super().__init__(
-            session=session,
-            model=Role,
-        )
 
     # ------------------------------------------------------------------
-    # Identity
+    # Generic Persistence
     # ------------------------------------------------------------------
 
-    def get_by_name(self, name: str) -> Role | None:
+    def get_by_id(
+        self,
+        entity_id: str,
+    ) -> Role | None:
+        """
+        Retrieve a role by its identifier.
+        """
+        ...
+
+    def save(
+        self,
+        entity: Role,
+    ) -> None:
+        """
+        Persist a role.
+        """
+        ...
+
+    # ------------------------------------------------------------------
+    # Role Queries
+    # ------------------------------------------------------------------
+
+    def get_by_name(
+        self,
+        name: str,
+    ) -> Role | None:
         """
         Retrieve a role by name.
-
-        Comparison is case-insensitive.
         """
-        stmt = select(Role).where(func.lower(Role.name) == name.lower())
+        ...
 
-        return self._session.scalar(stmt)
-
-    def exists_by_name(self, name: str) -> bool:
+    def get_by_code(
+        self,
+        code: str,
+    ) -> Role | None:
         """
-        Determine whether a role exists.
+        Retrieve a role by code.
         """
-        return self.get_by_name(name) is not None
+        ...
 
-    # ------------------------------------------------------------------
-    # System Roles
-    # ------------------------------------------------------------------
-
-    def get_system_roles(self) -> list[Role]:
+    def exists_by_name(
+        self,
+        name: str,
+    ) -> bool:
         """
-        Retrieve all system-defined roles.
+        Determine whether a role name exists.
         """
-        stmt = select(Role).where(Role.is_system.is_(True)).order_by(Role.name)
+        ...
 
-        return list(self._session.scalars(stmt))
+    def exists_by_code(
+        self,
+        code: str,
+    ) -> bool:
+        """
+        Determine whether a role code exists.
+        """
+        ...
