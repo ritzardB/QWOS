@@ -20,7 +20,7 @@ Author:
 
 from __future__ import annotations
 
-from ulid import ULID 
+from ulid import ULID
 
 from qwos.application.common.ports.id_generator import IdGenerator
 

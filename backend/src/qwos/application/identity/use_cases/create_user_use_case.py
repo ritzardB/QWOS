@@ -147,11 +147,10 @@ class CreateUserUseCase:
         # Persist
         # ------------------------------------------------------------------
 
-        self._user_repository.save(user)
-
-        self._user_profile_repository.save(profile)
-
-        self._unit_of_work.flush()
+        with self._unit_of_work:
+            self._user_repository.save(user)
+            self._user_profile_repository.save(profile)
+            self._unit_of_work.flush()
 
         # ------------------------------------------------------------------
         # Response

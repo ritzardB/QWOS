@@ -23,7 +23,6 @@ Author:
 """
 
 from __future__ import annotations
-import profile
 
 from qwos.api.contracts.requests.identity.create_user_request import (
     CreateUserRequest,
@@ -35,7 +34,6 @@ from qwos.application.identity.commands.create_user_command import (
 from qwos.application.identity.responses.create_user_response import (
     CreateUserResponse,
 )
-from qwos.domains.identity.models import user
 from qwos.domains.identity.models.user import User
 from qwos.domains.identity.models.user_profile import UserProfile
 
@@ -59,14 +57,16 @@ class UserMapper:
         """
 
         return CreateUserCommand(
-            tenant_id=request_context.tenant_id,
-            email=request.email,
-            username=request.username,
-            password=request.password,
-            first_name=request.first_name,
-            last_name=request.last_name,
-            user_type=request.user_type,
-        )
+        tenant_id=request_context.tenant_id,
+        email=request.email,
+        username=request.username,
+        password=request.password,
+        first_name=request.first_name,
+        middle_name=request.middle_name,
+        last_name=request.last_name,
+        preferred_name=request.preferred_name,
+        user_type=request.user_type,
+    )
 
     # ------------------------------------------------------------------
     # Domain -> Response

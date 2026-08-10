@@ -55,7 +55,7 @@ CREATE TABLE user_profiles (
 
     last_name person_name NOT NULL,
 
-    display_name display_name NOT NULL,
+    display_name display_name_text NOT NULL,
 
     preferred_name person_name,
 

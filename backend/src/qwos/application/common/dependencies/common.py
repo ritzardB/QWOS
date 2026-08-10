@@ -23,18 +23,17 @@ Author:
 
 from __future__ import annotations
 
+from uuid import uuid4
+
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from uuid import uuid4
 from qwos.application.common.context.request_context import RequestContext
 from qwos.application.common.persistence.unit_of_work import UnitOfWork
 from qwos.application.common.ports.clock import Clock
 from qwos.application.common.ports.id_generator import IdGenerator
 from qwos.application.common.ports.password_hasher import PasswordHasher
-
 from qwos.core.database.session import get_session
-
 from qwos.infrastructure.repositories.sqlalchemy_unit_of_work import (
     SQLAlchemyUnitOfWork,
 )
@@ -43,7 +42,6 @@ from qwos.infrastructure.security.bcrypt_password_hasher import (
 )
 from qwos.infrastructure.system.system_clock import SystemClock
 from qwos.infrastructure.system.ulid_generator import ULIDGenerator
-
 
 # -------------------------------------------------------------------------
 # Infrastructure Providers

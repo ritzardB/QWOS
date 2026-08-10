@@ -18,7 +18,6 @@ Author:
 from __future__ import annotations
 
 from qwos.core.database.repositories.base_repository import BaseRepository
-
 from qwos.domains.identity.models.role_permission import RolePermission
 
 

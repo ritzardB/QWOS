@@ -23,7 +23,7 @@ BEGIN;
 -- =============================================================================
 -- USER ROLES
 --
--- Assigns one or more roles to authenticated users.
+-- Represents a business entity assigning a role to a user.
 --
 -- =============================================================================
 
@@ -50,7 +50,7 @@ CREATE TABLE user_roles (
     role_id ulid NOT NULL,
 
     ---------------------------------------------------------------------------
-    -- Assignment Properties
+    -- Assignment Lifecycle
     ---------------------------------------------------------------------------
 
     is_primary BOOLEAN
@@ -67,52 +67,11 @@ CREATE TABLE user_roles (
 
     assigned_by ulid,
 
-    effective_from TIMESTAMPTZ,-- =============================================================================
--- Quantum Workforce OS (QWOS)
--- QuantumDB
--- =============================================================================
---
--- File        : 006_user_roles.sql
--- Version     : 1.0
--- Description : User Role Assignments
---
--- =============================================================================
+    effective_from TIMESTAMPTZ,
 
-BEGIN;
+    effective_until TIMESTAMPTZ,
 
-CREATE TABLE user_roles (
-
-    ---------------------------------------------------------------------------
-    -- Primary Key
-    ---------------------------------------------------------------------------
-
-    id CHAR(26) PRIMARY KEY,
-
-    ---------------------------------------------------------------------------
-    -- Tenant
-    ---------------------------------------------------------------------------
-
-    tenant_id CHAR(26) NOT NULL,
-
-    ---------------------------------------------------------------------------
-    -- Relationships
-    ---------------------------------------------------------------------------
-
-    user_id CHAR(26)
-        NOT NULL,
-
-    role_id CHAR(26)
-        NOT NULL,
-
-    ---------------------------------------------------------------------------
-    -- Assignment
-    ---------------------------------------------------------------------------
-
-    assigned_at TIMESTAMPTZ
-        NOT NULL
-        DEFAULT NOW(),
-
-    assigned_by CHAR(26),
+    assignment_reason description_text,
 
     ---------------------------------------------------------------------------
     -- Audit
@@ -122,17 +81,21 @@ CREATE TABLE user_roles (
         NOT NULL
         DEFAULT NOW(),
 
-    created_by CHAR(26),
+    created_by ulid,
 
     updated_at TIMESTAMPTZ
         NOT NULL
         DEFAULT NOW(),
 
-    updated_by CHAR(26),
+    updated_by ulid,
 
     deleted_at TIMESTAMPTZ,
 
-    deleted_by CHAR(26),
+    deleted_by ulid,
+
+    ---------------------------------------------------------------------------
+    -- Concurrency
+    ---------------------------------------------------------------------------
 
     version INTEGER
         NOT NULL
@@ -142,9 +105,6 @@ CREATE TABLE user_roles (
     -- Constraints
     ---------------------------------------------------------------------------
 
-    CONSTRAINT uq_user_roles
-        UNIQUE (tenant_id, user_id, role_id),
-
     CONSTRAINT fk_user_roles_user
         FOREIGN KEY (user_id)
         REFERENCES users(id)
@@ -153,7 +113,21 @@ CREATE TABLE user_roles (
     CONSTRAINT fk_user_roles_role
         FOREIGN KEY (role_id)
         REFERENCES roles(id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+
+    CONSTRAINT uq_user_roles
+        UNIQUE (
+            tenant_id,
+            user_id,
+            role_id
+        ),
+
+    CONSTRAINT chk_user_roles_dates
+        CHECK (
+            effective_until IS NULL
+            OR effective_from IS NULL
+            OR effective_until > effective_from
+        )
 
 );
 

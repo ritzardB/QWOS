@@ -41,7 +41,7 @@ from qwos.application.identity.use_cases.create_user_use_case import (
 )
 
 router = APIRouter(
-    prefix="/api/v1/identity",
+    prefix="/identity",
     tags=["Identity"],
 )
 

@@ -28,7 +28,6 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from abc import ABC, abstractmethod
 from qwos.domains.identity.models.permission import Permission
 
 

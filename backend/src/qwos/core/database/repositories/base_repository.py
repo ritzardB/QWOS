@@ -13,7 +13,6 @@ Design Principles:
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from typing import Any, Generic, TypeVar
 
 from sqlalchemy import func, select

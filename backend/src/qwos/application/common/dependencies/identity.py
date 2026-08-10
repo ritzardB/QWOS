@@ -28,7 +28,6 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from qwos.application.common.context.request_context import RequestContext
-
 from qwos.application.common.dependencies import (
     get_clock,
     get_id_generator,
@@ -36,7 +35,6 @@ from qwos.application.common.dependencies import (
     get_request_context,
     get_unit_of_work,
 )
-
 from qwos.application.common.persistence.unit_of_work import UnitOfWork
 from qwos.application.common.ports.clock import Clock
 from qwos.application.common.ports.id_generator import IdGenerator
