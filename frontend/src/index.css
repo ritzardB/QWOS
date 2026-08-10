@@ -1,0 +1,106 @@
+:root {
+  /* ========================================
+     QWOS DESIGN TOKENS
+     ======================================== */
+
+  /* Brand */
+  --qwos-primary: #2563eb;
+  --qwos-primary-hover: #1d4ed8;
+  --qwos-primary-soft: #eff6ff;
+
+  /* Sidebar */
+  --qwos-sidebar: #0f172a;
+  --qwos-sidebar-hover: #1e293b;
+  --qwos-sidebar-border: #1e293b;
+  --qwos-sidebar-text: #cbd5e1;
+  --qwos-sidebar-muted: #64748b;
+
+  /* Surfaces */
+  --qwos-background: #f8fafc;
+  --qwos-surface: #ffffff;
+  --qwos-surface-muted: #f1f5f9;
+
+  /* Text */
+  --qwos-text: #0f172a;
+  --qwos-text-secondary: #475569;
+  --qwos-text-muted: #64748b;
+
+  /* Borders */
+  --qwos-border: #e2e8f0;
+  --qwos-border-light: #f1f5f9;
+
+  /* Status */
+  --qwos-success: #16a34a;
+  --qwos-warning: #d97706;
+  --qwos-danger: #dc2626;
+  --qwos-info: #0284c7;
+
+  /* Shape */
+  --qwos-radius-sm: 6px;
+  --qwos-radius-md: 10px;
+  --qwos-radius-lg: 14px;
+
+  /* Shadows */
+  --qwos-shadow-sm:
+    0 1px 2px rgba(15, 23, 42, 0.05);
+
+  --qwos-shadow-md:
+    0 4px 12px rgba(15, 23, 42, 0.08);
+
+  /* Typography */
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  color: var(--qwos-text);
+  background: var(--qwos-background);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ========================================
+   GLOBAL RESET
+   ======================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--qwos-background);
+  color: var(--qwos-text);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#root {
+  min-height: 100vh;
+}
