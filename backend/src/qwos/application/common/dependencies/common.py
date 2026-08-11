@@ -33,6 +33,7 @@ from qwos.application.common.persistence.unit_of_work import UnitOfWork
 from qwos.application.common.ports.clock import Clock
 from qwos.application.common.ports.id_generator import IdGenerator
 from qwos.application.common.ports.password_hasher import PasswordHasher
+from qwos.application.common.ports.token_provider import TokenProvider
 from qwos.core.database.session import get_session
 from qwos.infrastructure.repositories.sqlalchemy_unit_of_work import (
     SQLAlchemyUnitOfWork,
@@ -68,6 +69,15 @@ def get_password_hasher() -> PasswordHasher:
     """
     return BCryptPasswordHasher()
 
+def get_token_provider() -> TokenProvider:
+    """
+    Return the application's JWT token provider.
+    """
+    from qwos.infrastructure.security.jwt_token_provider import (
+        JWTTokenProvider,
+    )
+
+    return JWTTokenProvider()
 
 # -------------------------------------------------------------------------
 # Persistence Providers
