@@ -37,6 +37,7 @@ from datetime import timedelta
 import jwt
 
 from qwos.application.common.context.request_context import RequestContext
+from qwos.application.common.exceptions.account_locked_exception import AccountLockedException
 from qwos.application.common.persistence.unit_of_work import UnitOfWork
 from qwos.application.common.ports.clock import Clock
 from qwos.application.common.ports.id_generator import IdGenerator
@@ -191,6 +192,9 @@ class RefreshAccessTokenUseCase:
         # ------------------------------------------------------------------
         # Account status
         # ------------------------------------------------------------------
+
+        if user.account_status == AccountStatus.LOCKED:
+            raise AccountLockedException()
 
         if user.account_status != AccountStatus.ACTIVE:
             raise ValueError("Account is not active.")

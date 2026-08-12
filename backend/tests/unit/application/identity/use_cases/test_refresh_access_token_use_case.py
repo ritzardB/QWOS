@@ -25,6 +25,9 @@ import jwt
 import pytest
 
 from qwos.application.common.context.request_context import RequestContext
+from qwos.application.common.exceptions.account_locked_exception import (
+    AccountLockedException,
+)
 from qwos.application.identity.commands.refresh_access_token_command import (
     RefreshAccessTokenCommand,
 )
@@ -62,7 +65,19 @@ class FakeSessionTokenRepository:
         self.token = token
         self.saved_tokens: list[object] = []
 
-    def get_active_by_token_hash(self, token_hash: str) -> object | None:
+    def get_active_by_token_hash(
+        self,
+        token_hash: str,
+    ) -> object | None:
+        if self.token is None:
+            return None
+
+        if self.token.token_hash != token_hash:
+            return None
+
+        if self.token.is_revoked:
+            return None
+
         return self.token
 
     def save(self, token: object) -> None:
@@ -413,7 +428,7 @@ def test_refresh_token_rejects_expired_token() -> None:
         asyncio.run(use_case.execute(command))
 
 
-def test_refresh_token_rejects_inactive_account() -> None:
+def test_refresh_token_rejects_locked_account() -> None:
     user = SimpleNamespace(
         id="01USER000000000000000000001",
         tenant_id="01TENANT00000000000000000001",
@@ -427,5 +442,5 @@ def test_refresh_token_rejects_inactive_account() -> None:
         refresh_token="refresh-token",
     )
 
-    with pytest.raises(ValueError, match="Account is not active"):
+    with pytest.raises(AccountLockedException):
         asyncio.run(use_case.execute(command))
