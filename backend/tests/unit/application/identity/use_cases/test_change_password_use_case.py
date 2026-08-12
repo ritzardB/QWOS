@@ -273,7 +273,7 @@ def test_change_password_rejects_incorrect_current_password() -> None:
         _user_repository,
         password_hasher,
         _clock,
-        _unit_of_work,
+        unit_of_work,
     ) = make_use_case(
         user=user,
         current_password_valid=False,
@@ -289,3 +289,11 @@ def test_change_password_rejects_incorrect_current_password() -> None:
 
     assert password_hasher.verified_password == "WrongPassword123!"
     assert password_hasher.hashed_password is None
+
+    assert user.password_hash == "old-password-hash"
+    assert user.password_changed_at is None
+
+    assert unit_of_work.entered is False
+    assert unit_of_work.flushed is False
+    assert unit_of_work.committed is False
+    assert unit_of_work.rolled_back is False
