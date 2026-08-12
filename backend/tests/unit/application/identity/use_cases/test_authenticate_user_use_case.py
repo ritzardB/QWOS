@@ -24,6 +24,12 @@ from types import SimpleNamespace
 import pytest
 
 from qwos.application.common.context.request_context import RequestContext
+from qwos.application.common.exceptions.account_locked_exception import (
+    AccountLockedException,
+)
+from qwos.application.common.exceptions.invalid_credentials_exception import (
+    InvalidCredentialsException,
+)
 from qwos.application.identity.commands.authenticate_user_command import (
     AuthenticateUserCommand,
 )
@@ -67,7 +73,11 @@ class FakePasswordHasher:
         self.verified_password: str | None = None
         self.verified_hash: str | None = None
 
-    def verify(self, plain_password: str, hashed_password: str) -> bool:
+    def verify(
+        self,
+        plain_password: str,
+        hashed_password: str,
+    ) -> bool:
         self.verified_password = plain_password
         self.verified_hash = hashed_password
         return self.valid
@@ -81,7 +91,11 @@ class FakeTokenHasher:
         self.hashed_token = token
         return f"sha256:{token}"
 
-    def verify(self, token: str, token_hash: str) -> bool:
+    def verify(
+        self,
+        token: str,
+        token_hash: str,
+    ) -> bool:
         return self.hash(token) == token_hash
 
 
@@ -109,7 +123,10 @@ class FakeTokenProvider:
         self.refresh_expires_in = expires_in
         return "refresh-token"
 
-    async def validate_token(self, token: str) -> dict[str, object]:
+    async def validate_token(
+        self,
+        token: str,
+    ) -> dict[str, object]:
         return {"sub": "test-user"}
 
 
@@ -153,7 +170,12 @@ class FakeUnitOfWork:
         self.entered = True
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type,
+        exc,
+        tb,
+    ) -> None:
         if exc is None:
             self.commit()
         else:
@@ -240,6 +262,7 @@ def make_use_case(
 
 def test_authenticate_user_successfully_creates_session_and_tokens() -> None:
     user = make_user()
+
     (
         use_case,
         user_repository,
@@ -266,19 +289,28 @@ def test_authenticate_user_successfully_creates_session_and_tokens() -> None:
     assert response.token_type == "Bearer"
     assert response.user_id == user.id
     assert response.session_id == "01SESSION000000000000000001"
-    assert response.expires_at == clock.now() + timedelta(minutes=15)
+    assert response.expires_at == (
+        clock.now() + timedelta(minutes=15)
+    )
 
     assert password_hasher.verified_password == "CorrectPassword123!"
     assert password_hasher.verified_hash == user.password_hash
     assert token_hasher.hashed_token == "refresh-token"
-    assert token_provider.access_expires_in == timedelta(minutes=15)
-    assert token_provider.refresh_expires_in == timedelta(days=7)
+
+    assert token_provider.access_expires_in == timedelta(
+        minutes=15
+    )
+    assert token_provider.refresh_expires_in == timedelta(
+        days=7
+    )
 
     assert session_repository.saved_session is not None
     assert session_token_repository.saved_token is not None
+
     assert user_repository.saved_user is user
     assert user.last_login_at == clock.now()
     assert user.failed_login_attempts == 0
+
     assert unit_of_work.entered is True
     assert unit_of_work.flushed is True
     assert unit_of_work.committed is True
@@ -287,6 +319,7 @@ def test_authenticate_user_successfully_creates_session_and_tokens() -> None:
 
 def test_authenticate_user_with_remember_me_uses_long_refresh_lifetime() -> None:
     user = make_user()
+
     (
         use_case,
         _user_repository,
@@ -308,7 +341,9 @@ def test_authenticate_user_with_remember_me_uses_long_refresh_lifetime() -> None
 
     asyncio.run(use_case.execute(command))
 
-    assert token_provider.refresh_expires_in == timedelta(days=30)
+    assert token_provider.refresh_expires_in == timedelta(
+        days=30
+    )
 
 
 def test_authenticate_user_rejects_unknown_user() -> None:
@@ -320,12 +355,15 @@ def test_authenticate_user_rejects_unknown_user() -> None:
         password="CorrectPassword123!",
     )
 
-    with pytest.raises(ValueError, match="Invalid email or password"):
+    with pytest.raises(InvalidCredentialsException):
         asyncio.run(use_case.execute(command))
 
 
 def test_authenticate_user_rejects_wrong_tenant() -> None:
-    user = make_user(tenant_id="01OTHER00000000000000000001")
+    user = make_user(
+        tenant_id="01OTHER00000000000000000001"
+    )
+
     use_case, *_ = make_use_case(user=user)
 
     command = AuthenticateUserCommand(
@@ -334,14 +372,26 @@ def test_authenticate_user_rejects_wrong_tenant() -> None:
         password="CorrectPassword123!",
     )
 
-    with pytest.raises(ValueError, match="Invalid email or password"):
+    with pytest.raises(InvalidCredentialsException):
         asyncio.run(use_case.execute(command))
 
 
 def test_authenticate_user_rejects_inactive_account() -> None:
-    user = make_user(account_status=AccountStatus.PENDING)
-    use_case, *_rest = make_use_case(user=user)
-    password_hasher = _rest[3]
+    user = make_user(
+        account_status=AccountStatus.PENDING
+    )
+
+    (
+        use_case,
+        _user_repository,
+        _session_repository,
+        _session_token_repository,
+        password_hasher,
+        _token_provider,
+        _token_hasher,
+        _unit_of_work,
+        _clock,
+    ) = make_use_case(user=user)
 
     command = AuthenticateUserCommand(
         tenant_id=user.tenant_id,
@@ -349,19 +399,77 @@ def test_authenticate_user_rejects_inactive_account() -> None:
         password="CorrectPassword123!",
     )
 
-    with pytest.raises(ValueError, match="Account is not active"):
+    with pytest.raises(
+        ValueError,
+        match="Account is not active",
+    ):
         asyncio.run(use_case.execute(command))
 
     assert password_hasher.verified_password is None
 
 
+def test_authenticate_user_rejects_locked_account() -> None:
+    user = make_user(
+        account_status=AccountStatus.LOCKED
+    )
+
+    (
+        use_case,
+        _user_repository,
+        _session_repository,
+        _session_token_repository,
+        password_hasher,
+        _token_provider,
+        _token_hasher,
+        _unit_of_work,
+        _clock,
+    ) = make_use_case(user=user)
+
+    command = AuthenticateUserCommand(
+        tenant_id=user.tenant_id,
+        email=user.email,
+        password="CorrectPassword123!",
+    )
+
+    with pytest.raises(AccountLockedException):
+        asyncio.run(use_case.execute(command))
+
+    assert password_hasher.verified_password is None
+
+
+def test_authenticate_user_rejects_user_without_password() -> None:
+    user = make_user()
+    user.password_hash = None
+
+    use_case, *_ = make_use_case(user=user)
+
+    command = AuthenticateUserCommand(
+        tenant_id=user.tenant_id,
+        email=user.email,
+        password="CorrectPassword123!",
+    )
+
+    with pytest.raises(InvalidCredentialsException):
+        asyncio.run(use_case.execute(command))
+
+
 def test_authenticate_user_rejects_invalid_password() -> None:
     user = make_user()
-    use_case, *_rest = make_use_case(
+
+    (
+        use_case,
+        _user_repository,
+        _session_repository,
+        _session_token_repository,
+        password_hasher,
+        _token_provider,
+        _token_hasher,
+        _unit_of_work,
+        _clock,
+    ) = make_use_case(
         user=user,
         password_valid=False,
     )
-    password_hasher = _rest[3]
 
     command = AuthenticateUserCommand(
         tenant_id=user.tenant_id,
@@ -369,7 +477,12 @@ def test_authenticate_user_rejects_invalid_password() -> None:
         password="WrongPassword123!",
     )
 
-    with pytest.raises(ValueError, match="Invalid email or password"):
+    with pytest.raises(
+        ValueError,
+        match="Invalid email or password",
+    ):
         asyncio.run(use_case.execute(command))
 
-    assert password_hasher.verified_password == "WrongPassword123!"
+    assert password_hasher.verified_password == (
+        "WrongPassword123!"
+    )

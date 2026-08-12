@@ -25,22 +25,26 @@ Author:
     Richard Balabarcon
 ===============================================================================
 """
-
 from __future__ import annotations
 
 from datetime import timedelta
 
-from qwos.application.identity.commands.authenticate_user_command import (
-    AuthenticateUserCommand,
-)
-
 from qwos.application.common.context.request_context import RequestContext
+from qwos.application.common.exceptions.account_locked_exception import (
+    AccountLockedException,
+)
+from qwos.application.common.exceptions.invalid_credentials_exception import (
+    InvalidCredentialsException,
+)
 from qwos.application.common.persistence.unit_of_work import UnitOfWork
 from qwos.application.common.ports.clock import Clock
 from qwos.application.common.ports.id_generator import IdGenerator
 from qwos.application.common.ports.password_hasher import PasswordHasher
 from qwos.application.common.ports.token_hasher import TokenHasher
 from qwos.application.common.ports.token_provider import TokenProvider
+from qwos.application.identity.commands.authenticate_user_command import (
+    AuthenticateUserCommand,
+)
 from qwos.application.identity.responses.authenticate_user_response import (
     AuthenticateUserResponse,
 )
@@ -103,18 +107,21 @@ class AuthenticateUserUseCase:
         )
 
         if user is None:
-            raise ValueError("Invalid email or password.")
+            raise InvalidCredentialsException()
 
         # ------------------------------------------------------------------
         # Tenant isolation
         # ------------------------------------------------------------------
 
         if user.tenant_id != command.tenant_id:
-            raise ValueError("Invalid email or password.")
+            raise InvalidCredentialsException()
 
         # ------------------------------------------------------------------
         # Account status
         # ------------------------------------------------------------------
+
+        if user.account_status == AccountStatus.LOCKED:
+            raise AccountLockedException()
 
         if user.account_status != AccountStatus.ACTIVE:
             raise ValueError("Account is not active.")
@@ -124,7 +131,7 @@ class AuthenticateUserUseCase:
         # ------------------------------------------------------------------
 
         if not user.password_hash:
-            raise ValueError("Invalid email or password.")
+            raise InvalidCredentialsException()
 
         if not self._password_hasher.verify(
             command.password,
