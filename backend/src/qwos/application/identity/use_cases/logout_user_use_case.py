@@ -29,6 +29,8 @@ Author:
 
 from __future__ import annotations
 
+import jwt
+
 from qwos.application.common.context.request_context import RequestContext
 from qwos.application.common.persistence.unit_of_work import UnitOfWork
 from qwos.application.common.ports.clock import Clock
@@ -88,7 +90,7 @@ class LogoutUserUseCase:
             claims = await self._token_provider.validate_token(
                 command.refresh_token,
             )
-        except Exception as exc:
+        except jwt.InvalidTokenError as exc:
             raise ValueError("Invalid refresh token.") from exc
 
         # ------------------------------------------------------------------

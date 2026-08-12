@@ -21,6 +21,7 @@ import asyncio
 from datetime import datetime, timezone
 from types import SimpleNamespace
 
+import jwt
 import pytest
 
 from qwos.application.common.context.request_context import RequestContext
@@ -272,7 +273,7 @@ def test_logout_user_successfully_revokes_token_and_session() -> None:
 
 def test_logout_user_rejects_invalid_refresh_token() -> None:
     use_case, *_ = make_objects(
-        token_provider_error=ValueError("invalid"),
+        token_provider_error=jwt.InvalidTokenError("invalid"),
     )
 
     command = LogoutUserCommand(
@@ -318,8 +319,6 @@ def test_logout_user_rejects_missing_subject() -> None:
 
 
 def test_logout_user_rejects_unknown_token() -> None:
-    use_case, *_ = make_objects(token=None)
-
     (
         use_case,
         _session,
