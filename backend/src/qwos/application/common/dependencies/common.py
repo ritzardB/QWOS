@@ -13,6 +13,8 @@ Responsibilities:
     - Provide Clock implementation
     - Provide IdGenerator implementation
     - Provide PasswordHasher implementation
+    - Provide TokenHasher implementation
+    - Provide SecureTokenGenerator implementation
     - Provide UnitOfWork implementation
     - Provide RequestContext
 
@@ -33,6 +35,10 @@ from qwos.application.common.persistence.unit_of_work import UnitOfWork
 from qwos.application.common.ports.clock import Clock
 from qwos.application.common.ports.id_generator import IdGenerator
 from qwos.application.common.ports.password_hasher import PasswordHasher
+from qwos.application.common.ports.secure_token_generator import (
+    SecureTokenGenerator,
+)
+from qwos.application.common.ports.token_hasher import TokenHasher
 from qwos.application.common.ports.token_provider import TokenProvider
 from qwos.core.database.session import get_session
 from qwos.infrastructure.repositories.sqlalchemy_unit_of_work import (
@@ -40,6 +46,12 @@ from qwos.infrastructure.repositories.sqlalchemy_unit_of_work import (
 )
 from qwos.infrastructure.security.bcrypt_password_hasher import (
     BCryptPasswordHasher,
+)
+from qwos.infrastructure.security.secure_token_generator import (
+    SecretsTokenGenerator,
+)
+from qwos.infrastructure.security.sha256_token_hasher import (
+    SHA256TokenHasher,
 )
 from qwos.infrastructure.system.system_clock import SystemClock
 from qwos.infrastructure.system.ulid_generator import ULIDGenerator
@@ -69,6 +81,21 @@ def get_password_hasher() -> PasswordHasher:
     """
     return BCryptPasswordHasher()
 
+
+def get_token_hasher() -> TokenHasher:
+    """
+    Return the application's token hasher.
+    """
+    return SHA256TokenHasher()
+
+
+def get_secure_token_generator() -> SecureTokenGenerator:
+    """
+    Return the application's secure token generator.
+    """
+    return SecretsTokenGenerator()
+
+
 def get_token_provider() -> TokenProvider:
     """
     Return the application's JWT token provider.
@@ -78,6 +105,7 @@ def get_token_provider() -> TokenProvider:
     )
 
     return JWTTokenProvider()
+
 
 # -------------------------------------------------------------------------
 # Persistence Providers

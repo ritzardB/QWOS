@@ -27,6 +27,12 @@ Author:
 from __future__ import annotations
 
 from qwos.application.common.context.request_context import RequestContext
+from qwos.application.common.exceptions.duplicate_resource_exception import (
+    DuplicateResourceException,
+)
+from qwos.application.common.exceptions.validation_exception import (
+    ValidationException,
+)
 from qwos.application.common.persistence.unit_of_work import UnitOfWork
 from qwos.application.common.ports.clock import Clock
 from qwos.application.common.ports.id_generator import IdGenerator
@@ -93,17 +99,25 @@ class CreateUserUseCase:
         validation = self._validator.validate(command)
 
         if validation.errors:
-            raise ValueError(validation.errors)
+            raise ValidationException(validation)
 
         # ------------------------------------------------------------------
         # Business Rules
         # ------------------------------------------------------------------
 
         if self._user_repository.exists_by_email(command.email):
-            raise ValueError("Email already exists.")
+            raise DuplicateResourceException(
+                resource="User",
+                field="email",
+                value=command.email,
+            )
 
         if self._user_repository.exists_by_username(command.username):
-            raise ValueError("Username already exists.")
+            raise DuplicateResourceException(
+                resource="User",
+                field="username",
+                value=command.username,
+            )
 
         # ------------------------------------------------------------------
         # Generate identifiers
