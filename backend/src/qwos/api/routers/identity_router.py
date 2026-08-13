@@ -31,6 +31,9 @@ from qwos.api.contracts.requests.identity.authentication.forgot_password_request
     ForgotPasswordRequest,
 )
 from qwos.api.contracts.requests.identity.authentication.login_request import LoginRequest
+from qwos.api.contracts.requests.identity.authentication.logout_request import (
+    LogoutRequest,
+)
 from qwos.api.contracts.requests.identity.authentication.reset_password_request import (
     ResetPasswordRequest,
 )
@@ -49,6 +52,7 @@ from qwos.application.common.dependencies.identity import (
     get_authenticate_user_use_case,
     get_change_password_use_case,
     get_create_user_use_case,
+    get_logout_user_use_case,
     get_request_context,
     get_request_password_reset_use_case,
     get_reset_password_use_case,
@@ -63,6 +67,9 @@ from qwos.application.identity.use_cases.change_password_use_case import (
 )
 from qwos.application.identity.use_cases.create_user_use_case import (
     CreateUserUseCase,
+)
+from qwos.application.identity.use_cases.logout_user_use_case import (
+    LogoutUserUseCase,
 )
 from qwos.application.identity.use_cases.request_password_reset_use_case import (
     RequestPasswordResetUseCase,
@@ -222,6 +229,38 @@ async def change_password(
 
     command = AuthenticationMapper.to_change_password_command(
         request,
+    )
+
+    application_response = await use_case.execute(command)
+
+    return AuthenticationResponse(
+        success=application_response.success,
+        message=application_response.message,
+    )
+
+@router.post(
+    "/authentication/logout",
+    response_model=AuthenticationResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Logout User",
+    description="Terminate the authenticated user's session.",
+)
+async def logout(
+    request: LogoutRequest,
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+    use_case: LogoutUserUseCase = Depends(
+        get_logout_user_use_case,
+    ),
+) -> AuthenticationResponse:
+    """
+    Logout the authenticated user.
+    """
+
+    command = AuthenticationMapper.to_logout_user_command(
+        request=request,
+        request_context=request_context,
     )
 
     application_response = await use_case.execute(command)

@@ -34,6 +34,9 @@ from qwos.api.contracts.requests.identity.authentication.forgot_password_request
 from qwos.api.contracts.requests.identity.authentication.login_request import (
     LoginRequest,
 )
+from qwos.api.contracts.requests.identity.authentication.logout_request import (
+    LogoutRequest,
+)
 from qwos.api.contracts.requests.identity.authentication.reset_password_request import (
     ResetPasswordRequest,
 )
@@ -43,6 +46,9 @@ from qwos.application.identity.commands.authenticate_user_command import (
 )
 from qwos.application.identity.commands.change_password_command import (
     ChangePasswordCommand,
+)
+from qwos.application.identity.commands.logout_user_command import (
+    LogoutUserCommand,
 )
 from qwos.application.identity.commands.request_password_reset_command import (
     RequestPasswordResetCommand,
@@ -90,6 +96,27 @@ class AuthenticationMapper:
             email=str(request.email),
             password=request.password.get_secret_value(),
             remember_me=request.remember_me,
+        )
+
+    # ------------------------------------------------------------------
+    # Logout
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def to_logout_user_command(
+        request: LogoutRequest,
+        request_context: RequestContext,
+    ) -> LogoutUserCommand:
+        """
+        Convert LogoutRequest into LogoutUserCommand.
+
+        SecretStr values are explicitly unwrapped only at the
+        API-to-application boundary.
+        """
+
+        return LogoutUserCommand(
+            tenant_id=request_context.tenant_id,
+            refresh_token=request.refresh_token.get_secret_value(),
         )
 
     # ------------------------------------------------------------------

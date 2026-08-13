@@ -56,6 +56,9 @@ from qwos.application.identity.use_cases.change_password_use_case import (
 from qwos.application.identity.use_cases.create_user_use_case import (
     CreateUserUseCase,
 )
+from qwos.application.identity.use_cases.logout_user_use_case import (
+    LogoutUserUseCase,
+)
 from qwos.application.identity.use_cases.request_password_reset_use_case import (
     RequestPasswordResetUseCase,
 )
@@ -100,6 +103,7 @@ from qwos.infrastructure.repositories.identity.sqlalchemy_user_repository import
 # -------------------------------------------------------------------------
 
 __all__ = [
+    "get_logout_user_use_case",
     "get_authenticate_user_use_case",
     "get_create_user_use_case",
     "get_request_context",
@@ -363,6 +367,47 @@ def get_change_password_use_case(
     return ChangePasswordUseCase(
         user_repository=user_repository,
         password_hasher=password_hasher,
+        clock=clock,
+        unit_of_work=unit_of_work,
+        request_context=request_context,
+    )
+
+# -------------------------------------------------------------------------
+# Logout Provider
+# -------------------------------------------------------------------------
+
+def get_logout_user_use_case(
+    session_repository: SessionRepository = Depends(
+        get_session_repository,
+    ),
+    session_token_repository: SessionTokenRepository = Depends(
+        get_session_token_repository,
+    ),
+    token_provider: TokenProvider = Depends(
+        get_token_provider,
+    ),
+    token_hasher: TokenHasher = Depends(
+        get_token_hasher,
+    ),
+    clock: Clock = Depends(
+        get_clock,
+    ),
+    unit_of_work: UnitOfWork = Depends(
+        get_unit_of_work,
+    ),
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+) -> LogoutUserUseCase:
+    """
+    Return LogoutUserUseCase.
+    """
+
+    return LogoutUserUseCase(
+        session_repository=session_repository,
+        session_token_repository=session_token_repository,
+        token_provider=token_provider,
+        token_hasher=token_hasher,
         clock=clock,
         unit_of_work=unit_of_work,
         request_context=request_context,
