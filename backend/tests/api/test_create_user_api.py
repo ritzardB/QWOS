@@ -1,6 +1,26 @@
+"""
+===============================================================================
+Quantum Workforce OS (QWOS)
+
+API Tests
+
+File:
+    test_create_user_api.py
+
+Description:
+    API tests for the Create User endpoint.
+
+Author:
+    Richard Balabarcon
+===============================================================================
+"""
+
+from __future__ import annotations
+
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock
 
+import pytest
 from fastapi.testclient import TestClient
 
 from qwos.application.common.context.request_context import RequestContext
@@ -13,7 +33,20 @@ from qwos.domains.identity.enums.user_type import UserType
 from qwos.main import app
 
 
-def test_create_user_returns_created_response() -> None:
+def make_create_user_payload() -> dict[str, object]:
+    return {
+        "email": "richard@example.com",
+        "username": "richard",
+        "password": "SecurePassword123!",
+        "first_name": "Richard",
+        "middle_name": None,
+        "last_name": "Balabarcon",
+        "preferred_name": "Richard",
+        "user_type": "EMPLOYEE",
+    }
+
+
+def make_create_user_use_case() -> AsyncMock:
     use_case = AsyncMock()
 
     created_at = datetime(
@@ -40,6 +73,12 @@ def test_create_user_returns_created_response() -> None:
         },
     )()
 
+    return use_case
+
+
+def install_create_user_overrides(
+    use_case: AsyncMock,
+) -> None:
     request_context = RequestContext(
         tenant_id="default",
         user_id=None,
@@ -58,21 +97,17 @@ def test_create_user_returns_created_response() -> None:
         lambda: request_context
     )
 
+
+def test_create_user_returns_created_response() -> None:
+    use_case = make_create_user_use_case()
+    install_create_user_overrides(use_case)
+
     try:
         client = TestClient(app)
 
         response = client.post(
             "/api/v1/identity/users",
-            json={
-                "email": "richard@example.com",
-                "username": "richard",
-                "password": "SecurePassword123!",
-                "first_name": "Richard",
-                "middle_name": None,
-                "last_name": "Balabarcon",
-                "preferred_name": "Richard",
-                "user_type": "EMPLOYEE",
-            },
+            json=make_create_user_payload(),
         )
 
         assert response.status_code == 201
@@ -99,6 +134,184 @@ def test_create_user_returns_created_response() -> None:
         assert command.preferred_name == "Richard"
         assert command.user_type == UserType.EMPLOYEE
         assert command.tenant_id == "default"
+
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_create_user_defaults_user_type_to_employee() -> None:
+    use_case = make_create_user_use_case()
+    install_create_user_overrides(use_case)
+
+    try:
+        client = TestClient(app)
+
+        payload = make_create_user_payload()
+        payload.pop("user_type")
+
+        response = client.post(
+            "/api/v1/identity/users",
+            json=payload,
+        )
+
+        assert response.status_code == 201
+
+        use_case.execute.assert_awaited_once()
+
+        command = use_case.execute.await_args.args[0]
+
+        assert command.user_type == UserType.EMPLOYEE
+
+    finally:
+        app.dependency_overrides.clear()
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "email",
+        "username",
+        "password",
+        "first_name",
+        "last_name",
+    ],
+)
+def test_create_user_rejects_missing_required_field(
+    field: str,
+) -> None:
+    use_case = make_create_user_use_case()
+    install_create_user_overrides(use_case)
+
+    try:
+        client = TestClient(app)
+
+        payload = make_create_user_payload()
+        payload.pop(field)
+
+        response = client.post(
+            "/api/v1/identity/users",
+            json=payload,
+        )
+
+        assert response.status_code == 422
+        use_case.execute.assert_not_awaited()
+
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_create_user_rejects_invalid_email() -> None:
+    use_case = make_create_user_use_case()
+    install_create_user_overrides(use_case)
+
+    try:
+        client = TestClient(app)
+
+        payload = make_create_user_payload()
+        payload["email"] = "not-an-email"
+
+        response = client.post(
+            "/api/v1/identity/users",
+            json=payload,
+        )
+
+        assert response.status_code == 422
+        use_case.execute.assert_not_awaited()
+
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_create_user_rejects_short_username() -> None:
+    use_case = make_create_user_use_case()
+    install_create_user_overrides(use_case)
+
+    try:
+        client = TestClient(app)
+
+        payload = make_create_user_payload()
+        payload["username"] = "ab"
+
+        response = client.post(
+            "/api/v1/identity/users",
+            json=payload,
+        )
+
+        assert response.status_code == 422
+        use_case.execute.assert_not_awaited()
+
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_create_user_rejects_short_password() -> None:
+    use_case = make_create_user_use_case()
+    install_create_user_overrides(use_case)
+
+    try:
+        client = TestClient(app)
+
+        payload = make_create_user_payload()
+        payload["password"] = "short"
+
+        response = client.post(
+            "/api/v1/identity/users",
+            json=payload,
+        )
+
+        assert response.status_code == 422
+        use_case.execute.assert_not_awaited()
+
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_create_user_rejects_invalid_user_type() -> None:
+    use_case = make_create_user_use_case()
+    install_create_user_overrides(use_case)
+
+    try:
+        client = TestClient(app)
+
+        payload = make_create_user_payload()
+        payload["user_type"] = "INVALID_USER_TYPE"
+
+        response = client.post(
+            "/api/v1/identity/users",
+            json=payload,
+        )
+
+        assert response.status_code == 422
+        use_case.execute.assert_not_awaited()
+
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_create_user_maps_optional_fields() -> None:
+    use_case = make_create_user_use_case()
+    install_create_user_overrides(use_case)
+
+    try:
+        client = TestClient(app)
+
+        payload = make_create_user_payload()
+        payload["middle_name"] = "Michael"
+        payload["preferred_name"] = "Rick"
+
+        response = client.post(
+            "/api/v1/identity/users",
+            json=payload,
+        )
+
+        assert response.status_code == 201
+
+        use_case.execute.assert_awaited_once()
+
+        command = use_case.execute.await_args.args[0]
+
+        assert command.middle_name == "Michael"
+        assert command.preferred_name == "Rick"
 
     finally:
         app.dependency_overrides.clear()
