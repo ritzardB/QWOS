@@ -25,11 +25,24 @@ Author:
 
 from __future__ import annotations
 
+from qwos.api.contracts.requests.identity.authentication.change_password_request import (
+    ChangePasswordRequest,
+)
 from qwos.api.contracts.requests.identity.authentication.forgot_password_request import (
     ForgotPasswordRequest,
 )
+from qwos.api.contracts.requests.identity.authentication.login_request import (
+    LoginRequest,
+)
 from qwos.api.contracts.requests.identity.authentication.reset_password_request import (
     ResetPasswordRequest,
+)
+from qwos.application.common.context.request_context import RequestContext
+from qwos.application.identity.commands.authenticate_user_command import (
+    AuthenticateUserCommand,
+)
+from qwos.application.identity.commands.change_password_command import (
+    ChangePasswordCommand,
 )
 from qwos.application.identity.commands.request_password_reset_command import (
     RequestPasswordResetCommand,
@@ -60,6 +73,25 @@ class AuthenticationMapper:
             email=str(request.email),
         )
 
+    @staticmethod
+    def to_authenticate_user_command(
+        request: LoginRequest,
+        request_context: RequestContext,
+    ) -> AuthenticateUserCommand:
+        """
+        Convert LoginRequest into AuthenticateUserCommand.
+
+        SecretStr values are explicitly unwrapped only at the
+        API-to-application boundary.
+        """
+
+        return AuthenticateUserCommand(
+            tenant_id=request_context.tenant_id,
+            email=str(request.email),
+            password=request.password.get_secret_value(),
+            remember_me=request.remember_me,
+        )
+
     # ------------------------------------------------------------------
     # Reset Password
     # ------------------------------------------------------------------
@@ -79,4 +111,24 @@ class AuthenticationMapper:
             token=request.token,
             new_password=request.new_password.get_secret_value(),
             confirm_password=request.confirm_password.get_secret_value(),
+        )
+
+    # ------------------------------------------------------------------
+    # Change Password
+    # -----------
+
+    @staticmethod
+    def to_change_password_command(
+        request: ChangePasswordRequest,
+    ) -> ChangePasswordCommand:
+        """
+        Convert ChangePasswordRequest into ChangePasswordCommand.
+
+        SecretStr values are explicitly unwrapped only at the
+        API-to-application boundary.
+        """
+
+        return ChangePasswordCommand(
+            current_password=request.current_password.get_secret_value(),
+            new_password=request.new_password.get_secret_value(),
         )
