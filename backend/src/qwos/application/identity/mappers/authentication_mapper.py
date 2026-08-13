@@ -37,6 +37,9 @@ from qwos.api.contracts.requests.identity.authentication.login_request import (
 from qwos.api.contracts.requests.identity.authentication.logout_request import (
     LogoutRequest,
 )
+from qwos.api.contracts.requests.identity.authentication.refresh_token_request import (
+    RefreshTokenRequest,
+)
 from qwos.api.contracts.requests.identity.authentication.reset_password_request import (
     ResetPasswordRequest,
 )
@@ -49,6 +52,9 @@ from qwos.application.identity.commands.change_password_command import (
 )
 from qwos.application.identity.commands.logout_user_command import (
     LogoutUserCommand,
+)
+from qwos.application.identity.commands.refresh_access_token_command import (
+    RefreshAccessTokenCommand,
 )
 from qwos.application.identity.commands.request_password_reset_command import (
     RequestPasswordResetCommand,
@@ -158,4 +164,23 @@ class AuthenticationMapper:
         return ChangePasswordCommand(
             current_password=request.current_password.get_secret_value(),
             new_password=request.new_password.get_secret_value(),
+        )
+
+    # ------------------------------------------------------------------
+    # Refresh Access Token
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def to_refresh_access_token_command(
+        request: RefreshTokenRequest,
+    ) -> RefreshAccessTokenCommand:
+        """
+        Convert RefreshTokenRequest into RefreshAccessTokenCommand.
+
+        SecretStr values are explicitly unwrapped only at the
+        API-to-application boundary.
+        """
+
+        return RefreshAccessTokenCommand(
+            refresh_token=request.refresh_token.get_secret_value(),
         )

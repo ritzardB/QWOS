@@ -59,6 +59,9 @@ from qwos.application.identity.use_cases.create_user_use_case import (
 from qwos.application.identity.use_cases.logout_user_use_case import (
     LogoutUserUseCase,
 )
+from qwos.application.identity.use_cases.refresh_access_token_use_case import (
+    RefreshAccessTokenUseCase,
+)
 from qwos.application.identity.use_cases.request_password_reset_use_case import (
     RequestPasswordResetUseCase,
 )
@@ -408,6 +411,39 @@ def get_logout_user_use_case(
         session_token_repository=session_token_repository,
         token_provider=token_provider,
         token_hasher=token_hasher,
+        clock=clock,
+        unit_of_work=unit_of_work,
+        request_context=request_context,
+    )
+
+# -------------------------------------------------------------------------
+# Refresh Access Token Provider
+# -------------------------------------------------------------------------
+
+def get_refresh_access_token_use_case(
+    user_repository: UserRepository = Depends(get_user_repository),
+    session_repository: SessionRepository = Depends(get_session_repository),
+    session_token_repository: SessionTokenRepository = Depends(
+        get_session_token_repository,
+    ),
+    token_provider: TokenProvider = Depends(get_token_provider),
+    token_hasher: TokenHasher = Depends(get_token_hasher),
+    id_generator: IdGenerator = Depends(get_id_generator),
+    clock: Clock = Depends(get_clock),
+    unit_of_work: UnitOfWork = Depends(get_unit_of_work),
+    request_context: RequestContext = Depends(get_request_context),
+) -> RefreshAccessTokenUseCase:
+    """
+    Return RefreshAccessTokenUseCase.
+    """
+
+    return RefreshAccessTokenUseCase(
+        user_repository=user_repository,
+        session_repository=session_repository,
+        session_token_repository=session_token_repository,
+        token_provider=token_provider,
+        token_hasher=token_hasher,
+        id_generator=id_generator,
         clock=clock,
         unit_of_work=unit_of_work,
         request_context=request_context,

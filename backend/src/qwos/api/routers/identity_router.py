@@ -34,6 +34,9 @@ from qwos.api.contracts.requests.identity.authentication.login_request import Lo
 from qwos.api.contracts.requests.identity.authentication.logout_request import (
     LogoutRequest,
 )
+from qwos.api.contracts.requests.identity.authentication.refresh_token_request import (
+    RefreshTokenRequest,
+)
 from qwos.api.contracts.requests.identity.authentication.reset_password_request import (
     ResetPasswordRequest,
 )
@@ -44,6 +47,9 @@ from qwos.api.contracts.responses.identity.authentication.authentication_respons
     AuthenticationResponse,
 )
 from qwos.api.contracts.responses.identity.authentication.login_response import LoginResponse
+from qwos.api.contracts.responses.identity.authentication.refresh_token_response import (
+    RefreshTokenResponse,
+)
 from qwos.api.contracts.responses.identity.create_user_response import (
     CreateUserResponse as APICreateUserResponse,
 )
@@ -53,6 +59,7 @@ from qwos.application.common.dependencies.identity import (
     get_change_password_use_case,
     get_create_user_use_case,
     get_logout_user_use_case,
+    get_refresh_access_token_use_case,
     get_request_context,
     get_request_password_reset_use_case,
     get_reset_password_use_case,
@@ -70,6 +77,9 @@ from qwos.application.identity.use_cases.create_user_use_case import (
 )
 from qwos.application.identity.use_cases.logout_user_use_case import (
     LogoutUserUseCase,
+)
+from qwos.application.identity.use_cases.refresh_access_token_use_case import (
+    RefreshAccessTokenUseCase,
 )
 from qwos.application.identity.use_cases.request_password_reset_use_case import (
     RequestPasswordResetUseCase,
@@ -151,6 +161,35 @@ async def login(
         access_token=application_response.access_token,
         refresh_token=application_response.refresh_token,
         token_type=application_response.token_type,
+        expires_at=application_response.expires_at,
+    )
+
+@router.post(
+    "/authentication/refresh",
+    response_model=RefreshTokenResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Refresh Access Token",
+    description="Refresh the access and refresh tokens.",
+)
+async def refresh_access_token(
+    request: RefreshTokenRequest,
+    use_case: RefreshAccessTokenUseCase = Depends(
+        get_refresh_access_token_use_case,
+    ),
+) -> RefreshTokenResponse:
+    """
+    Refresh the access and refresh tokens.
+    """
+
+    command = AuthenticationMapper.to_refresh_access_token_command(
+        request,
+    )
+
+    application_response = await use_case.execute(command)
+
+    return RefreshTokenResponse(
+        access_token=application_response.access_token,
+        refresh_token=application_response.refresh_token,
         expires_at=application_response.expires_at,
     )
 
