@@ -13,14 +13,11 @@ Author:
 
 ===============================================================================
 """
-
 from collections.abc import Generator
 
-from sqlalchemy.orm import Session
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 from qwos.core.database.engine import engine
-
 
 SessionLocal = sessionmaker(
     bind=engine,
@@ -30,17 +27,13 @@ SessionLocal = sessionmaker(
 )
 
 
-def get_db() -> Generator[Session, None, None]:
+def get_session() -> Generator[Session, None, None]:
     """
-    FastAPI dependency that provides a database session.
-
-    Yields:
-        Session: SQLAlchemy database session.
+    FastAPI dependency that provides a SQLAlchemy session.
     """
-    db = SessionLocal()
+    session = SessionLocal()
 
     try:
-        yield db
-
+        yield session
     finally:
-        db.close()
+        session.close()

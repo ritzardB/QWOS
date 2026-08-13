@@ -4,7 +4,7 @@
 -- =============================================================================
 --
 -- File        : 002_users.sql
--- Version     : 1.0
+-- Version     : 1.1
 -- Description : Users Table
 --
 -- Author      : Richard Balabarcon
@@ -47,6 +47,10 @@ CREATE TABLE users (
 
     email email_address NOT NULL,
 
+    username VARCHAR(100) NOT NULL,
+
+    external_id VARCHAR(255),
+
     password_hash TEXT,
 
     account_status account_status
@@ -56,6 +60,14 @@ CREATE TABLE users (
     -- -------------------------------------------------------------------------
     -- Authentication
     -- -------------------------------------------------------------------------
+
+    authentication_provider authentication_provider
+        NOT NULL
+        DEFAULT 'LOCAL',
+
+    user_type user_type
+        NOT NULL
+        DEFAULT 'EMPLOYEE',
 
     email_verified_at TIMESTAMPTZ,
 
@@ -67,14 +79,6 @@ CREATE TABLE users (
         NOT NULL
         DEFAULT 0
         CHECK (failed_login_attempts >= 0),
-
-    authentication_provider authentication_provider
-        NOT NULL
-        DEFAULT 'LOCAL',
-
-    user_type user_type
-        NOT NULL
-        DEFAULT 'EMPLOYEE',
 
     -- -------------------------------------------------------------------------
     -- Audit
@@ -109,7 +113,13 @@ CREATE TABLE users (
     -- -------------------------------------------------------------------------
 
     CONSTRAINT uq_users_email
-        UNIQUE (tenant_id, email)
+        UNIQUE (tenant_id, email),
+
+    CONSTRAINT uq_users_username
+        UNIQUE (username),
+
+    CONSTRAINT uq_users_external_id
+        UNIQUE (external_id)
 
 );
 

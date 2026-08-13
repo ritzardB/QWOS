@@ -13,7 +13,7 @@ from sqlalchemy.engine import Engine
 from qwos.core.database.engine import engine
 
 
-def test_engine_created():
+def test_engine_created() -> None:
     """Engine should be created."""
 
     assert isinstance(engine, Engine)

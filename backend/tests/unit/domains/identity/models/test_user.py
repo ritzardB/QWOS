@@ -8,7 +8,7 @@ Tests for User Entity
 ===============================================================================
 """
 
-from qwos.core.database.base import BaseEntity
+from qwos.core.database.entity_base import BaseEntity
 from qwos.domains.identity.enums.account_status import AccountStatus
 from qwos.domains.identity.enums.authentication_provider import (
     AuthenticationProvider,
@@ -60,10 +60,7 @@ def test_default_authentication_provider() -> None:
         email="john.doe@example.com",
     )
 
-    assert (
-        user.authentication_provider
-        == AuthenticationProvider.LOCAL
-    )
+    assert user.authentication_provider == AuthenticationProvider.LOCAL
 
 
 def test_default_user_type() -> None:

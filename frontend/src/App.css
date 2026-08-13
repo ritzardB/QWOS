@@ -1,0 +1,645 @@
+/* ========================================
+   QWOS APPLICATION
+   ======================================== */
+
+.qwos-app {
+  display: flex;
+  min-height: 100vh;
+  background: var(--qwos-background);
+}
+
+/* ========================================
+   MAIN CONTENT
+   ======================================== */
+
+.qwos-main {
+  min-width: 0;
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* ========================================
+   DASHBOARD
+   ======================================== */
+
+.qwos-dashboard {
+  min-height: 100vh;
+  padding: 32px;
+}
+
+.qwos-dashboard-header {
+  margin-bottom: 32px;
+}
+
+.qwos-eyebrow {
+  margin: 0 0 8px;
+  color: var(--qwos-primary);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.qwos-dashboard-title {
+  margin: 0;
+  color: var(--qwos-text);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.qwos-dashboard-description {
+  max-width: 680px;
+  margin: 10px 0 0;
+  color: var(--qwos-text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ========================================
+   METRIC CARDS
+   ======================================== */
+
+.qwos-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.qwos-card {
+  padding: 22px;
+  background: var(--qwos-surface);
+  border: 1px solid var(--qwos-border);
+  border-radius: var(--qwos-radius-lg);
+  box-shadow: var(--qwos-shadow-sm);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
+}
+
+.qwos-card:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  box-shadow: var(--qwos-shadow-md);
+}
+
+.qwos-card-label {
+  margin: 0;
+  color: var(--qwos-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.qwos-card-value {
+  margin: 8px 0 2px;
+  color: var(--qwos-text);
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.qwos-card-description {
+  margin: 0;
+  color: var(--qwos-text-muted);
+  font-size: 12px;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 1100px) {
+  .qwos-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .qwos-dashboard {
+    padding: 24px;
+  }
+
+  .qwos-dashboard-title {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 520px) {
+  .qwos-dashboard {
+    padding: 20px;
+  }
+
+  .qwos-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ========================================
+   QWOS SIDEBAR
+   ======================================== */
+
+.qwos-sidebar {
+  display: flex;
+  width: 260px;
+  min-width: 260px;
+  min-height: 100vh;
+  flex-direction: column;
+  background: var(--qwos-sidebar);
+  border-right: 1px solid var(--qwos-sidebar-border);
+  color: #ffffff;
+}
+
+.qwos-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 82px;
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--qwos-sidebar-border);
+}
+
+.qwos-brand-mark {
+  display: flex;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--qwos-primary);
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+.qwos-brand-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+}
+
+.qwos-brand-subtitle {
+  margin: 2px 0 0;
+  color: var(--qwos-sidebar-muted);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.qwos-sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 14px;
+}
+
+.qwos-nav-section {
+  margin-bottom: 26px;
+}
+
+.qwos-nav-section-title {
+  margin: 0 10px 8px;
+  color: var(--qwos-sidebar-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.qwos-nav-items {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.qwos-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 42px;
+  padding: 0 11px;
+  border-radius: var(--qwos-radius-md);
+  color: var(--qwos-sidebar-text);
+  font-size: 13px;
+  font-weight: 550;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.qwos-nav-item:hover {
+  background: var(--qwos-sidebar-hover);
+  color: #ffffff;
+}
+
+.qwos-nav-item-active {
+  background: rgba(37, 99, 235, 0.18);
+  color: #ffffff;
+}
+
+.qwos-nav-item-active:hover {
+  background: rgba(37, 99, 235, 0.24);
+}
+
+.qwos-nav-icon {
+  display: flex;
+  width: 24px;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.qwos-sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-top: 1px solid var(--qwos-sidebar-border);
+}
+
+.qwos-user-avatar {
+  display: flex;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #334155;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.qwos-user-details {
+  min-width: 0;
+}
+
+.qwos-user-name {
+  margin: 0;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.qwos-user-role {
+  margin: 3px 0 0;
+  color: var(--qwos-sidebar-muted);
+  font-size: 11px;
+}
+
+/* ========================================
+   SIDEBAR RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+  .qwos-sidebar {
+    width: 220px;
+    min-width: 220px;
+  }
+
+  .qwos-sidebar-brand {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .qwos-sidebar {
+    width: 72px;
+    min-width: 72px;
+  }
+
+  .qwos-brand-name,
+  .qwos-brand-subtitle,
+  .qwos-nav-section-title,
+  .qwos-nav-item > span:last-child,
+  .qwos-user-details {
+    display: none;
+  }
+
+  .qwos-sidebar-brand {
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .qwos-sidebar-nav {
+    padding: 20px 10px;
+  }
+
+  .qwos-nav-item {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .qwos-sidebar-user {
+    justify-content: center;
+    padding: 14px 10px;
+  }
+}
+
+/* ========================================
+   QWOS DASHBOARD COMPONENTS
+   ======================================== */
+
+.qwos-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* ========================================
+   METRIC CARD
+   ======================================== */
+
+.qwos-metric-card {
+  padding: 22px;
+  background: var(--qwos-surface);
+  border: 1px solid var(--qwos-border);
+  border-radius: var(--qwos-radius-lg);
+  box-shadow: var(--qwos-shadow-sm);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
+}
+
+.qwos-metric-card:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  box-shadow: var(--qwos-shadow-md);
+}
+
+.qwos-metric-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.qwos-metric-card-label {
+  margin: 0;
+  color: var(--qwos-text-muted);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+.qwos-metric-card-value {
+  margin: 8px 0 0;
+  color: var(--qwos-text);
+  font-size: 32px;
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.qwos-metric-card-icon {
+  display: flex;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: var(--qwos-primary);
+  font-size: 18px;
+}
+
+.qwos-metric-card-description {
+  margin: 14px 0 0;
+  color: var(--qwos-text-muted);
+  font-size: 12px;
+}
+
+/* ========================================
+   PANELS
+   ======================================== */
+
+.qwos-panel {
+  min-width: 0;
+  padding: 22px;
+  background: var(--qwos-surface);
+  border: 1px solid var(--qwos-border);
+  border-radius: var(--qwos-radius-lg);
+  box-shadow: var(--qwos-shadow-sm);
+}
+
+.qwos-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.qwos-panel-eyebrow {
+  margin: 0 0 4px;
+  color: var(--qwos-primary);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.qwos-panel-title {
+  margin: 0;
+  color: var(--qwos-text);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+/* ========================================
+   QUICK ACTIONS
+   ======================================== */
+
+.qwos-action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.qwos-action {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: var(--qwos-radius-md);
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.qwos-action:hover {
+  background: #f8fafc;
+  border-color: var(--qwos-border);
+  transform: translateX(2px);
+}
+
+.qwos-action-icon {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: var(--qwos-primary);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.qwos-action-content {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qwos-action-label {
+  color: var(--qwos-text);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.qwos-action-description {
+  color: var(--qwos-text-muted);
+  font-size: 11px;
+}
+
+.qwos-action-arrow {
+  color: var(--qwos-text-muted);
+  font-size: 16px;
+  transition: transform 160ms ease;
+}
+
+.qwos-action:hover .qwos-action-arrow {
+  transform: translateX(3px);
+}
+
+/* ========================================
+   ACTIVITY EMPTY STATE
+   ======================================== */
+
+.qwos-empty-state {
+  display: flex;
+  min-height: 210px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 24px;
+  border: 1px dashed var(--qwos-border);
+  border-radius: var(--qwos-radius-md);
+  background: #fafbfc;
+  text-align: center;
+}
+
+.qwos-empty-icon {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: var(--qwos-text-muted);
+  font-size: 18px;
+}
+
+.qwos-empty-state h3 {
+  margin: 0;
+  color: var(--qwos-text);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.qwos-empty-state p {
+  max-width: 360px;
+  margin: 7px 0 0;
+  color: var(--qwos-text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* ========================================
+   DASHBOARD HEADER
+   ======================================== */
+
+.qwos-dashboard-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.qwos-dashboard-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  padding: 7px 11px;
+  border: 1px solid #dcfce7;
+  border-radius: 999px;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.qwos-status-indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 3px #dcfce7;
+}
+
+/* ========================================
+   DASHBOARD RESPONSIVE
+   ======================================== */
+
+@media (max-width: 1000px) {
+  .qwos-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .qwos-dashboard-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 1100px) {
+  .qwos-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .qwos-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .qwos-dashboard-status {
+    align-self: flex-start;
+  }
+
+  .qwos-panel {
+    padding: 18px;
+  }
+}

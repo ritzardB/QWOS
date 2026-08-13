@@ -16,30 +16,22 @@ Author:
 
 from fastapi import FastAPI
 
-app = FastAPI(
-    title="Quantum Workforce OS API",
-    description="Enterprise Workforce Management Platform",
-    version="0.1.0",
+from qwos.api.exception_handlers.application_exception_handler import (
+    application_exception_handler,
+)
+from qwos.api.router import api_router
+from qwos.application.common.exceptions.application_exception import (
+    ApplicationException,
 )
 
+app = FastAPI(
+    title="Quantum Workforce OS",
+    version="1.0.0",
+)
 
-@app.get("/")
-def root():
-    """
-    Root endpoint.
-    """
-    return {
-        "message": "Welcome to Quantum Workforce OS API"
-    }
+app.add_exception_handler(
+    ApplicationException,
+    application_exception_handler,
+)
 
-
-@app.get("/health")
-def health():
-    """
-    Health check endpoint.
-    """
-    return {
-        "status": "healthy",
-        "service": "Quantum Workforce OS API",
-        "version": "0.1.0",
-    }
+app.include_router(api_router)

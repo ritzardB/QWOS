@@ -23,15 +23,13 @@ Author:
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Any
 
-from sqlalchemy import DateTime
-from sqlalchemy import Integer
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
+from sqlalchemy import DateTime, Integer
+from sqlalchemy.orm import Mapped, mapped_column
 
-from qwos.core.database.base import BaseEntity
-from qwos.core.database.types import ULID
-from qwos.core.database.types import enum_column
+from qwos.core.database.entity_base import BaseEntity
+from qwos.core.database.types import ULID, enum_column
 from qwos.domains.identity.enums.account_status import AccountStatus
 from qwos.domains.identity.enums.authentication_provider import (
     AuthenticationProvider,
@@ -50,8 +48,7 @@ class User(BaseEntity):
 
     __tablename__ = "users"
 
-
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         kwargs.setdefault(
             "account_status",
             AccountStatus.PENDING,
@@ -74,6 +71,36 @@ class User(BaseEntity):
 
         super().__init__(**kwargs)
 
+        # -------------------------------------------------------------------------
+    # Factory
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        id: str,
+        tenant_id: str,
+        email: str,
+        username: str,
+        password_hash: str,
+        user_type: UserType = UserType.EMPLOYEE,
+    ) -> "User":
+        """
+        Create a new user aggregate.
+
+        Applies domain defaults and normalizes identity fields.
+        """
+
+        return cls(
+            id=id,
+            tenant_id=tenant_id,
+            email=email.strip().lower(),
+            username=username.strip().lower(),
+            password_hash=password_hash,
+            user_type=user_type,
+        )
+
     # -------------------------------------------------------------------------
     # Tenant
     # -------------------------------------------------------------------------
@@ -90,6 +117,17 @@ class User(BaseEntity):
     email: Mapped[str] = mapped_column(
         nullable=False,
     )
+    # Add this line to fix line 89
+    username: Mapped[str] = mapped_column(
+        nullable=False,
+        unique=True,
+    )
+
+    # Add this line to fix line 73
+    external_id: Mapped[str | None] = mapped_column(
+        nullable=True,
+        unique=True,
+    )
 
     password_hash: Mapped[str | None] = mapped_column(
         nullable=True,
@@ -105,9 +143,7 @@ class User(BaseEntity):
     # Authentication
     # -------------------------------------------------------------------------
 
-    authentication_provider: Mapped[
-        AuthenticationProvider
-    ] = mapped_column(
+    authentication_provider: Mapped[AuthenticationProvider] = mapped_column(
         enum_column(AuthenticationProvider),
         nullable=False,
         default=AuthenticationProvider.LOCAL,

@@ -34,17 +34,26 @@ dependencies = [
     "psycopg[binary]>=3.2.9",
     "pydantic>=2.11.7",
     "pydantic-settings>=2.10.1",
-    "python-dotenv>=1.1.1"
+    "python-dotenv>=1.1.1",
+    "bcrypt>=5.0.0",
+    "python-ulid>=4.0.1",
+    "email-validator>=2.3.0",
+    "pyjwt>=2.13.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.4.1",
     "pytest-cov>=6.2.1",
-    "httpx>=0.28.1",
     "ruff>=0.12.5",
     "black>=25.1.0",
     "mypy>=1.17.0",
+    "httpx2>=2.10.0",
+]
+
+docs = [
+    "mkdocs",
+    "mkdocs-material",
 ]
 
 # Leave out [project.urls]
@@ -57,11 +66,6 @@ select = [
     "I",
 ]
 
-docs = [
-    "mkdocs",
-    "mkdocs-material",
-]
-
 [tool.mypy]
 python_version = "3.13"
 strict = true
@@ -70,11 +74,11 @@ strict = true
 source = ["src/qwos"]
 
 [tool.black]
-line-length = 88
+line-length = 120
 target-version = ["py313"]
 
 [tool.ruff]
-line-length = 88
+line-length = 120
 target-version = "py313"
 
 [tool.pytest.ini_options]

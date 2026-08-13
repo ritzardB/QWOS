@@ -2,7 +2,6 @@ from enum import StrEnum
 
 
 class AuthenticationProvider(StrEnum):
-
     LOCAL = "LOCAL"
 
     GOOGLE = "GOOGLE"

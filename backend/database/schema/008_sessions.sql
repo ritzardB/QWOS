@@ -118,7 +118,7 @@ CREATE TABLE sessions (
 
     CONSTRAINT fk_sessions_user
         FOREIGN KEY (user_id)
-        REFERENCES users(id),
+        REFERENCES users(id)
         ON DELETE CASCADE,
 
     CONSTRAINT chk_session_expiry

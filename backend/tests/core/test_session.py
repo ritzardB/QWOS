@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from qwos.core.database.session import SessionLocal
 
 
-def test_session_creation():
+def test_session_creation() -> None:
     """Session should be created successfully."""
 
     db = SessionLocal()
