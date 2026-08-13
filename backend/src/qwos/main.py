@@ -15,6 +15,7 @@ Author:
 """
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from qwos.api.exception_handlers.application_exception_handler import (
     application_exception_handler,
@@ -27,6 +28,16 @@ from qwos.application.common.exceptions.application_exception import (
 app = FastAPI(
     title="Quantum Workforce OS",
     version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.add_exception_handler(
