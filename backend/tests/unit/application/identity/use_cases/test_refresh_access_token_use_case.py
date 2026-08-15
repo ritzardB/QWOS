@@ -28,6 +28,9 @@ from qwos.application.common.context.request_context import RequestContext
 from qwos.application.common.exceptions.account_locked_exception import (
     AccountLockedException,
 )
+from qwos.application.common.exceptions.invalid_credentials_exception import (
+    InvalidCredentialsException,
+)
 from qwos.application.identity.commands.refresh_access_token_command import (
     RefreshAccessTokenCommand,
 )
@@ -368,7 +371,7 @@ def test_refresh_token_rejects_invalid_jwt() -> None:
         refresh_token="invalid-token",
     )
 
-    with pytest.raises(ValueError, match="Invalid refresh token"):
+    with pytest.raises(InvalidCredentialsException):
         asyncio.run(use_case.execute(command))
 
 
@@ -381,7 +384,7 @@ def test_refresh_token_rejects_access_token() -> None:
         refresh_token="access-token",
     )
 
-    with pytest.raises(ValueError, match="Invalid refresh token"):
+    with pytest.raises(InvalidCredentialsException):
         asyncio.run(use_case.execute(command))
 
 
@@ -395,10 +398,7 @@ def test_refresh_token_rejects_missing_persisted_token() -> None:
         refresh_token="refresh-token",
     )
 
-    with pytest.raises(
-        ValueError,
-        match="Refresh token has been revoked or is invalid",
-    ):
+    with pytest.raises(InvalidCredentialsException):
         asyncio.run(use_case.execute(command))
 
 
@@ -424,7 +424,7 @@ def test_refresh_token_rejects_expired_token() -> None:
         refresh_token="refresh-token",
     )
 
-    with pytest.raises(ValueError, match="Refresh token has expired"):
+    with pytest.raises(InvalidCredentialsException):
         asyncio.run(use_case.execute(command))
 
 

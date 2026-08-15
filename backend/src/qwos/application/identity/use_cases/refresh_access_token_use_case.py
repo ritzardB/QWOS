@@ -49,6 +49,9 @@ from qwos.application.identity.commands.refresh_access_token_command import (
 from qwos.application.identity.responses.refresh_access_token_response import (
     RefreshAccessTokenResponse,
 )
+from qwos.application.common.exceptions.invalid_credentials_exception import (
+    InvalidCredentialsException,
+)
 from qwos.domains.identity.enums.account_status import AccountStatus
 from qwos.domains.identity.models.session_token import SessionToken
 from qwos.domains.identity.repositories.session_repository import (
@@ -107,19 +110,19 @@ class RefreshAccessTokenUseCase:
                 command.refresh_token,
             )
         except jwt.InvalidTokenError as exc:
-            raise ValueError("Invalid refresh token.") from exc
+            raise InvalidCredentialsException() from exc
 
         # ------------------------------------------------------------------
         # Validate token type
         # ------------------------------------------------------------------
 
         if claims.get("type") != "refresh":
-            raise ValueError("Invalid refresh token.")
+            raise InvalidCredentialsException()
 
         subject = claims.get("sub")
 
         if not isinstance(subject, str) or not subject:
-            raise ValueError("Invalid refresh token.")
+            raise InvalidCredentialsException()
 
         # ------------------------------------------------------------------
         # Locate persisted refresh token
@@ -136,7 +139,7 @@ class RefreshAccessTokenUseCase:
         )
 
         if session_token is None:
-            raise ValueError("Refresh token has been revoked or is invalid.")
+            raise InvalidCredentialsException()
 
         # ------------------------------------------------------------------
         # Time
@@ -149,10 +152,9 @@ class RefreshAccessTokenUseCase:
         # ------------------------------------------------------------------
 
         if session_token.expires_at <= now:
-            raise ValueError("Refresh token has expired.")
-
+            raise InvalidCredentialsException()
         if session_token.is_revoked:
-            raise ValueError("Refresh token has been revoked.")
+            raise InvalidCredentialsException()
 
         # ------------------------------------------------------------------
         # Locate session
@@ -163,10 +165,10 @@ class RefreshAccessTokenUseCase:
         )
 
         if session is None:
-            raise ValueError("Session is no longer active.")
+            raise InvalidCredentialsException()
 
         if session.expires_at <= now:
-            raise ValueError("Session has expired.")
+            raise InvalidCredentialsException()
 
         # ------------------------------------------------------------------
         # Locate user
@@ -177,17 +179,17 @@ class RefreshAccessTokenUseCase:
         )
 
         if user is None:
-            raise ValueError("User is no longer available.")
+            raise InvalidCredentialsException()
 
         # ------------------------------------------------------------------
         # Tenant isolation
         # ------------------------------------------------------------------
 
         if user.tenant_id != session_token.tenant_id:
-            raise ValueError("Invalid refresh token.")
+            raise InvalidCredentialsException()
 
         if user.tenant_id != session.tenant_id:
-            raise ValueError("Invalid refresh token.")
+            raise InvalidCredentialsException()
 
         # ------------------------------------------------------------------
         # Account status
@@ -197,14 +199,14 @@ class RefreshAccessTokenUseCase:
             raise AccountLockedException()
 
         if user.account_status != AccountStatus.ACTIVE:
-            raise ValueError("Account is not active.")
+            raise InvalidCredentialsException()
 
         # ------------------------------------------------------------------
         # Session ownership
         # ------------------------------------------------------------------
 
         if session.user_id != user.id:
-            raise ValueError("Invalid refresh token.")
+            raise InvalidCredentialsException()
 
         # ------------------------------------------------------------------
         # Generate access-token lifetime
@@ -218,7 +220,7 @@ class RefreshAccessTokenUseCase:
         )
 
         if access_expires_in <= timedelta(0):
-            raise ValueError("Session has expired.")
+            raise InvalidCredentialsException()
 
         access_expires_at = now + access_expires_in
 

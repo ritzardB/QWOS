@@ -1,6 +1,10 @@
 import { navigationSections } from "./navigationItems";
 
-export function Sidebar() {
+type SidebarProps = {
+  onLogout: () => void;
+};
+
+export function Sidebar({ onLogout }: SidebarProps) {
   return (
     <aside className="qwos-sidebar">
       <div className="qwos-sidebar-brand">
@@ -44,6 +48,14 @@ export function Sidebar() {
           <p className="qwos-user-name">Richard</p>
           <p className="qwos-user-role">Administrator</p>
         </div>
+
+        <button
+          type="button"
+          className="qwos-logout-button"
+          onClick={onLogout}
+        >
+          Sign out
+        </button>
       </div>
     </aside>
   );

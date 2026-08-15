@@ -9,11 +9,21 @@ import { MetricCard } from "../features/dashboard/components/MetricCard";
 import { QuickActions } from "../features/dashboard/components/QuickActions";
 import { dashboardMetrics } from "../features/dashboard/dashboardData";
 import { LoginPage } from "../features/auth/components/LoginPage";
-import { isAuthenticated } from "../features/auth/authStorage";
+import {
+    clearAuthentication,
+    getRefreshToken,
+    isAuthenticated,
+  } from "../features/auth/authStorage";
 
-function Dashboard() {
+import { logout } from "../api/identity";
+
+function Dashboard({
+  onLogout,
+}: {
+  onLogout: () => void;
+}) {
   return (
-    <AppShell>
+    <AppShell onLogout={onLogout}>
       <section className="qwos-dashboard">
         <DashboardHeader userName="Richard" />
 
@@ -45,6 +55,23 @@ function App() {
   const [authenticated, setAuthenticated] =
     useState(isAuthenticated);
 
+  async function handleLogout(): Promise<void> {
+    const refreshToken = getRefreshToken();
+
+    try {
+      if (refreshToken) {
+        await logout({
+          refresh_token: refreshToken,
+        });
+      }
+    } catch (error) {
+      console.error("Logout request failed:", error);
+    } finally {
+      clearAuthentication();
+      setAuthenticated(false);
+    }
+  }
+
   if (!authenticated) {
     return (
       <LoginPage
@@ -53,7 +80,7 @@ function App() {
     );
   }
 
-  return <Dashboard />;
+  return <Dashboard onLogout={handleLogout} />;
 }
 
 export default App;

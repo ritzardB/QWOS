@@ -70,7 +70,7 @@ export function LoginPage({
             Quantum Workforce OS
           </p>
 
-          <h2>Welcome back</h2>
+          <h2>Welcome back!</h2>
 
           <p>
             Sign in to access your workforce operations.
