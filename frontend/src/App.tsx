@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import "./App.css";
 
 import { AppShell } from "../layouts/AppShell";
@@ -6,8 +8,10 @@ import { DashboardHeader } from "../features/dashboard/components/DashboardHeade
 import { MetricCard } from "../features/dashboard/components/MetricCard";
 import { QuickActions } from "../features/dashboard/components/QuickActions";
 import { dashboardMetrics } from "../features/dashboard/dashboardData";
+import { LoginPage } from "../features/auth/components/LoginPage";
+import { isAuthenticated } from "../features/auth/authStorage";
 
-function App() {
+function Dashboard() {
   return (
     <AppShell>
       <section className="qwos-dashboard">
@@ -35,6 +39,21 @@ function App() {
       </section>
     </AppShell>
   );
+}
+
+function App() {
+  const [authenticated, setAuthenticated] =
+    useState(isAuthenticated);
+
+  if (!authenticated) {
+    return (
+      <LoginPage
+        onLoginSuccess={() => setAuthenticated(true)}
+      />
+    );
+  }
+
+  return <Dashboard />;
 }
 
 export default App;

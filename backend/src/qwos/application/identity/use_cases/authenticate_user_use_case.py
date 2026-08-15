@@ -25,8 +25,10 @@ Author:
     Richard Balabarcon
 ===============================================================================
 """
+
 from __future__ import annotations
 
+import logging
 from datetime import timedelta
 
 from qwos.application.common.context.request_context import RequestContext
@@ -98,12 +100,30 @@ class AuthenticateUserUseCase:
         Authenticate a user and establish a session.
         """
 
+        logger = logging.getLogger(__name__)
+
+        # ------------------------------------------------------------------
+        # Diagnostic logging
+        # ------------------------------------------------------------------
+
+        logger.warning(
+            "AUTH DEBUG: email=%r tenant=%r password_length=%d",
+            command.email,
+            command.tenant_id,
+            len(command.password),
+        )
+
         # ------------------------------------------------------------------
         # Locate user
         # ------------------------------------------------------------------
 
         user = self._user_repository.get_by_email(
             command.email,
+        )
+
+        logger.warning(
+            "AUTH DEBUG: user_found=%s",
+            user is not None,
         )
 
         if user is None:
@@ -113,12 +133,45 @@ class AuthenticateUserUseCase:
         # Tenant isolation
         # ------------------------------------------------------------------
 
+        logger.warning(
+            "AUTH DEBUG: user_tenant=%r type=%s len=%d",
+            user.tenant_id,
+            type(user.tenant_id).__name__,
+            len(user.tenant_id),
+        )
+
+        logger.warning(
+            "AUTH DEBUG: request_tenant=%r type=%s len=%d",
+            command.tenant_id,
+            type(command.tenant_id).__name__,
+            len(command.tenant_id),
+        )
+
+        logger.warning(
+            "AUTH DEBUG: tenant_equal=%s",
+            user.tenant_id == command.tenant_id,
+        )
+
         if user.tenant_id != command.tenant_id:
+            logger.warning(
+                "AUTH DEBUG: TENANT MISMATCH user=%r request=%r",
+                user.tenant_id,
+                command.tenant_id,
+            )
             raise InvalidCredentialsException()
+
+        logger.warning(
+            "AUTH DEBUG: tenant_match=True",
+        )
 
         # ------------------------------------------------------------------
         # Account status
         # ------------------------------------------------------------------
+
+        logger.warning(
+            "AUTH DEBUG: account_status=%r",
+            user.account_status,
+        )
 
         if user.account_status == AccountStatus.LOCKED:
             raise AccountLockedException()
@@ -130,13 +183,27 @@ class AuthenticateUserUseCase:
         # Password
         # ------------------------------------------------------------------
 
+        logger.warning(
+            "AUTH DEBUG: password_hash_present=%s hash_length=%s hash_prefix=%r",
+            bool(user.password_hash),
+            len(user.password_hash) if user.password_hash else None,
+            user.password_hash[:7] if user.password_hash else None,
+        )
+
         if not user.password_hash:
             raise InvalidCredentialsException()
 
-        if not self._password_hasher.verify(
+        password_valid = self._password_hasher.verify(
             command.password,
             user.password_hash,
-        ):
+        )
+
+        logger.warning(
+            "AUTH DEBUG: password_valid=%s",
+            password_valid,
+        )
+
+        if not password_valid:
             raise ValueError("Invalid email or password.")
 
         # ------------------------------------------------------------------

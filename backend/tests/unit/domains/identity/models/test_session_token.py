@@ -27,7 +27,7 @@ def test_session_token_create() -> None:
     assert token.tenant_id == "01JTENANT00000000000000000"
     assert token.session_id == "01JSESSION0000000000000000"
     assert token.token_hash == "hashed-refresh-token"
-    assert token.token_type == "REFRESH"
+    assert token.token_type == "refresh"
     assert token.expires_at == expires_at
     assert token.revoked_at is None
     assert token.is_revoked is False

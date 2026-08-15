@@ -39,7 +39,7 @@ class SessionToken(TenantEntity):
     __tablename__ = "session_tokens"
 
     def __init__(self, **kwargs: Any) -> None:
-        kwargs.setdefault("token_type", "REFRESH")
+        kwargs.setdefault("token_type", "refresh")
         super().__init__(**kwargs)
 
     # ------------------------------------------------------------------
@@ -55,7 +55,7 @@ class SessionToken(TenantEntity):
         session_id: str,
         token_hash: str,
         expires_at: datetime,
-        token_type: str = "REFRESH",
+        token_type: str = "refresh",
         created_by: str | None = None,
         rotated_from_token_id: str | None = None,
     ) -> "SessionToken":
@@ -101,7 +101,7 @@ class SessionToken(TenantEntity):
     token_type: Mapped[str] = mapped_column(
         String(50),
         nullable=False,
-        default="REFRESH",
+        default="refresh",
     )
 
     # ------------------------------------------------------------------

@@ -48,7 +48,7 @@ CREATE TABLE session_tokens (
 
     token_type identifier_code
         NOT NULL
-        DEFAULT 'REFRESH',
+        DEFAULT 'refresh',
 
     ---------------------------------------------------------------------------
     -- Lifecycle

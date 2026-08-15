@@ -40,6 +40,7 @@ from qwos.application.common.ports.secure_token_generator import (
 )
 from qwos.application.common.ports.token_hasher import TokenHasher
 from qwos.application.common.ports.token_provider import TokenProvider
+from qwos.core.config.settings import settings
 from qwos.core.database.session import get_session
 from qwos.infrastructure.repositories.sqlalchemy_unit_of_work import (
     SQLAlchemyUnitOfWork,
@@ -137,7 +138,7 @@ def get_request_context() -> RequestContext:
     request_id = str(uuid4())
 
     return RequestContext(
-        tenant_id="default",
+        tenant_id=settings.QWOS_TENANT_ID,
         user_id=None,
         correlation_id=request_id,
         request_id=request_id,
