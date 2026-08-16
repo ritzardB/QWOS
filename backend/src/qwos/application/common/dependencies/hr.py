@@ -55,6 +55,9 @@ from qwos.application.hr.use_cases.create_employee_use_case import (
 from qwos.application.hr.use_cases.link_employee_to_user_use_case import (
     LinkEmployeeToUserUseCase,
 )
+from qwos.application.hr.use_cases.list_employees_use_case import (
+    ListEmployeesUseCase,
+)
 from qwos.application.hr.validators.create_employee_profile_validator import (
     CreateEmployeeProfileValidator,
 )
@@ -189,6 +192,23 @@ def get_create_employee_use_case(
         id_generator=id_generator,
         unit_of_work=unit_of_work,
         validator=validator,
+        request_context=request_context,
+    )
+
+def get_list_employees_use_case(
+    employee_repository: EmployeeRepository = Depends(
+        get_employee_repository,
+    ),
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+) -> ListEmployeesUseCase:
+    """
+    Return ListEmployeesUseCase.
+    """
+
+    return ListEmployeesUseCase(
+        employee_repository=employee_repository,
         request_context=request_context,
     )
 

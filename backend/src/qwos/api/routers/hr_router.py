@@ -48,12 +48,16 @@ from qwos.api.contracts.responses.hr.create_employee_response import (
 from qwos.api.contracts.responses.hr.link_employee_to_user_response import (
     LinkEmployeeToUserResponse,
 )
+from qwos.api.contracts.responses.hr.list_employees_response import (
+    ListEmployeesResponse,
+)
 from qwos.application.common.context.request_context import RequestContext
 from qwos.application.common.dependencies.hr import (
     get_create_employee_profile_use_case,
     get_create_employee_reporting_relationship_use_case,
     get_create_employee_use_case,
     get_link_employee_to_user_use_case,
+    get_list_employees_use_case,
     get_request_context,
 )
 from qwos.application.hr.mappers.employee_mapper import EmployeeMapper
@@ -78,12 +82,39 @@ from qwos.application.hr.use_cases.create_employee_use_case import (
 from qwos.application.hr.use_cases.link_employee_to_user_use_case import (
     LinkEmployeeToUserUseCase,
 )
+from qwos.application.hr.use_cases.list_employees_use_case import (
+    ListEmployeesUseCase,
+)
 
 router = APIRouter(
     prefix="/hr",
     tags=["HR"],
 )
 
+@router.get(
+    "/employees",
+    response_model=ListEmployeesResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List Employees",
+    description="List active employees for the current tenant.",
+)
+async def list_employees(
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+    use_case: ListEmployeesUseCase = Depends(
+        get_list_employees_use_case,
+    ),
+) -> ListEmployeesResponse:
+    """
+    List active employees for the current tenant.
+    """
+
+    application_response = await use_case.execute()
+
+    return EmployeeMapper.to_list_response(
+        application_response,
+    )
 
 @router.post(
     "/employees",

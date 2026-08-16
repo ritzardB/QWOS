@@ -68,6 +68,17 @@ class EmployeeRepository(Protocol):
         """
         ...
 
+    def list_active(
+        self,
+        *,
+        tenant_id: str,
+    ) -> list[Employee]:
+        """
+        Retrieve active employees for a tenant.
+        """
+        ...
+            
+
     def exists_by_employee_number(
         self,
         *,

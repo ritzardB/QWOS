@@ -50,6 +50,27 @@ class SQLAlchemyEmployeeRepository(
     # Employee Queries
     # -------------------------------------------------------------------------
 
+    def list_active(
+        self,
+        *,
+        tenant_id: str,
+    ) -> list[Employee]:
+        """
+        Retrieve active, non-deleted employees for a tenant.
+        """
+
+        stmt = (
+            select(Employee)
+            .where(
+                Employee.tenant_id == tenant_id,
+                Employee.deleted_at.is_(None),
+                Employee.employment_status == "active",
+            )
+            .order_by(Employee.employee_number)
+        )
+
+        return list(self._session.scalars(stmt).all())
+
     def get_by_employee_number(
         self,
         *,
