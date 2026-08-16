@@ -50,4 +50,44 @@ ON roles
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at();
 
+-- =============================================================================
+-- EMPLOYEE NUMBER SEQUENCES
+-- =============================================================================
+
+CREATE TRIGGER trg_employee_number_sequences_updated_at
+BEFORE UPDATE
+ON employee_number_sequences
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+-- =============================================================================
+-- EMPLOYEES
+-- =============================================================================
+
+CREATE TRIGGER trg_employees_updated_at
+BEFORE UPDATE
+ON employees
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+-- =============================================================================
+-- EMPLOYEE PROFILES
+-- =============================================================================
+
+CREATE TRIGGER trg_employee_profiles_updated_at
+BEFORE UPDATE
+ON employee_profiles
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+-- =============================================================================
+-- EMPLOYEE RELATIONSHIPS
+-- =============================================================================
+
+CREATE TRIGGER trg_employee_reporting_relationships_updated_at
+BEFORE UPDATE
+ON employee_reporting_relationships
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
 COMMIT;
