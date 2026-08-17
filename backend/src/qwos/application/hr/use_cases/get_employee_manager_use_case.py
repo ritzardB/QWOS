@@ -59,9 +59,12 @@ class GetEmployeeManagerUseCase:
         )
 
         if relationship is None:
-            raise ResourceNotFoundException(
-                resource="Manager",
-                identifier=employee_id,
+            return GetEmployeeManagerResponse(
+                employee_id=employee.id,
+                manager_employee_id=None,
+                manager_employee_number=None,
+                relationship_type=None,
+                effective_from=None,
             )
 
         manager = self._employee_repository.get_by_id_for_tenant(

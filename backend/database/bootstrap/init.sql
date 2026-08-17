@@ -72,6 +72,7 @@
 \i ../schema/017_employee_profiles.sql
 \i ../schema/018_employee_statuses.sql
 \i ../schema/019_employee_positions.sql
+\i ../schema/020_employee_departments.sql
 
 -- ---------------------------------------------------------------------------
 -- Triggers

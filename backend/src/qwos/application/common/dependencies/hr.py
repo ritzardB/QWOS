@@ -52,6 +52,9 @@ from qwos.application.hr.use_cases.create_employee_reporting_relationship_use_ca
 from qwos.application.hr.use_cases.create_employee_use_case import (
     CreateEmployeeUseCase,
 )
+from qwos.application.hr.use_cases.get_employee_immigration_use_case import (
+    GetEmployeeImmigrationUseCase,
+)
 from qwos.application.hr.use_cases.get_employee_manager_use_case import (
     GetEmployeeManagerUseCase,
 )
@@ -67,8 +70,14 @@ from qwos.application.hr.use_cases.get_employee_use_case import (
 from qwos.application.hr.use_cases.link_employee_to_user_use_case import (
     LinkEmployeeToUserUseCase,
 )
+from qwos.application.hr.use_cases.list_employee_immigration_use_case import (
+    ListEmployeeImmigrationUseCase,
+)
 from qwos.application.hr.use_cases.list_employees_use_case import (
     ListEmployeesUseCase,
+)
+from qwos.application.hr.use_cases.list_expiring_employee_immigration_use_case import (
+    ListExpiringEmployeeImmigrationUseCase,
 )
 from qwos.application.hr.validators.create_employee_profile_validator import (
     CreateEmployeeProfileValidator,
@@ -80,6 +89,9 @@ from qwos.application.hr.validators.create_employee_validator import (
     CreateEmployeeValidator,
 )
 from qwos.core.database.session import get_session
+from qwos.domains.hr.repositories.employee_immigration_repository import (
+    EmployeeImmigrationRepository,
+)
 from qwos.domains.hr.repositories.employee_number_sequence_repository import (
     EmployeeNumberSequenceRepository,
 )
@@ -100,6 +112,9 @@ from qwos.domains.identity.repositories.user_profile_repository import (
 )
 from qwos.domains.identity.repositories.user_repository import (
     UserRepository,
+)
+from qwos.infrastructure.repositories.hr.sqlalchemy_employee_immigration_repository import (
+    SQLAlchemyEmployeeImmigrationRepository,
 )
 from qwos.infrastructure.repositories.hr.sqlalchemy_employee_number_generator import (
     SQLAlchemyEmployeeNumberGenerator,
@@ -163,6 +178,14 @@ def get_employee_position_repository(
     Return EmployeePosition repository.
     """
     return SQLAlchemyEmployeePositionRepository(session)
+
+def get_employee_immigration_repository(
+    session: Session = Depends(get_session),
+) -> EmployeeImmigrationRepository:
+    """
+    Return EmployeeImmigration repository.
+    """
+    return SQLAlchemyEmployeeImmigrationRepository(session)
 
 # -------------------------------------------------------------------------
 # HR Infrastructure Providers
@@ -421,4 +444,46 @@ def get_get_employee_manager_use_case(
     return GetEmployeeManagerUseCase(
         employee_repository=employee_repository,
         relationship_repository=relationship_repository,
+    )
+
+# -------------------------------------------------------------------------
+# Employee Immigration Providers
+# ------------------------------------------------------------------------- 
+
+def get_get_employee_immigration_use_case(
+    employee_immigration_repository: EmployeeImmigrationRepository = Depends(
+        get_employee_immigration_repository,
+    ),
+) -> GetEmployeeImmigrationUseCase:
+    """
+    Return GetEmployeeImmigrationUseCase.
+    """
+    return GetEmployeeImmigrationUseCase(
+        employee_immigration_repository=employee_immigration_repository,
+    )
+
+
+def get_list_employee_immigration_use_case(
+    employee_immigration_repository: EmployeeImmigrationRepository = Depends(
+        get_employee_immigration_repository,
+    ),
+) -> ListEmployeeImmigrationUseCase:
+    """
+    Return ListEmployeeImmigrationUseCase.
+    """
+    return ListEmployeeImmigrationUseCase(
+        employee_immigration_repository=employee_immigration_repository,
+    )
+
+
+def get_list_expiring_employee_immigration_use_case(
+    employee_immigration_repository: EmployeeImmigrationRepository = Depends(
+        get_employee_immigration_repository,
+    ),
+) -> ListExpiringEmployeeImmigrationUseCase:
+    """
+    Return ListExpiringEmployeeImmigrationUseCase.
+    """
+    return ListExpiringEmployeeImmigrationUseCase(
+        employee_immigration_repository=employee_immigration_repository,
     )

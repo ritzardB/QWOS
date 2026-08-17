@@ -22,6 +22,8 @@ Author:
 
 from __future__ import annotations
 
+from datetime import date
+
 from fastapi import APIRouter, Depends, status
 
 from qwos.api.contracts.requests.hr.create_employee_profile_request import (
@@ -45,6 +47,9 @@ from qwos.api.contracts.responses.hr.create_employee_reporting_relationship_resp
 from qwos.api.contracts.responses.hr.create_employee_response import (
     CreateEmployeeResponse,
 )
+from qwos.api.contracts.responses.hr.get_employee_immigration_response import (
+    GetEmployeeImmigrationResponse,
+)
 from qwos.api.contracts.responses.hr.get_employee_manager_response import (
     GetEmployeeManagerResponse,
 )
@@ -60,21 +65,33 @@ from qwos.api.contracts.responses.hr.get_employee_response import (
 from qwos.api.contracts.responses.hr.link_employee_to_user_response import (
     LinkEmployeeToUserResponse,
 )
+from qwos.api.contracts.responses.hr.list_employee_immigration_response import (
+    ListEmployeeImmigrationResponse,
+)
 from qwos.api.contracts.responses.hr.list_employees_response import (
     ListEmployeesResponse,
+)
+from qwos.api.contracts.responses.hr.list_expiring_employee_immigration_response import (
+    ListExpiringEmployeeImmigrationResponse,
 )
 from qwos.application.common.context.request_context import RequestContext
 from qwos.application.common.dependencies.hr import (
     get_create_employee_profile_use_case,
     get_create_employee_reporting_relationship_use_case,
     get_create_employee_use_case,
+    get_get_employee_immigration_use_case,
     get_get_employee_manager_use_case,
     get_get_employee_position_use_case,
     get_get_employee_profile_use_case,
     get_get_employee_use_case,
     get_link_employee_to_user_use_case,
+    get_list_employee_immigration_use_case,
     get_list_employees_use_case,
+    get_list_expiring_employee_immigration_use_case,
     get_request_context,
+)
+from qwos.application.hr.mappers.employee_immigration_mapper import (
+    EmployeeImmigrationMapper,
 )
 from qwos.application.hr.mappers.employee_mapper import EmployeeMapper
 from qwos.application.hr.mappers.employee_position_mapper import (
@@ -98,6 +115,9 @@ from qwos.application.hr.use_cases.create_employee_reporting_relationship_use_ca
 from qwos.application.hr.use_cases.create_employee_use_case import (
     CreateEmployeeUseCase,
 )
+from qwos.application.hr.use_cases.get_employee_immigration_use_case import (
+    GetEmployeeImmigrationUseCase,
+)
 from qwos.application.hr.use_cases.get_employee_manager_use_case import (
     GetEmployeeManagerUseCase,
 )
@@ -113,8 +133,14 @@ from qwos.application.hr.use_cases.get_employee_use_case import (
 from qwos.application.hr.use_cases.link_employee_to_user_use_case import (
     LinkEmployeeToUserUseCase,
 )
+from qwos.application.hr.use_cases.list_employee_immigration_use_case import (
+    ListEmployeeImmigrationUseCase,
+)
 from qwos.application.hr.use_cases.list_employees_use_case import (
     ListEmployeesUseCase,
+)
+from qwos.application.hr.use_cases.list_expiring_employee_immigration_use_case import (
+    ListExpiringEmployeeImmigrationUseCase,
 )
 
 router = APIRouter(
@@ -384,3 +410,97 @@ async def get_employee_position(
         application_response,
     )
 
+@router.get(
+    "/employees/{employee_id}/immigration",
+    response_model=GetEmployeeImmigrationResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get Employee Immigration",
+    description="Retrieve the current immigration record for an employee.",
+)
+async def get_employee_immigration(
+    employee_id: str,
+    immigration_type: str,
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+    use_case: GetEmployeeImmigrationUseCase = Depends(
+        get_get_employee_immigration_use_case,
+    ),
+) -> GetEmployeeImmigrationResponse:
+    """
+    Retrieve the current immigration record for an employee.
+    """
+
+    application_response = await use_case.execute(
+        tenant_id=request_context.tenant_id,
+        employee_id=employee_id,
+        immigration_type=immigration_type,
+        as_of_date=date.today(),
+    )
+
+    return EmployeeImmigrationMapper.to_get_response(
+        application_response,
+    )
+
+@router.get(
+    "/employees/{employee_id}/immigration/history",
+    response_model=ListEmployeeImmigrationResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List Employee Immigration History",
+    description="Retrieve immigration history for an employee.",
+)
+async def list_employee_immigration(
+    employee_id: str,
+    immigration_type: str | None = None,
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+    use_case: ListEmployeeImmigrationUseCase = Depends(
+        get_list_employee_immigration_use_case,
+    ),
+) -> ListEmployeeImmigrationResponse:
+    """
+    Retrieve immigration history for an employee.
+    """
+
+    application_response = await use_case.execute(
+        tenant_id=request_context.tenant_id,
+        employee_id=employee_id,
+        immigration_type=immigration_type,
+    )
+
+    return EmployeeImmigrationMapper.to_list_response(
+        application_response,
+    )
+
+@router.get(
+    "/immigration/expiring",
+    response_model=ListExpiringEmployeeImmigrationResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List Expiring Immigration Records",
+    description="List immigration records expiring within a specified number of days.",
+)
+async def list_expiring_employee_immigration(
+    days: int = 30,
+    immigration_type: str | None = None,
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+    use_case: ListExpiringEmployeeImmigrationUseCase = Depends(
+        get_list_expiring_employee_immigration_use_case,
+    ),
+) -> ListExpiringEmployeeImmigrationResponse:
+    """
+    Retrieve immigration records expiring within the requested window.
+    """
+
+    application_response = await use_case.execute(
+        tenant_id=request_context.tenant_id,
+        as_of_date=date.today(),
+        days=days,
+        immigration_type=immigration_type,
+    )
+
+    return EmployeeImmigrationMapper.to_expiring_list_response(
+        application_response,
+    )
