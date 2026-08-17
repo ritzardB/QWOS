@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from qwos.api.contracts.responses.hr.get_employee_manager_response import (
+    GetEmployeeManagerResponse,
+)
+
 from qwos.api.contracts.requests.hr.create_employee_reporting_relationship_request import (
     CreateEmployeeReportingRelationshipRequest,
 )
@@ -12,6 +16,9 @@ from qwos.application.hr.commands.create_employee_reporting_relationship_command
 )
 from qwos.application.hr.responses.create_employee_reporting_relationship_response import (
     CreateEmployeeReportingRelationshipResponse as ApplicationResponse,
+)
+from qwos.application.hr.responses.get_employee_manager_response import (
+    GetEmployeeManagerResponse as ApplicationGetEmployeeManagerResponse,
 )
 
 
@@ -50,4 +57,21 @@ class EmployeeReportingRelationshipMapper:
             effective_to=response.effective_to,
             is_primary=response.is_primary,
             created_at=response.created_at,
+        )
+
+    @staticmethod
+    def to_get_manager_response(
+        response: ApplicationGetEmployeeManagerResponse,
+    ) -> GetEmployeeManagerResponse:
+        """
+        Convert an application employee-manager response
+        into an API response.
+        """
+
+        return GetEmployeeManagerResponse(
+            employee_id=response.employee_id,
+            manager_employee_id=response.manager_employee_id,
+            manager_employee_number=response.manager_employee_number,
+            relationship_type=response.relationship_type,
+            effective_from=response.effective_from,
         )

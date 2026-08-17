@@ -33,6 +33,19 @@ class EmployeeRepository(Protocol):
         """
         ...
 
+
+    def get_by_id_for_tenant(
+        self,
+        *,
+        tenant_id: str,
+        employee_id: str,
+    ) -> Employee | None:
+        """
+        Retrieve a non-deleted employee within a tenant.
+        """
+        ...
+
+
     def save(
         self,
         employee: Employee,
@@ -41,7 +54,7 @@ class EmployeeRepository(Protocol):
         Persist an employee.
         """
         ...
-
+        
     # -------------------------------------------------------------------------
     # Employee Queries
     # -------------------------------------------------------------------------

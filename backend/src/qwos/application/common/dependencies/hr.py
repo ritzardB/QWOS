@@ -52,6 +52,18 @@ from qwos.application.hr.use_cases.create_employee_reporting_relationship_use_ca
 from qwos.application.hr.use_cases.create_employee_use_case import (
     CreateEmployeeUseCase,
 )
+from qwos.application.hr.use_cases.get_employee_manager_use_case import (
+    GetEmployeeManagerUseCase,
+)
+from qwos.application.hr.use_cases.get_employee_position_use_case import (
+    GetEmployeePositionUseCase,
+)
+from qwos.application.hr.use_cases.get_employee_profile_use_case import (
+    GetEmployeeProfileUseCase,
+)
+from qwos.application.hr.use_cases.get_employee_use_case import (
+    GetEmployeeUseCase,
+)
 from qwos.application.hr.use_cases.link_employee_to_user_use_case import (
     LinkEmployeeToUserUseCase,
 )
@@ -71,7 +83,12 @@ from qwos.core.database.session import get_session
 from qwos.domains.hr.repositories.employee_number_sequence_repository import (
     EmployeeNumberSequenceRepository,
 )
-from qwos.domains.hr.repositories.employee_profile_repository import EmployeeProfileRepository
+from qwos.domains.hr.repositories.employee_position_repository import (
+    EmployeePositionRepository,
+)
+from qwos.domains.hr.repositories.employee_profile_repository import (
+    EmployeeProfileRepository,
+)
 from qwos.domains.hr.repositories.employee_reporting_relationship_repository import (
     EmployeeReportingRelationshipRepository,
 )
@@ -90,6 +107,9 @@ from qwos.infrastructure.repositories.hr.sqlalchemy_employee_number_generator im
 from qwos.infrastructure.repositories.hr.sqlalchemy_employee_number_sequence_repository import (
     SQLAlchemyEmployeeNumberSequenceRepository,
 )
+from qwos.infrastructure.repositories.hr.sqlalchemy_employee_position_repository import (
+    SQLAlchemyEmployeePositionRepository,
+)
 from qwos.infrastructure.repositories.hr.sqlalchemy_employee_profile_repository import (
     SQLAlchemyEmployeeProfileRepository,
 )
@@ -104,7 +124,6 @@ from qwos.infrastructure.repositories.hr.sqlalchemy_employee_repository import (
 # Repository Providers
 # -------------------------------------------------------------------------
 
-
 def get_employee_repository(
     session: Session = Depends(get_session),
 ) -> EmployeeRepository:
@@ -113,6 +132,21 @@ def get_employee_repository(
     """
     return SQLAlchemyEmployeeRepository(session)
 
+def get_employee_profile_repository(
+    session: Session = Depends(get_session),
+) -> EmployeeProfileRepository:
+    """
+    Return EmployeeProfile repository.
+    """
+    return SQLAlchemyEmployeeProfileRepository(session)
+
+def get_employee_reporting_relationship_repository(
+    session: Session = Depends(get_session),
+) -> EmployeeReportingRelationshipRepository:
+    """
+    Return EmployeeReportingRelationship repository.
+    """
+    return SQLAlchemyEmployeeReportingRelationshipRepository(session)
 
 def get_employee_number_sequence_repository(
     session: Session = Depends(get_session),
@@ -122,11 +156,17 @@ def get_employee_number_sequence_repository(
     """
     return SQLAlchemyEmployeeNumberSequenceRepository(session)
 
+def get_employee_position_repository(
+    session: Session = Depends(get_session),
+) -> EmployeePositionRepository:
+    """
+    Return EmployeePosition repository.
+    """
+    return SQLAlchemyEmployeePositionRepository(session)
 
 # -------------------------------------------------------------------------
 # HR Infrastructure Providers
 # -------------------------------------------------------------------------
-
 
 def get_employee_number_generator(
     repository: EmployeeNumberSequenceRepository = Depends(
@@ -140,7 +180,6 @@ def get_employee_number_generator(
         repository=repository,
     )
 
-
 # -------------------------------------------------------------------------
 # Validator Providers
 # -------------------------------------------------------------------------
@@ -153,10 +192,64 @@ def get_create_employee_validator() -> CreateEmployeeValidator:
     return CreateEmployeeValidator()
 
 
+def get_create_employee_profile_validator() -> CreateEmployeeProfileValidator:
+    """
+    Return CreateEmployeeProfileValidator.
+    """
+    return CreateEmployeeProfileValidator()
+
+
+def get_create_employee_reporting_relationship_validator(
+) -> CreateEmployeeReportingRelationshipValidator:
+    """
+    Return CreateEmployeeReportingRelationshipValidator.
+    """
+    return CreateEmployeeReportingRelationshipValidator()
+
+
 # -------------------------------------------------------------------------
-# Use Case Providers
+# Employee Use Case Providers
 # -------------------------------------------------------------------------
 
+def get_get_employee_use_case(
+    employee_repository: EmployeeRepository = Depends(
+        get_employee_repository,
+    ),
+) -> GetEmployeeUseCase:
+    """
+    Return GetEmployeeUseCase.
+    """
+    return GetEmployeeUseCase(
+        employee_repository=employee_repository,
+    )
+
+def get_list_employees_use_case(
+    employee_repository: EmployeeRepository = Depends(
+        get_employee_repository,
+    ),
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+) -> ListEmployeesUseCase:
+    """
+    Return ListEmployeesUseCase.
+    """
+    return ListEmployeesUseCase(
+        employee_repository=employee_repository,
+        request_context=request_context,
+    )
+
+def get_get_employee_position_use_case(
+    employee_position_repository: EmployeePositionRepository = Depends(
+        get_employee_position_repository,
+    ),
+) -> GetEmployeePositionUseCase:
+    """
+    Return GetEmployeePositionUseCase.
+    """
+    return GetEmployeePositionUseCase(
+        employee_position_repository=employee_position_repository,
+    )
 
 def get_create_employee_use_case(
     employee_repository: EmployeeRepository = Depends(
@@ -184,7 +277,6 @@ def get_create_employee_use_case(
     """
     Return CreateEmployeeUseCase.
     """
-
     return CreateEmployeeUseCase(
         employee_repository=employee_repository,
         user_repository=user_repository,
@@ -195,42 +287,9 @@ def get_create_employee_use_case(
         request_context=request_context,
     )
 
-def get_list_employees_use_case(
-    employee_repository: EmployeeRepository = Depends(
-        get_employee_repository,
-    ),
-    request_context: RequestContext = Depends(
-        get_request_context,
-    ),
-) -> ListEmployeesUseCase:
-    """
-    Return ListEmployeesUseCase.
-    """
-
-    return ListEmployeesUseCase(
-        employee_repository=employee_repository,
-        request_context=request_context,
-    )
-
 # -------------------------------------------------------------------------
 # Employee Profile Providers
 # -------------------------------------------------------------------------
-
-def get_employee_profile_repository(
-    session: Session = Depends(get_session),
-) -> EmployeeProfileRepository:
-    """
-    Return EmployeeProfile repository.
-    """
-    return SQLAlchemyEmployeeProfileRepository(session)
-
-
-def get_create_employee_profile_validator() -> CreateEmployeeProfileValidator:
-    """
-    Return CreateEmployeeProfileValidator.
-    """
-    return CreateEmployeeProfileValidator()
-
 
 def get_create_employee_profile_use_case(
     employee_repository: EmployeeRepository = Depends(
@@ -255,7 +314,6 @@ def get_create_employee_profile_use_case(
     """
     Return CreateEmployeeProfileUseCase.
     """
-
     return CreateEmployeeProfileUseCase(
         employee_repository=employee_repository,
         employee_profile_repository=employee_profile_repository,
@@ -264,6 +322,22 @@ def get_create_employee_profile_use_case(
         validator=validator,
         request_context=request_context,
     )
+
+def get_get_employee_profile_use_case(
+    employee_profile_repository: EmployeeProfileRepository = Depends(
+        get_employee_profile_repository,
+    ),
+) -> GetEmployeeProfileUseCase:
+    """
+    Return GetEmployeeProfileUseCase.
+    """
+    return GetEmployeeProfileUseCase(
+        employee_profile_repository=employee_profile_repository,
+    )
+
+# -------------------------------------------------------------------------
+# Employee ↔ User Providers
+# -------------------------------------------------------------------------
 
 def get_link_employee_to_user_use_case(
     employee_repository: EmployeeRepository = Depends(
@@ -288,7 +362,6 @@ def get_link_employee_to_user_use_case(
     """
     Return LinkEmployeeToUserUseCase.
     """
-
     return LinkEmployeeToUserUseCase(
         employee_repository=employee_repository,
         user_repository=user_repository,
@@ -298,16 +371,9 @@ def get_link_employee_to_user_use_case(
         request_context=request_context,
     )
 
-def get_employee_reporting_relationship_repository(
-    session: Session = Depends(get_session),
-) -> EmployeeReportingRelationshipRepository:
-    return SQLAlchemyEmployeeReportingRelationshipRepository(session)
-
-
-def get_create_employee_reporting_relationship_validator(
-) -> CreateEmployeeReportingRelationshipValidator:
-    return CreateEmployeeReportingRelationshipValidator()
-
+# -------------------------------------------------------------------------
+# Employee Reporting Relationship Providers
+# -------------------------------------------------------------------------
 
 def get_create_employee_reporting_relationship_use_case(
     employee_repository: EmployeeRepository = Depends(
@@ -329,6 +395,9 @@ def get_create_employee_reporting_relationship_use_case(
         get_request_context,
     ),
 ) -> CreateEmployeeReportingRelationshipUseCase:
+    """
+    Return CreateEmployeeReportingRelationshipUseCase.
+    """
     return CreateEmployeeReportingRelationshipUseCase(
         employee_repository=employee_repository,
         relationship_repository=relationship_repository,
@@ -336,4 +405,20 @@ def get_create_employee_reporting_relationship_use_case(
         unit_of_work=unit_of_work,
         validator=validator,
         request_context=request_context,
+    )
+
+def get_get_employee_manager_use_case(
+    employee_repository: EmployeeRepository = Depends(
+        get_employee_repository,
+    ),
+    relationship_repository: EmployeeReportingRelationshipRepository = Depends(
+        get_employee_reporting_relationship_repository,
+    ),
+) -> GetEmployeeManagerUseCase:
+    """
+    Return GetEmployeeManagerUseCase.
+    """
+    return GetEmployeeManagerUseCase(
+        employee_repository=employee_repository,
+        relationship_repository=relationship_repository,
     )

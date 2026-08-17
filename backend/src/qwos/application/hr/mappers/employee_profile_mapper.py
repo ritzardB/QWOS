@@ -22,9 +22,11 @@ from __future__ import annotations
 from qwos.api.contracts.requests.hr.create_employee_profile_request import (
     CreateEmployeeProfileRequest,
 )
-
 from qwos.api.contracts.responses.hr.create_employee_profile_response import (
     CreateEmployeeProfileResponse,
+)
+from qwos.api.contracts.responses.hr.get_employee_profile_response import (
+    GetEmployeeProfileResponse,
 )
 from qwos.application.common.context.request_context import RequestContext
 from qwos.application.hr.commands.create_employee_profile_command import (
@@ -32,6 +34,9 @@ from qwos.application.hr.commands.create_employee_profile_command import (
 )
 from qwos.application.hr.responses.create_employee_profile_response import (
     CreateEmployeeProfileResponse as ApplicationCreateEmployeeProfileResponse,
+)
+from qwos.application.hr.responses.get_employee_profile_response import (
+    GetEmployeeProfileResponse as ApplicationGetEmployeeProfileResponse,
 )
 
 
@@ -86,6 +91,38 @@ class EmployeeProfileMapper:
         """
 
         return CreateEmployeeProfileResponse(
+            id=response.id,
+            employee_id=response.employee_id,
+            date_of_birth=response.date_of_birth,
+            gender=response.gender,
+            nationality=response.nationality,
+            marital_status=response.marital_status,
+            personal_email=response.personal_email,
+            personal_phone=response.personal_phone,
+            address_line_1=response.address_line_1,
+            address_line_2=response.address_line_2,
+            city=response.city,
+            state_province=response.state_province,
+            postal_code=response.postal_code,
+            country_code=response.country_code,
+            emergency_contact_name=response.emergency_contact_name,
+            emergency_contact_relationship=(
+                response.emergency_contact_relationship
+            ),
+            emergency_contact_phone=response.emergency_contact_phone,
+            created_at=response.created_at,
+        )
+
+    @staticmethod
+    def to_get_response(
+        response: ApplicationGetEmployeeProfileResponse,
+    ) -> GetEmployeeProfileResponse:
+        """
+        Convert an application employee profile response
+        into an API response.
+        """
+
+        return GetEmployeeProfileResponse(
             id=response.id,
             employee_id=response.employee_id,
             date_of_birth=response.date_of_birth,

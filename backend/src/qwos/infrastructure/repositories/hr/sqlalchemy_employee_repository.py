@@ -71,6 +71,24 @@ class SQLAlchemyEmployeeRepository(
 
         return list(self._session.scalars(stmt).all())
 
+    def get_by_id_for_tenant(
+        self,
+        *,
+        tenant_id: str,
+        employee_id: str,
+    ) -> Employee | None:
+        """
+        Retrieve a non-deleted employee within a tenant.
+        """
+
+        stmt = select(Employee).where(
+            Employee.id == employee_id,
+            Employee.tenant_id == tenant_id,
+            Employee.deleted_at.is_(None),
+        )
+
+        return self._session.scalar(stmt)
+
     def get_by_employee_number(
         self,
         *,

@@ -25,6 +25,9 @@ from qwos.api.contracts.requests.hr.create_employee_request import (
 from qwos.api.contracts.responses.hr.create_employee_response import (
     CreateEmployeeResponse,
 )
+from qwos.api.contracts.responses.hr.get_employee_response import (
+    GetEmployeeResponse as ApiGetEmployeeResponse,
+)
 from qwos.api.contracts.responses.hr.list_employees_response import (
     EmployeeSummaryResponse as ApiEmployeeSummaryResponse,
 )
@@ -37,6 +40,9 @@ from qwos.application.hr.commands.create_employee_command import (
 )
 from qwos.application.hr.responses.create_employee_response import (
     CreateEmployeeResponse as ApplicationCreateEmployeeResponse,
+)
+from qwos.application.hr.responses.get_employee_response import (
+    GetEmployeeResponse,
 )
 from qwos.application.hr.responses.list_employees_response import (
     ListEmployeesResponse,
@@ -108,3 +114,20 @@ class EmployeeMapper:
                 for employee in response.employees
             ]
         )
+
+    @staticmethod
+    def to_get_response(
+        response: GetEmployeeResponse,
+    ) -> ApiGetEmployeeResponse:
+        return ApiGetEmployeeResponse(
+            id=response.id,
+            employee_number=response.employee_number,
+            user_id=response.user_id,
+            hire_date=response.hire_date,
+            employment_status=response.employment_status,
+            employment_type=response.employment_type,
+            work_email=response.work_email,
+            work_phone=response.work_phone,
+            created_at=response.created_at,
+        )
+
