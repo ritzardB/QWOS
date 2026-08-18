@@ -42,6 +42,27 @@ class Settings(BaseSettings):
         case_sensitive=True,
     )
 
+    # -------------------------------------------------------------------------
+    # Document Storage
+    # -------------------------------------------------------------------------
+
+    DOCUMENT_STORAGE_ROOT: str = "./storage/documents"
+    DOCUMENT_STORAGE_PROVIDER: str = "local"
+
+    DATABASE_URL: str = (
+        "postgresql+psycopg://richardbalabarcon@localhost/qwos_dev"
+    )
+
+    # -------------------------------------------------------------------------
+    # Document Storage
+    # -------------------------------------------------------------------------
+
+    DOCUMENT_STORAGE_ROOT: str = "./storage/documents"
+    DOCUMENT_STORAGE_PROVIDER: str = "local"
+
+    # -------------------------------------------------------------------------
+    # JWT Authentication
+    # -------------------------------------------------------------------------
 
 @lru_cache
 def get_settings() -> Settings:
@@ -50,3 +71,4 @@ def get_settings() -> Settings:
 
 
 settings = get_settings()
+
