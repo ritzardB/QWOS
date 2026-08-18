@@ -40,6 +40,15 @@ from qwos.application.common.dependencies.identity import (
     get_user_repository,
 )
 from qwos.application.common.persistence.unit_of_work import UnitOfWork
+from qwos.application.common.ports.document_filename_generator import (
+    DocumentFilenameGenerator,
+)
+from qwos.application.common.ports.document_storage import (
+    DocumentStorage,
+)
+from qwos.application.common.ports.document_storage_key_generator import (
+    DocumentStorageKeyGenerator,
+)
 from qwos.application.common.ports.employee_number_generator import (
     EmployeeNumberGenerator,
 )
@@ -83,6 +92,9 @@ from qwos.application.hr.use_cases.list_expiring_employee_immigration_use_case i
 from qwos.application.hr.use_cases.update_employee_profile_use_case import (
     UpdateEmployeeProfileUseCase,
 )
+from qwos.application.hr.use_cases.upload_employee_document_use_case import (
+    UploadEmployeeDocumentUseCase,
+)
 from qwos.application.hr.validators.create_employee_profile_validator import (
     CreateEmployeeProfileValidator,
 )
@@ -93,6 +105,9 @@ from qwos.application.hr.validators.create_employee_validator import (
     CreateEmployeeValidator,
 )
 from qwos.core.database.session import get_session
+from qwos.domains.hr.repositories.employee_document_repository import (
+    EmployeeDocumentRepository,
+)
 from qwos.domains.hr.repositories.employee_immigration_repository import (
     EmployeeImmigrationRepository,
 )
@@ -120,6 +135,9 @@ from qwos.domains.identity.repositories.user_repository import (
 from qwos.domains.identity.services.authorization_service import (
     AuthorizationService,
 )
+from qwos.infrastructure.repositories.hr.sqlalchemy_employee_document_repository import (
+    SQLAlchemyEmployeeDocumentRepository,
+)
 from qwos.infrastructure.repositories.hr.sqlalchemy_employee_immigration_repository import (
     SQLAlchemyEmployeeImmigrationRepository,
 )
@@ -140,6 +158,15 @@ from qwos.infrastructure.repositories.hr.sqlalchemy_employee_reporting_relations
 )
 from qwos.infrastructure.repositories.hr.sqlalchemy_employee_repository import (
     SQLAlchemyEmployeeRepository,
+)
+from qwos.infrastructure.storage.document_filename_generator import (
+    QWOSDocumentFilenameGenerator,
+)
+from qwos.infrastructure.storage.document_storage_key_generator import (
+    QWOSDocumentStorageKeyGenerator,
+)
+from qwos.infrastructure.storage.local_document_storage import (
+    LocalDocumentStorage,
 )
 
 authorization_service: AuthorizationService = Depends(
@@ -225,6 +252,14 @@ def get_update_employee_profile_use_case(
         unit_of_work=unit_of_work,
         request_context=request_context,
     )
+
+def get_employee_document_repository(
+    session: Session = Depends(get_session),
+) -> EmployeeDocumentRepository:
+    """
+    Return EmployeeDocument repository.
+    """
+    return SQLAlchemyEmployeeDocumentRepository(session)
 
 # -------------------------------------------------------------------------
 # HR Infrastructure Providers
@@ -346,6 +381,84 @@ def get_create_employee_use_case(
         id_generator=id_generator,
         unit_of_work=unit_of_work,
         validator=validator,
+        request_context=request_context,
+    )
+
+def get_document_filename_generator() -> DocumentFilenameGenerator:
+    """
+    Return the QWOS document filename generator.
+    """
+    return QWOSDocumentFilenameGenerator()
+
+
+def get_document_storage_key_generator() -> DocumentStorageKeyGenerator:
+    """
+    Return the QWOS document storage-key generator.
+    """
+    return QWOSDocumentStorageKeyGenerator()
+
+
+def get_document_storage() -> DocumentStorage:
+    """
+    Return the configured document storage provider.
+    """
+    from qwos.core.config.settings import settings
+
+    if settings.DOCUMENT_STORAGE_PROVIDER != "local":
+        raise RuntimeError(
+            "Unsupported document storage provider: "
+            f"{settings.DOCUMENT_STORAGE_PROVIDER}"
+        )
+
+    return LocalDocumentStorage(
+        root_path=settings.DOCUMENT_STORAGE_ROOT,
+    )
+
+def get_upload_employee_document_use_case(
+    employee_repository: EmployeeRepository = Depends(
+        get_employee_repository,
+    ),
+    employee_immigration_repository: EmployeeImmigrationRepository = Depends(
+        get_employee_immigration_repository,
+    ),
+    employee_document_repository: EmployeeDocumentRepository = Depends(
+        get_employee_document_repository,
+    ),
+    authorization_service: AuthorizationService = Depends(
+        get_authorization_service,
+    ),
+    filename_generator: DocumentFilenameGenerator = Depends(
+        get_document_filename_generator,
+    ),
+    storage_key_generator: DocumentStorageKeyGenerator = Depends(
+        get_document_storage_key_generator,
+    ),
+    document_storage: DocumentStorage = Depends(
+        get_document_storage,
+    ),
+    id_generator: IdGenerator = Depends(
+        get_id_generator,
+    ),
+    unit_of_work: UnitOfWork = Depends(
+        get_unit_of_work,
+    ),
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+) -> UploadEmployeeDocumentUseCase:
+    """
+    Return UploadEmployeeDocumentUseCase.
+    """
+    return UploadEmployeeDocumentUseCase(
+        employee_repository=employee_repository,
+        employee_immigration_repository=employee_immigration_repository,
+        employee_document_repository=employee_document_repository,
+        authorization_service=authorization_service,
+        filename_generator=filename_generator,
+        storage_key_generator=storage_key_generator,
+        document_storage=document_storage,
+        id_generator=id_generator,
+        unit_of_work=unit_of_work,
         request_context=request_context,
     )
 
@@ -525,4 +638,39 @@ def get_list_expiring_employee_immigration_use_case(
     """
     return ListExpiringEmployeeImmigrationUseCase(
         employee_immigration_repository=employee_immigration_repository,
+    )
+
+# -------------------------------------------------------------------------
+# Employee Storage Providers
+# ------------------------------------------------------------------------- 
+
+
+def get_document_filename_generator() -> DocumentFilenameGenerator:
+    """
+    Return the QWOS document filename generator.
+    """
+    return QWOSDocumentFilenameGenerator()
+
+
+def get_document_storage_key_generator() -> DocumentStorageKeyGenerator:
+    """
+    Return the QWOS document storage-key generator.
+    """
+    return QWOSDocumentStorageKeyGenerator()
+
+
+def get_document_storage() -> DocumentStorage:
+    """
+    Return the configured document storage provider.
+    """
+    from qwos.core.config.settings import settings
+
+    if settings.DOCUMENT_STORAGE_PROVIDER != "local":
+        raise RuntimeError(
+            "Unsupported document storage provider: "
+            f"{settings.DOCUMENT_STORAGE_PROVIDER}"
+        )
+
+    return LocalDocumentStorage(
+        root_path=settings.DOCUMENT_STORAGE_ROOT,
     )

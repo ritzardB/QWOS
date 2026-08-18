@@ -211,3 +211,8 @@ class EmployeeDocument(TenantEntity):
         nullable=False,
         default=1,
     )
+
+    uploaded_by: Mapped[str | None] = mapped_column(
+        ULID,
+        nullable=True,
+    )

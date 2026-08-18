@@ -84,3 +84,19 @@ class EmployeeDocumentRepository(Protocol):
         Determine whether a storage key already exists.
         """
         ...
+
+    def get_next_version(
+        self,
+        *,
+        tenant_id: str,
+        employee_id: str,
+        document_category: str,
+        immigration_id: str | None = None,
+    ) -> int:
+        """
+        Return the next business document version.
+
+        Versioning is scoped to the employee, document category, and optional
+        immigration record.
+        """
+        ...

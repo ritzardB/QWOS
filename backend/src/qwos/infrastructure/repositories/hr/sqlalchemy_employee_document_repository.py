@@ -19,14 +19,14 @@ Author:
 
 from __future__ import annotations
 
-from qwos.domains.hr.repositories.employee_document_repository import (
-    EmployeeDocumentRepository,
-)
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from qwos.core.database.repositories.base_repository import BaseRepository
 from qwos.domains.hr.models.employee_document import EmployeeDocument
+from qwos.domains.hr.repositories.employee_document_repository import (
+    EmployeeDocumentRepository,
+)
 
 
 class SQLAlchemyEmployeeDocumentRepository(
@@ -133,3 +133,51 @@ class SQLAlchemyEmployeeDocumentRepository(
         )
 
         return self._session.scalar(stmt) is not None
+
+    def get_next_version(
+        self,
+        *,
+        tenant_id: str,
+        employee_id: str,
+        document_category: str,
+        immigration_id: str | None = None,
+    ) -> int:
+        """
+        Return the next business document version.
+        """
+
+        conditions = [
+            EmployeeDocument.tenant_id == tenant_id,
+            EmployeeDocument.employee_id == employee_id,
+            EmployeeDocument.document_category
+            == document_category.strip().lower(),
+            EmployeeDocument.deleted_at.is_(None),
+        ]
+
+        if immigration_id is None:
+            conditions.append(
+                EmployeeDocument.immigration_id.is_(None),
+            )
+        else:
+            conditions.append(
+                EmployeeDocument.immigration_id == immigration_id,
+            )
+
+        stmt = select(
+            func.coalesce(
+                func.max(
+                    EmployeeDocument.document_version,
+                ),
+                0,
+            )
+            + 1,
+        ).where(*conditions)
+
+        next_version = self._session.scalar(stmt)
+
+        if next_version is None:
+            return 1
+
+        return int(next_version)
+
+    
