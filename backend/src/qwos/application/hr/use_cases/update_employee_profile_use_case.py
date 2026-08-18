@@ -1,9 +1,5 @@
 from __future__ import annotations
 
-from qwos.application.hr.responses.update_employee_profile_response import (
-    UpdateEmployeeProfileResponse,
-)
-
 from qwos.application.common.context.request_context import RequestContext
 from qwos.application.common.exceptions.forbidden_exception import (
     ForbiddenException,
@@ -14,6 +10,9 @@ from qwos.application.common.exceptions.resource_not_found_exception import (
 from qwos.application.common.persistence.unit_of_work import UnitOfWork
 from qwos.application.hr.commands.update_employee_profile_command import (
     UpdateEmployeeProfileCommand,
+)
+from qwos.application.hr.responses.update_employee_profile_response import (
+    UpdateEmployeeProfileResponse,
 )
 from qwos.domains.hr.repositories.employee_profile_repository import (
     EmployeeProfileRepository,

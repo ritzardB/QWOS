@@ -19,6 +19,12 @@ Author:
 
 from __future__ import annotations
 
+from qwos.api.contracts.requests.hr.create_employee_immigration_request import (
+    CreateEmployeeImmigrationRequest,
+)
+from qwos.api.contracts.responses.hr.create_employee_immigration_response import (
+    CreateEmployeeImmigrationResponse,
+)
 from qwos.api.contracts.responses.hr.get_employee_immigration_response import (
     GetEmployeeImmigrationResponse,
 )
@@ -29,6 +35,13 @@ from qwos.api.contracts.responses.hr.list_employee_immigration_response import (
 from qwos.api.contracts.responses.hr.list_expiring_employee_immigration_response import (
     ExpiringEmployeeImmigrationItemResponse,
     ListExpiringEmployeeImmigrationResponse,
+)
+from qwos.application.common.context.request_context import RequestContext
+from qwos.application.hr.commands.create_employee_immigration_command import (
+    CreateEmployeeImmigrationCommand,
+)
+from qwos.application.hr.responses.create_employee_immigration_response import (
+    CreateEmployeeImmigrationResponse as ApplicationCreateEmployeeImmigrationResponse,
 )
 from qwos.application.hr.responses.get_employee_immigration_response import (
     GetEmployeeImmigrationResponse as ApplicationGetEmployeeImmigrationResponse,
@@ -103,4 +116,41 @@ class EmployeeImmigrationMapper:
                 )
                 for item in response.items
             ],
+        )
+
+    @staticmethod
+    def to_create_command(
+        *,
+        employee_id: str,
+        request: CreateEmployeeImmigrationRequest,
+        request_context: RequestContext,
+    ) -> CreateEmployeeImmigrationCommand:
+        return CreateEmployeeImmigrationCommand(
+            tenant_id=request_context.tenant_id,
+            employee_id=employee_id,
+            immigration_type=request.immigration_type,
+            status=request.status,
+            document_number=request.document_number,
+            sponsor_name=request.sponsor_name,
+            issuing_authority=request.issuing_authority,
+            issue_date=request.issue_date,
+            expiry_date=request.expiry_date,
+            notes=request.notes,
+        )
+
+    @staticmethod
+    def to_create_response(
+        response: ApplicationCreateEmployeeImmigrationResponse,
+    ) -> CreateEmployeeImmigrationResponse:
+        return CreateEmployeeImmigrationResponse(
+            id=response.id,
+            employee_id=response.employee_id,
+            immigration_type=response.immigration_type,
+            status=response.status,
+            document_number=response.document_number,
+            sponsor_name=response.sponsor_name,
+            issuing_authority=response.issuing_authority,
+            issue_date=response.issue_date,
+            expiry_date=response.expiry_date,
+            notes=response.notes,
         )
