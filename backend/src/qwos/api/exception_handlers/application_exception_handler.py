@@ -32,6 +32,9 @@ from qwos.application.common.exceptions.application_exception import (
 from qwos.application.common.exceptions.duplicate_resource_exception import (
     DuplicateResourceException,
 )
+from qwos.application.common.exceptions.forbidden_exception import (
+    ForbiddenException,
+)
 from qwos.application.common.exceptions.invalid_credentials_exception import (
     InvalidCredentialsException,
 )
@@ -49,7 +52,9 @@ def _get_status_code(
     """
     Return the HTTP status code associated with an application exception.
     """
-
+    if isinstance(exc, ForbiddenException):
+        return 403
+    
     if isinstance(exc, ValidationException):
         return 400
 
@@ -90,3 +95,31 @@ def application_exception_handler(
         status_code=_get_status_code(exc),
         content=response.model_dump(mode="json"),
     )
+
+def _get_status_code(
+    exc: ApplicationException,
+) -> int:
+    """
+    Return the HTTP status code associated with an application exception.
+    """
+
+    if isinstance(exc, ValidationException):
+        return 400
+
+    if isinstance(exc, InvalidCredentialsException):
+        return 401
+
+    if isinstance(exc, AccountLockedException):
+        return 423
+
+    if isinstance(exc, DuplicateResourceException):
+        return 409
+
+    if isinstance(exc, ResourceNotFoundException):
+        return 404
+
+    if isinstance(exc, ForbiddenException):
+        return 403
+
+    return 400
+

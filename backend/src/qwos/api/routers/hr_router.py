@@ -38,6 +38,9 @@ from qwos.api.contracts.requests.hr.create_employee_request import (
 from qwos.api.contracts.requests.hr.link_employee_to_user_request import (
     LinkEmployeeToUserRequest,
 )
+from qwos.api.contracts.requests.hr.update_employee_profile_request import (
+    UpdateEmployeeProfileRequest,
+)
 from qwos.api.contracts.responses.hr.create_employee_profile_response import (
     CreateEmployeeProfileResponse,
 )
@@ -89,6 +92,7 @@ from qwos.application.common.dependencies.hr import (
     get_list_employees_use_case,
     get_list_expiring_employee_immigration_use_case,
     get_request_context,
+    get_update_employee_profile_use_case,
 )
 from qwos.application.hr.mappers.employee_immigration_mapper import (
     EmployeeImmigrationMapper,
@@ -141,6 +145,9 @@ from qwos.application.hr.use_cases.list_employees_use_case import (
 )
 from qwos.application.hr.use_cases.list_expiring_employee_immigration_use_case import (
     ListExpiringEmployeeImmigrationUseCase,
+)
+from qwos.application.hr.use_cases.update_employee_profile_use_case import (
+    UpdateEmployeeProfileUseCase,
 )
 
 router = APIRouter(
@@ -503,4 +510,60 @@ async def list_expiring_employee_immigration(
 
     return EmployeeImmigrationMapper.to_expiring_list_response(
         application_response,
+    )
+
+@router.patch(
+    "/employees/{employee_id}/profile",
+    response_model=GetEmployeeProfileResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Update Employee Profile",
+    description="Update an employee's personal HR profile.",
+)
+async def update_employee_profile(
+    employee_id: str,
+    request: UpdateEmployeeProfileRequest,
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+    use_case: UpdateEmployeeProfileUseCase = Depends(
+        get_update_employee_profile_use_case,
+    ),
+) -> GetEmployeeProfileResponse:
+    """
+    Update an employee's personal HR profile.
+    """
+
+    command = EmployeeProfileMapper.to_update_command(
+        employee_id=employee_id,
+        request=request,
+        request_context=request_context,
+    )
+
+    application_response = await use_case.execute(
+        command,
+    )
+
+    return GetEmployeeProfileResponse(
+        id=application_response.id,
+        employee_id=application_response.employee_id,
+        date_of_birth=application_response.date_of_birth,
+        gender=application_response.gender,
+        nationality=application_response.nationality,
+        marital_status=application_response.marital_status,
+        personal_email=application_response.personal_email,
+        personal_phone=application_response.personal_phone,
+        address_line_1=application_response.address_line_1,
+        address_line_2=application_response.address_line_2,
+        city=application_response.city,
+        state_province=application_response.state_province,
+        postal_code=application_response.postal_code,
+        country_code=application_response.country_code,
+        emergency_contact_name=application_response.emergency_contact_name,
+        emergency_contact_relationship=(
+            application_response.emergency_contact_relationship
+        ),
+        emergency_contact_phone=(
+            application_response.emergency_contact_phone
+        ),
+        created_at=application_response.created_at,
     )

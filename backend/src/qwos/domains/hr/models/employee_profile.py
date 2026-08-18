@@ -149,6 +149,107 @@ class EmployeeProfile(TenantEntity):
         )
 
     # -------------------------------------------------------------------------
+    # Update
+    # -------------------------------------------------------------------------
+
+    def update(
+        self,
+        *,
+        date_of_birth: date | None = None,
+        gender: str | None = None,
+        nationality: str | None = None,
+        marital_status: str | None = None,
+        personal_email: str | None = None,
+        personal_phone: str | None = None,
+        address_line_1: str | None = None,
+        address_line_2: str | None = None,
+        city: str | None = None,
+        state_province: str | None = None,
+        postal_code: str | None = None,
+        country_code: str | None = None,
+        emergency_contact_name: str | None = None,
+        emergency_contact_relationship: str | None = None,
+        emergency_contact_phone: str | None = None,
+        updated_by: str | None = None,
+    ) -> None:
+        """
+        Update the employee profile.
+        """
+
+        self.date_of_birth = date_of_birth
+        self.gender = (
+            gender.strip().lower()
+            if gender
+            else None
+        )
+        self.nationality = (
+            nationality.strip().lower()
+            if nationality
+            else None
+        )
+        self.marital_status = (
+            marital_status.strip().lower()
+            if marital_status
+            else None
+        )
+        self.personal_email = (
+            personal_email.strip().lower()
+            if personal_email
+            else None
+        )
+        self.personal_phone = (
+            personal_phone.strip()
+            if personal_phone
+            else None
+        )
+        self.address_line_1 = (
+            address_line_1.strip()
+            if address_line_1
+            else None
+        )
+        self.address_line_2 = (
+            address_line_2.strip()
+            if address_line_2
+            else None
+        )
+        self.city = (
+            city.strip()
+            if city
+            else None
+        )
+        self.state_province = (
+            state_province.strip()
+            if state_province
+            else None
+        )
+        self.postal_code = (
+            postal_code.strip()
+            if postal_code
+            else None
+        )
+        self.country_code = (
+            country_code.strip().upper()
+            if country_code
+            else None
+        )
+        self.emergency_contact_name = (
+            emergency_contact_name.strip()
+            if emergency_contact_name
+            else None
+        )
+        self.emergency_contact_relationship = (
+            emergency_contact_relationship.strip().lower()
+            if emergency_contact_relationship
+            else None
+        )
+        self.emergency_contact_phone = (
+            emergency_contact_phone.strip()
+            if emergency_contact_phone
+            else None
+        )
+        self.updated_by = updated_by
+        
+    # -------------------------------------------------------------------------
     # Ownership
     # -------------------------------------------------------------------------
 

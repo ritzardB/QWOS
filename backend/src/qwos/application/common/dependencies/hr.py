@@ -35,6 +35,7 @@ from qwos.application.common.dependencies import (
     get_unit_of_work,
 )
 from qwos.application.common.dependencies.identity import (
+    get_authorization_service,
     get_user_profile_repository,
     get_user_repository,
 )
@@ -79,6 +80,9 @@ from qwos.application.hr.use_cases.list_employees_use_case import (
 from qwos.application.hr.use_cases.list_expiring_employee_immigration_use_case import (
     ListExpiringEmployeeImmigrationUseCase,
 )
+from qwos.application.hr.use_cases.update_employee_profile_use_case import (
+    UpdateEmployeeProfileUseCase,
+)
 from qwos.application.hr.validators.create_employee_profile_validator import (
     CreateEmployeeProfileValidator,
 )
@@ -113,6 +117,9 @@ from qwos.domains.identity.repositories.user_profile_repository import (
 from qwos.domains.identity.repositories.user_repository import (
     UserRepository,
 )
+from qwos.domains.identity.services.authorization_service import (
+    AuthorizationService,
+)
 from qwos.infrastructure.repositories.hr.sqlalchemy_employee_immigration_repository import (
     SQLAlchemyEmployeeImmigrationRepository,
 )
@@ -134,6 +141,10 @@ from qwos.infrastructure.repositories.hr.sqlalchemy_employee_reporting_relations
 from qwos.infrastructure.repositories.hr.sqlalchemy_employee_repository import (
     SQLAlchemyEmployeeRepository,
 )
+
+authorization_service: AuthorizationService = Depends(
+    get_authorization_service,
+),
 
 # -------------------------------------------------------------------------
 # Repository Providers
@@ -186,6 +197,34 @@ def get_employee_immigration_repository(
     Return EmployeeImmigration repository.
     """
     return SQLAlchemyEmployeeImmigrationRepository(session)
+
+def get_update_employee_profile_use_case(
+    employee_repository: EmployeeRepository = Depends(
+        get_employee_repository,
+    ),
+    employee_profile_repository: EmployeeProfileRepository = Depends(
+        get_employee_profile_repository,
+    ),
+    authorization_service=Depends(
+        get_authorization_service,
+    ),
+    unit_of_work: UnitOfWork = Depends(
+        get_unit_of_work,
+    ),
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+) -> UpdateEmployeeProfileUseCase:
+    """
+    Return UpdateEmployeeProfileUseCase.
+    """
+    return UpdateEmployeeProfileUseCase(
+        employee_repository=employee_repository,
+        employee_profile_repository=employee_profile_repository,
+        authorization_service=authorization_service,
+        unit_of_work=unit_of_work,
+        request_context=request_context,
+    )
 
 # -------------------------------------------------------------------------
 # HR Infrastructure Providers

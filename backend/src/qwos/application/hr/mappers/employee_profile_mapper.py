@@ -22,6 +22,9 @@ from __future__ import annotations
 from qwos.api.contracts.requests.hr.create_employee_profile_request import (
     CreateEmployeeProfileRequest,
 )
+from qwos.api.contracts.requests.hr.update_employee_profile_request import (
+    UpdateEmployeeProfileRequest,
+)
 from qwos.api.contracts.responses.hr.create_employee_profile_response import (
     CreateEmployeeProfileResponse,
 )
@@ -31,6 +34,9 @@ from qwos.api.contracts.responses.hr.get_employee_profile_response import (
 from qwos.application.common.context.request_context import RequestContext
 from qwos.application.hr.commands.create_employee_profile_command import (
     CreateEmployeeProfileCommand,
+)
+from qwos.application.hr.commands.update_employee_profile_command import (
+    UpdateEmployeeProfileCommand,
 )
 from qwos.application.hr.responses.create_employee_profile_response import (
     CreateEmployeeProfileResponse as ApplicationCreateEmployeeProfileResponse,
@@ -143,4 +149,41 @@ class EmployeeProfileMapper:
             ),
             emergency_contact_phone=response.emergency_contact_phone,
             created_at=response.created_at,
+        )
+
+    @staticmethod
+    def to_update_command(
+        *,
+        employee_id: str,
+        request: UpdateEmployeeProfileRequest,
+        request_context: RequestContext,
+    ) -> UpdateEmployeeProfileCommand:
+        """
+        Convert an API update request into an application command.
+        """
+
+        return UpdateEmployeeProfileCommand(
+            tenant_id=request_context.tenant_id,
+            employee_id=employee_id,
+            date_of_birth=request.date_of_birth,
+            gender=request.gender,
+            nationality=request.nationality,
+            marital_status=request.marital_status,
+            personal_email=(
+                str(request.personal_email)
+                if request.personal_email is not None
+                else None
+            ),
+            personal_phone=request.personal_phone,
+            address_line_1=request.address_line_1,
+            address_line_2=request.address_line_2,
+            city=request.city,
+            state_province=request.state_province,
+            postal_code=request.postal_code,
+            country_code=request.country_code,
+            emergency_contact_name=request.emergency_contact_name,
+            emergency_contact_relationship=(
+                request.emergency_contact_relationship
+            ),
+            emergency_contact_phone=request.emergency_contact_phone,
         )
