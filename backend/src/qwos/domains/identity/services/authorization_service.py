@@ -20,6 +20,7 @@ Author:
 
 from __future__ import annotations
 
+from qwos.application.common.ports.clock import Clock
 from qwos.core.services.base_service import BaseService
 from qwos.domains.identity.models.role_permission import RolePermission
 from qwos.domains.identity.models.user_role import UserRole
@@ -52,6 +53,7 @@ class AuthorizationService(BaseService):
         permissions: PermissionRepository,
         user_roles: UserRoleRepository,
         role_permissions: RolePermissionRepository,
+        clock: Clock
     ) -> None:
         super().__init__()
 
@@ -60,6 +62,7 @@ class AuthorizationService(BaseService):
         self._permissions = permissions
         self._user_roles = user_roles
         self._role_permissions = role_permissions
+        self._clock = clock
 
     # ------------------------------------------------------------------
     # User Role Management
@@ -143,19 +146,161 @@ class AuthorizationService(BaseService):
 
     async def has_permission(
         self,
+        *,
+        tenant_id: str,
         user_id: str,
         permission_code: str,
     ) -> bool:
         """
-        Determine whether a user has a permission.
+        Determine whether a user has an effective permission
+        within the current tenant.
         """
-        raise NotImplementedError()
+
+        normalized_code = permission_code.strip().upper()
+
+        effective_permissions = (
+            await self.get_effective_permissions(
+                tenant_id=tenant_id,
+                user_id=user_id,
+            )
+        )
+
+        return normalized_code in effective_permissions
 
     async def get_effective_permissions(
         self,
+        *,
+        tenant_id: str,
         user_id: str,
-    ) -> bool:
-        """ ""
-        Retrieve every effective permission granted to a user.
+    ) -> list[str]:
         """
-        raise NotImplementedError()
+        Retrieve effective permission codes for a user
+        within the current tenant.
+        """
+
+        now = self._clock.now()
+
+        role_assignments = (
+            self._user_roles.list_active_roles(
+                user_id=user_id,
+            )
+        )
+
+        permission_codes: set[str] = set()
+
+        for user_role in role_assignments:
+            # -----------------------------------------------------------------
+            # Tenant isolation
+            # -----------------------------------------------------------------
+
+            if user_role.tenant_id != tenant_id:
+                continue
+
+            # -----------------------------------------------------------------
+            # User role lifecycle
+            # -----------------------------------------------------------------
+
+            if not user_role.is_enabled:
+                continue
+
+            if user_role.deleted_at is not None:
+                continue
+
+            if (
+                user_role.effective_from is not None
+                and user_role.effective_from > now
+            ):
+                continue
+
+            if (
+                user_role.effective_until is not None
+                and user_role.effective_until < now
+            ):
+                continue
+
+            # -----------------------------------------------------------------
+            # Resolve role
+            # -----------------------------------------------------------------
+
+            role = self._roles.get_by_id(
+                user_role.role_id,
+            )
+
+            if role is None:
+                continue
+
+            if role.tenant_id != tenant_id:
+                continue
+
+            if role.deleted_at is not None:
+                continue
+
+            if not role.is_active:
+                continue
+
+            # -----------------------------------------------------------------
+            # Resolve role permissions
+            # -----------------------------------------------------------------
+
+            role_permissions = (
+                self._role_permissions.list_active_permissions(
+                    role_id=role.id,
+                )
+            )
+
+            for role_permission in role_permissions:
+                # -------------------------------------------------------------
+                # Tenant isolation
+                # -------------------------------------------------------------
+
+                if role_permission.tenant_id != tenant_id:
+                    continue
+
+                # -------------------------------------------------------------
+                # Role permission lifecycle
+                # -------------------------------------------------------------
+
+                if not role_permission.is_enabled:
+                    continue
+
+                if role_permission.deleted_at is not None:
+                    continue
+
+                if (
+                    role_permission.effective_from is not None
+                    and role_permission.effective_from > now
+                ):
+                    continue
+
+                if (
+                    role_permission.effective_until is not None
+                    and role_permission.effective_until < now
+                ):
+                    continue
+
+                # -------------------------------------------------------------
+                # Resolve permission
+                # -------------------------------------------------------------
+
+                permission = self._permissions.get_by_id(
+                    role_permission.permission_id,
+                )
+
+                if permission is None:
+                    continue
+
+                if permission.deleted_at is not None:
+                    continue
+
+                if not permission.is_active:
+                    continue
+
+                normalized_permission_code = (
+                    permission.code.strip().upper()
+                )
+
+                permission_codes.add(
+                    normalized_permission_code,
+                )
+
+        return sorted(permission_codes)

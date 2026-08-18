@@ -53,6 +53,7 @@
 \i ../schema/005_permissions.sql
 \i ../schema/006_role_permissions.sql
 \i ../schema/007_user_roles.sql
+\i seed_rbac.sql
 \i ../schema/008_sessions.sql
 \i ../schema/009_session_tokens.sql
 \i ../schema/010_login_history.sql
@@ -70,9 +71,10 @@
 \i ../schema/015_employee_number_sequences.sql
 \i ../schema/016_employees.sql
 \i ../schema/017_employee_profiles.sql
-\i ../schema/018_employee_statuses.sql
+\i ../schema/018_employee_reporting_relationships.sql
 \i ../schema/019_employee_positions.sql
-\i ../schema/020_employee_departments.sql
+\i ../schema/020_employee_immigration.sql
+\i ../schema/021_employee_documents.sql
 
 -- ---------------------------------------------------------------------------
 -- Triggers

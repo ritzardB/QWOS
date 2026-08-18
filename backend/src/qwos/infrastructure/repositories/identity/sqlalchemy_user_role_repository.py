@@ -29,6 +29,8 @@ Author:
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -84,13 +86,29 @@ class SQLAlchemyUserRoleRepository(
         user_id: str,
     ) -> list[UserRole]:
         """
-        Retrieve all active role assignments for a user.
+        Retrieve currently effective role assignments for a user.
         """
+
+        now = datetime.now(timezone.utc)
+
         stmt = (
             select(UserRole)
             .where(
                 UserRole.user_id == user_id,
+                UserRole.is_enabled.is_(True),
                 UserRole.deleted_at.is_(None),
+                (
+                    UserRole.effective_from.is_(None)
+                    | (
+                        UserRole.effective_from <= now
+                    )
+                ),
+                (
+                    UserRole.effective_until.is_(None)
+                    | (
+                        UserRole.effective_until >= now
+                    )
+                ),
             )
             .order_by(
                 UserRole.is_primary.desc(),

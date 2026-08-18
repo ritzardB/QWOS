@@ -43,6 +43,9 @@ from qwos.api.contracts.requests.identity.authentication.reset_password_request 
 from qwos.api.contracts.requests.identity.create_user_request import (
     CreateUserRequest,
 )
+from qwos.api.contracts.requests.identity.roles.assign_role_request import (
+    AssignRoleRequest,
+)
 from qwos.api.contracts.responses.identity.authentication.authentication_response import (
     AuthenticationResponse,
 )
@@ -53,8 +56,12 @@ from qwos.api.contracts.responses.identity.authentication.refresh_token_response
 from qwos.api.contracts.responses.identity.create_user_response import (
     CreateUserResponse as APICreateUserResponse,
 )
+from qwos.api.contracts.responses.identity.roles.assign_role_response import (
+    AssignRoleResponse,
+)
 from qwos.application.common.context.request_context import RequestContext
 from qwos.application.common.dependencies.identity import (
+    get_assign_role_use_case,
     get_authenticate_user_use_case,
     get_change_password_use_case,
     get_create_user_use_case,
@@ -64,10 +71,17 @@ from qwos.application.common.dependencies.identity import (
     get_request_password_reset_use_case,
     get_reset_password_use_case,
 )
+from qwos.application.identity.commands.assign_role_command import (
+    AssignRoleCommand,
+)
 from qwos.application.identity.mappers.authentication_mapper import (
     AuthenticationMapper,
 )
+from qwos.application.identity.mappers.role_mapper import RoleMapper
 from qwos.application.identity.mappers.user_mapper import UserMapper
+from qwos.application.identity.use_cases.assign_role_use_case import (
+    AssignRoleUseCase,
+)
 from qwos.application.identity.use_cases.authenticate_user_use_case import AuthenticateUserUseCase
 from qwos.application.identity.use_cases.change_password_use_case import (
     ChangePasswordUseCase,
@@ -307,4 +321,34 @@ async def logout(
     return AuthenticationResponse(
         success=application_response.success,
         message=application_response.message,
+    )
+
+@router.post(
+    "/roles/assign",
+    response_model=AssignRoleResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Assign Role",
+    description="Assign an existing role to a user.",
+)
+async def assign_role(
+    request: AssignRoleRequest,
+    use_case: AssignRoleUseCase = Depends(
+        get_assign_role_use_case,
+    ),
+) -> AssignRoleResponse:
+    """
+    Assign a role to a user.
+    """
+
+    command = AssignRoleCommand(
+        user_id=request.user_id,
+        role_id=request.role_id,
+    )
+
+    application_response = await use_case.execute(
+        command,
+    )
+
+    return RoleMapper.to_assign_response(
+        application_response,
     )

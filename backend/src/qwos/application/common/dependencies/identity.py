@@ -47,6 +47,9 @@ from qwos.application.common.ports.secure_token_generator import (
 )
 from qwos.application.common.ports.token_hasher import TokenHasher
 from qwos.application.common.ports.token_provider import TokenProvider
+from qwos.application.identity.use_cases.assign_role_use_case import (
+    AssignRoleUseCase,
+)
 from qwos.application.identity.use_cases.authenticate_user_use_case import (
     AuthenticateUserUseCase,
 )
@@ -75,6 +78,15 @@ from qwos.core.database.session import get_session
 from qwos.domains.identity.repositories.password_reset_repository import (
     PasswordResetRepository,
 )
+from qwos.domains.identity.repositories.permission_repository import (
+    PermissionRepository,
+)
+from qwos.domains.identity.repositories.role_permission_repository import (
+    RolePermissionRepository,
+)
+from qwos.domains.identity.repositories.role_repository import (
+    RoleRepository,
+)
 from qwos.domains.identity.repositories.session_repository import (
     SessionRepository,
 )
@@ -87,9 +99,24 @@ from qwos.domains.identity.repositories.user_profile_repository import (
 from qwos.domains.identity.repositories.user_repository import (
     UserRepository,
 )
+from qwos.domains.identity.repositories.user_role_repository import (
+    UserRoleRepository,
+)
+from qwos.domains.identity.services.authorization_service import (
+    AuthorizationService,
+)
 from qwos.infrastructure.repositories.identity import sqlalchemy_user_profile_repository as user_profile_repo
 from qwos.infrastructure.repositories.identity.sqlalchemy_password_reset_repository import (
     SQLAlchemyPasswordResetRepository,
+)
+from qwos.infrastructure.repositories.identity.sqlalchemy_permission_repository import (
+    SQLAlchemyPermissionRepository,
+)
+from qwos.infrastructure.repositories.identity.sqlalchemy_role_permission_repository import (
+    SQLAlchemyRolePermissionRepository,
+)
+from qwos.infrastructure.repositories.identity.sqlalchemy_role_repository import (
+    SQLAlchemyRoleRepository,
 )
 from qwos.infrastructure.repositories.identity.sqlalchemy_session_repository import (
     SQLAlchemySessionRepository,
@@ -99,6 +126,9 @@ from qwos.infrastructure.repositories.identity.sqlalchemy_session_token_reposito
 )
 from qwos.infrastructure.repositories.identity.sqlalchemy_user_repository import (
     SQLAlchemyUserRepository,
+)
+from qwos.infrastructure.repositories.identity.sqlalchemy_user_role_repository import (
+    SQLAlchemyUserRoleRepository,
 )
 
 # -------------------------------------------------------------------------
@@ -443,6 +473,104 @@ def get_refresh_access_token_use_case(
         session_token_repository=session_token_repository,
         token_provider=token_provider,
         token_hasher=token_hasher,
+        id_generator=id_generator,
+        clock=clock,
+        unit_of_work=unit_of_work,
+        request_context=request_context,
+    )
+
+def get_role_repository(
+    session: Session = Depends(get_session),
+) -> RoleRepository:
+    return SQLAlchemyRoleRepository(
+        session=session,
+    )
+
+def get_user_role_repository(
+    session: Session = Depends(get_session),
+) -> UserRoleRepository:
+    return SQLAlchemyUserRoleRepository(
+        session=session,
+    )
+
+def get_permission_repository(
+    session: Session = Depends(get_session),
+) -> PermissionRepository:
+    return SQLAlchemyPermissionRepository(
+        session=session,
+    )
+
+def get_role_permission_repository(
+    session: Session = Depends(get_session),
+) -> RolePermissionRepository:
+    return SQLAlchemyRolePermissionRepository(
+        session=session,
+    )
+
+def get_authorization_service(
+    user_repository: UserRepository = Depends(
+        get_user_repository,
+    ),
+    role_repository: RoleRepository = Depends(
+        get_role_repository,
+    ),
+    permission_repository: PermissionRepository = Depends(
+        get_permission_repository,
+    ),
+    user_role_repository: UserRoleRepository = Depends(
+        get_user_role_repository,
+    ),
+    role_permission_repository: RolePermissionRepository = Depends(
+        get_role_permission_repository,
+    ),
+    clock: Clock = Depends(
+        get_clock,
+    ),
+) -> AuthorizationService:
+    """
+    Return AuthorizationService.
+    """
+
+    return AuthorizationService(
+        users=user_repository,
+        roles=role_repository,
+        permissions=permission_repository,
+        user_roles=user_role_repository,
+        role_permissions=role_permission_repository,
+        clock=clock,
+    )
+
+def get_assign_role_use_case(
+    user_repository: UserRepository = Depends(
+        get_user_repository,
+    ),
+    role_repository: RoleRepository = Depends(
+        get_role_repository,
+    ),
+    user_role_repository: UserRoleRepository = Depends(
+        get_user_role_repository,
+    ),
+    id_generator: IdGenerator = Depends(
+        get_id_generator,
+    ),
+    clock: Clock = Depends(
+        get_clock,
+    ),
+    unit_of_work: UnitOfWork = Depends(
+        get_unit_of_work,
+    ),
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+) -> AssignRoleUseCase:
+    """
+    Return AssignRoleUseCase.
+    """
+
+    return AssignRoleUseCase(
+        user_repository=user_repository,
+        role_repository=role_repository,
+        user_role_repository=user_role_repository,
         id_generator=id_generator,
         clock=clock,
         unit_of_work=unit_of_work,

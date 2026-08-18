@@ -17,28 +17,33 @@ Author:
 
 from __future__ import annotations
 
-from qwos.core.database.repositories.base_repository import BaseRepository
+from typing import Protocol
+
 from qwos.domains.identity.models.role_permission import RolePermission
 
 
-class RolePermissionRepository(BaseRepository[RolePermission]):
+class RolePermissionRepository(Protocol):
     """
-    Repository for managing role permission assignments.
+    Contract for role-permission persistence.
     """
 
-    model = RolePermission
+    def get_by_id(
+        self,
+        role_permission_id: str,
+    ) -> RolePermission | None:
+        """
+        Retrieve a role-permission assignment by identifier.
+        """
+        ...
 
     def list_active_permissions(
         self,
         role_id: str,
     ) -> list[RolePermission]:
         """
-        Retrieve all active permissions assigned to a role.
+        Retrieve enabled, non-deleted role-permission assignments.
         """
-        return self.list_by(
-            role_id=role_id,
-            is_enabled=True,
-        )
+        ...
 
     def exists_assignment(
         self,
@@ -46,12 +51,9 @@ class RolePermissionRepository(BaseRepository[RolePermission]):
         permission_id: str,
     ) -> bool:
         """
-        Check whether a permission assignment already exists.
+        Determine whether a role already has a permission assignment.
         """
-        return self.exists_by(
-            role_id=role_id,
-            permission_id=permission_id,
-        )
+        ...
 
     def get_assignment(
         self,
@@ -61,7 +63,13 @@ class RolePermissionRepository(BaseRepository[RolePermission]):
         """
         Retrieve a specific role-permission assignment.
         """
-        return self.first_by(
-            role_id=role_id,
-            permission_id=permission_id,
-        )
+        ...
+
+    def save(
+        self,
+        role_permission: RolePermission,
+    ) -> None:
+        """
+        Persist a role-permission assignment.
+        """
+        ...

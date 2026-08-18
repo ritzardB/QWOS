@@ -45,6 +45,45 @@ class UserRole(TenantEntity):
         super().__init__(**kwargs)
 
     # -------------------------------------------------------------------------
+    # Factory
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        id: str,
+        tenant_id: str,
+        user_id: str,
+        role_id: str,
+        assigned_at: datetime,
+        assigned_by: str | None = None,
+        is_primary: bool = False,
+        effective_from: datetime | None = None,
+        effective_until: datetime | None = None,
+        assignment_reason: str | None = None,
+    ) -> "UserRole":
+        """
+        Create a new user-role assignment.
+        """
+
+        return cls(
+            id=id,
+            tenant_id=tenant_id,
+            user_id=user_id,
+            role_id=role_id,
+            is_primary=is_primary,
+            is_enabled=True,
+            assigned_at=assigned_at,
+            assigned_by=assigned_by,
+            effective_from=effective_from,
+            effective_until=effective_until,
+            assignment_reason=assignment_reason,
+            created_by=assigned_by,
+            updated_by=assigned_by,
+        )
+    
+    # -------------------------------------------------------------------------
     # Assignment
     # -------------------------------------------------------------------------
 
