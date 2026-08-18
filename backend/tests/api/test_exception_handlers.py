@@ -9,6 +9,9 @@ from qwos.application.common.exceptions.application_exception import (
 from qwos.application.common.exceptions.duplicate_resource_exception import (
     DuplicateResourceException,
 )
+from qwos.application.common.exceptions.forbidden_exception import (
+    ForbiddenException,
+)
 from qwos.application.common.exceptions.invalid_credentials_exception import (
     InvalidCredentialsException,
 )
@@ -60,6 +63,11 @@ def raise_validation() -> None:
         ValidationResult(),
     )
 
+@app.get("/test/forbidden")
+def raise_forbidden() -> None:
+    raise ForbiddenException(
+        message="Test forbidden error.",
+    )
 
 def test_application_exception_returns_400() -> None:
     client = TestClient(app)
@@ -138,3 +146,18 @@ def test_validation_exception_returns_400() -> None:
 
     assert body["success"] is False
     assert body["errors"][0]["code"] == "ValidationException"
+
+def test_forbidden_returns_403() -> None:
+    client = TestClient(app)
+
+    response = client.get("/test/forbidden")
+
+    assert response.status_code == 403
+
+    body = response.json()
+
+    assert body["success"] is False
+    assert body["message"] == "Test forbidden error."
+    assert body["errors"][0]["code"] == "ForbiddenException"
+    assert body["errors"][0]["message"] == "Test forbidden error."
+

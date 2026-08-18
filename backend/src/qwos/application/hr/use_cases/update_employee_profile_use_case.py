@@ -73,7 +73,7 @@ class UpdateEmployeeProfileUseCase:
 
         if not allowed:
             raise ForbiddenException(
-                "User is not authorized to update employee profiles."
+                message="User is not authorized to update employee profiles."
             )
 
         # ------------------------------------------------------------------
