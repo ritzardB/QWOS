@@ -23,8 +23,9 @@ Author:
 from __future__ import annotations
 
 from datetime import date
+from pathlib import Path
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
 from qwos.api.contracts.requests.hr.create_employee_profile_request import (
     CreateEmployeeProfileRequest,
@@ -40,6 +41,9 @@ from qwos.api.contracts.requests.hr.link_employee_to_user_request import (
 )
 from qwos.api.contracts.requests.hr.update_employee_profile_request import (
     UpdateEmployeeProfileRequest,
+)
+from qwos.api.contracts.requests.hr.upload_employee_document_request import (
+    UploadEmployeeDocumentRequest,
 )
 from qwos.api.contracts.responses.hr.create_employee_profile_response import (
     CreateEmployeeProfileResponse,
@@ -77,6 +81,9 @@ from qwos.api.contracts.responses.hr.list_employees_response import (
 from qwos.api.contracts.responses.hr.list_expiring_employee_immigration_response import (
     ListExpiringEmployeeImmigrationResponse,
 )
+from qwos.api.contracts.responses.hr.upload_employee_document_response import (
+    UploadEmployeeDocumentResponse,
+)
 from qwos.application.common.context.request_context import RequestContext
 from qwos.application.common.dependencies.hr import (
     get_create_employee_profile_use_case,
@@ -93,6 +100,10 @@ from qwos.application.common.dependencies.hr import (
     get_list_expiring_employee_immigration_use_case,
     get_request_context,
     get_update_employee_profile_use_case,
+    get_upload_employee_document_use_case,
+)
+from qwos.application.hr.mappers.employee_document_mapper import (
+    EmployeeDocumentMapper,
 )
 from qwos.application.hr.mappers.employee_immigration_mapper import (
     EmployeeImmigrationMapper,
@@ -148,6 +159,9 @@ from qwos.application.hr.use_cases.list_expiring_employee_immigration_use_case i
 )
 from qwos.application.hr.use_cases.update_employee_profile_use_case import (
     UpdateEmployeeProfileUseCase,
+)
+from qwos.application.hr.use_cases.upload_employee_document_use_case import (
+    UploadEmployeeDocumentUseCase,
 )
 
 router = APIRouter(
@@ -208,6 +222,66 @@ async def create_employee(
     application_response = await use_case.execute(command)
 
     return EmployeeMapper.to_create_response(
+        application_response,
+    )
+
+@router.post(
+    "/employees/{employee_id}/documents",
+    response_model=UploadEmployeeDocumentResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Upload Employee Document",
+    description="Upload a document for an employee.",
+)
+async def upload_employee_document(
+    employee_id: str,
+    request: UploadEmployeeDocumentRequest = Depends(),
+    file: UploadFile = File(...),
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+    use_case: UploadEmployeeDocumentUseCase = Depends(
+        get_upload_employee_document_use_case,
+    ),
+) -> UploadEmployeeDocumentResponse:
+    """
+    Upload a document for an employee.
+    """
+
+    original_filename = file.filename or ""
+
+    if not original_filename.strip():
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Uploaded file must have a filename.",
+        )
+
+    extension = Path(
+        original_filename,
+    ).suffix.lstrip(".").lower()
+
+    if not extension:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Uploaded file must have a file extension.",
+        )
+
+    content = await file.read()
+
+    command = EmployeeDocumentMapper.to_upload_command(
+        employee_id=employee_id,
+        request=request,
+        content=content,
+        original_filename=original_filename,
+        mime_type=file.content_type,
+        file_extension=extension,
+        request_context=request_context,
+    )
+
+    application_response = await use_case.execute(
+        command,
+    )
+
+    return EmployeeDocumentMapper.to_upload_response(
         application_response,
     )
 

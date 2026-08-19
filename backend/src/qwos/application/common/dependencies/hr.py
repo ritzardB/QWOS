@@ -169,10 +169,6 @@ from qwos.infrastructure.storage.local_document_storage import (
     LocalDocumentStorage,
 )
 
-authorization_service: AuthorizationService = Depends(
-    get_authorization_service,
-),
-
 # -------------------------------------------------------------------------
 # Repository Providers
 # -------------------------------------------------------------------------
@@ -461,6 +457,9 @@ def get_upload_employee_document_use_case(
         unit_of_work=unit_of_work,
         request_context=request_context,
     )
+authorization_service: AuthorizationService = Depends(
+    get_authorization_service,
+),
 
 # -------------------------------------------------------------------------
 # Employee Profile Providers
