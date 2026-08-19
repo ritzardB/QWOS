@@ -80,6 +80,7 @@ from qwos.application.hr.use_cases.get_employee_use_case import (
 from qwos.application.hr.use_cases.link_employee_to_user_use_case import (
     LinkEmployeeToUserUseCase,
 )
+from qwos.application.hr.use_cases.list_employee_documents_use_case import ListEmployeeDocumentsUseCase
 from qwos.application.hr.use_cases.list_employee_immigration_use_case import (
     ListEmployeeImmigrationUseCase,
 )
@@ -672,4 +673,21 @@ def get_document_storage() -> DocumentStorage:
 
     return LocalDocumentStorage(
         root_path=settings.DOCUMENT_STORAGE_ROOT,
+    )
+
+def get_list_employee_documents_use_case(
+    employee_document_repository: EmployeeDocumentRepository = Depends(
+        get_employee_document_repository,
+    ),
+    authorization_service: AuthorizationService = Depends(
+        get_authorization_service,
+    ),
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+) -> ListEmployeeDocumentsUseCase:
+    return ListEmployeeDocumentsUseCase(
+        employee_document_repository=employee_document_repository,
+        authorization_service=authorization_service,
+        request_context=request_context,
     )
