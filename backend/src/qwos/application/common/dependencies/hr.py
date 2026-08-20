@@ -26,6 +26,9 @@ Author:
 from __future__ import annotations
 
 from fastapi import Depends
+from qwos.infrastructure.repositories.hr.sqlalchemy_document_definition_repository import (
+    SQLAlchemyDocumentDefinitionRepository,
+)
 from sqlalchemy.orm import Session
 
 from qwos.application.common.context.request_context import RequestContext
@@ -114,6 +117,9 @@ from qwos.application.hr.validators.create_employee_validator import (
     CreateEmployeeValidator,
 )
 from qwos.core.database.session import get_session
+from qwos.domains.hr.repositories.document_definition_repository import (
+    DocumentDefinitionRepository,
+)
 from qwos.domains.hr.repositories.employee_document_repository import (
     EmployeeDocumentRepository,
 )
@@ -718,3 +724,12 @@ def get_get_employee_document_content_use_case(
         document_storage=document_storage,
         request_context=request_context,
     )
+
+def get_document_definition_repository(
+    session: Session = Depends(get_session),
+) -> DocumentDefinitionRepository:
+    """
+    Return DocumentDefinition repository.
+    """
+    return SQLAlchemyDocumentDefinitionRepository(session)
+

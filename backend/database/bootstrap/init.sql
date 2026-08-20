@@ -75,6 +75,8 @@
 \i ../schema/019_employee_positions.sql
 \i ../schema/020_employee_immigration.sql
 \i ../schema/021_employee_documents.sql
+\i ../schema/022_document_definitions.sql
+
 
 -- ---------------------------------------------------------------------------
 -- Triggers
