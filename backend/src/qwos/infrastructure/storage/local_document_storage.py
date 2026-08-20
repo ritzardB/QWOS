@@ -24,6 +24,7 @@ from pathlib import Path
 
 from qwos.application.common.ports.document_storage import (
     DocumentStorage,
+    RetrievedDocument,
     StoredDocument,
 )
 
@@ -40,7 +41,12 @@ class LocalDocumentStorage(DocumentStorage):
         *,
         root_path: str | Path,
     ) -> None:
-        self._root_path = Path(root_path).expanduser().resolve()
+        self._root_path = (
+            Path(root_path)
+            .expanduser()
+            .resolve()
+        )
+
         self._root_path.mkdir(
             parents=True,
             exist_ok=True,
@@ -60,23 +66,28 @@ class LocalDocumentStorage(DocumentStorage):
 
         if not content:
             raise ValueError(
-                "Document content cannot be empty."
+                "Document content cannot be empty.",
             )
 
-        normalized_key = storage_key.strip().lstrip("/")
+        normalized_key = (
+            storage_key.strip().lstrip("/")
+        )
 
         if not normalized_key:
             raise ValueError(
-                "storage_key is required."
+                "storage_key is required.",
             )
 
         target_path = (
             self._root_path / normalized_key
         ).resolve()
 
-        if not self._is_within_root(target_path):
+        if not self._is_within_root(
+            target_path,
+        ):
             raise ValueError(
-                "storage_key resolves outside the document storage root."
+                "storage_key resolves outside "
+                "the document storage root.",
             )
 
         target_path.parent.mkdir(
@@ -98,6 +109,51 @@ class LocalDocumentStorage(DocumentStorage):
             checksum_sha256=checksum_sha256,
         )
 
+    def read(
+        self,
+        *,
+        storage_key: str,
+    ) -> RetrievedDocument:
+        """
+        Retrieve a stored document safely from the
+        local filesystem.
+        """
+
+        normalized_key = (
+            storage_key.strip().lstrip("/")
+        )
+
+        if not normalized_key:
+            raise ValueError(
+                "storage_key is required.",
+            )
+
+        target_path = (
+            self._root_path / normalized_key
+        ).resolve()
+
+        if not self._is_within_root(
+            target_path,
+        ):
+            raise ValueError(
+                "storage_key resolves outside "
+                "the document storage root.",
+            )
+
+        if not target_path.is_file():
+            raise FileNotFoundError(
+                f"Stored document not found: "
+                f"{normalized_key}",
+            )
+
+        content = target_path.read_bytes()
+
+        return RetrievedDocument(
+            content=content,
+            filename=target_path.name,
+            mime_type=None,
+        )
+
     def delete(
         self,
         *,
@@ -107,20 +163,25 @@ class LocalDocumentStorage(DocumentStorage):
         Delete a stored document.
         """
 
-        normalized_key = storage_key.strip().lstrip("/")
+        normalized_key = (
+            storage_key.strip().lstrip("/")
+        )
 
         if not normalized_key:
             raise ValueError(
-                "storage_key is required."
+                "storage_key is required.",
             )
 
         target_path = (
             self._root_path / normalized_key
         ).resolve()
 
-        if not self._is_within_root(target_path):
+        if not self._is_within_root(
+            target_path,
+        ):
             raise ValueError(
-                "storage_key resolves outside the document storage root."
+                "storage_key resolves outside "
+                "the document storage root.",
             )
 
         if target_path.exists():
@@ -131,11 +192,14 @@ class LocalDocumentStorage(DocumentStorage):
         path: Path,
     ) -> bool:
         """
-        Prevent path traversal outside the configured storage root.
+        Prevent path traversal outside the
+        configured storage root.
         """
 
         try:
-            path.relative_to(self._root_path)
+            path.relative_to(
+                self._root_path,
+            )
         except ValueError:
             return False
 

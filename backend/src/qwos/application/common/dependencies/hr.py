@@ -34,6 +34,9 @@ from qwos.application.common.dependencies import (
     get_request_context,
     get_unit_of_work,
 )
+from qwos.application.common.dependencies.authentication import (
+    get_authenticated_request_context,
+)
 from qwos.application.common.dependencies.identity import (
     get_authorization_service,
     get_user_profile_repository,
@@ -62,6 +65,9 @@ from qwos.application.hr.use_cases.create_employee_reporting_relationship_use_ca
 from qwos.application.hr.use_cases.create_employee_use_case import (
     CreateEmployeeUseCase,
 )
+from qwos.application.hr.use_cases.get_employee_document_content_use_case import (
+    GetEmployeeDocumentContentUseCase,
+)
 from qwos.application.hr.use_cases.get_employee_immigration_use_case import (
     GetEmployeeImmigrationUseCase,
 )
@@ -80,7 +86,9 @@ from qwos.application.hr.use_cases.get_employee_use_case import (
 from qwos.application.hr.use_cases.link_employee_to_user_use_case import (
     LinkEmployeeToUserUseCase,
 )
-from qwos.application.hr.use_cases.list_employee_documents_use_case import ListEmployeeDocumentsUseCase
+from qwos.application.hr.use_cases.list_employee_documents_use_case import (
+    ListEmployeeDocumentsUseCase,
+)
 from qwos.application.hr.use_cases.list_employee_immigration_use_case import (
     ListEmployeeImmigrationUseCase,
 )
@@ -174,6 +182,7 @@ from qwos.infrastructure.storage.local_document_storage import (
 # Repository Providers
 # -------------------------------------------------------------------------
 
+
 def get_employee_repository(
     session: Session = Depends(get_session),
 ) -> EmployeeRepository:
@@ -181,6 +190,7 @@ def get_employee_repository(
     Return Employee repository.
     """
     return SQLAlchemyEmployeeRepository(session)
+
 
 def get_employee_profile_repository(
     session: Session = Depends(get_session),
@@ -190,6 +200,7 @@ def get_employee_profile_repository(
     """
     return SQLAlchemyEmployeeProfileRepository(session)
 
+
 def get_employee_reporting_relationship_repository(
     session: Session = Depends(get_session),
 ) -> EmployeeReportingRelationshipRepository:
@@ -197,6 +208,7 @@ def get_employee_reporting_relationship_repository(
     Return EmployeeReportingRelationship repository.
     """
     return SQLAlchemyEmployeeReportingRelationshipRepository(session)
+
 
 def get_employee_number_sequence_repository(
     session: Session = Depends(get_session),
@@ -206,6 +218,7 @@ def get_employee_number_sequence_repository(
     """
     return SQLAlchemyEmployeeNumberSequenceRepository(session)
 
+
 def get_employee_position_repository(
     session: Session = Depends(get_session),
 ) -> EmployeePositionRepository:
@@ -213,6 +226,7 @@ def get_employee_position_repository(
     Return EmployeePosition repository.
     """
     return SQLAlchemyEmployeePositionRepository(session)
+
 
 def get_employee_immigration_repository(
     session: Session = Depends(get_session),
@@ -222,33 +236,6 @@ def get_employee_immigration_repository(
     """
     return SQLAlchemyEmployeeImmigrationRepository(session)
 
-def get_update_employee_profile_use_case(
-    employee_repository: EmployeeRepository = Depends(
-        get_employee_repository,
-    ),
-    employee_profile_repository: EmployeeProfileRepository = Depends(
-        get_employee_profile_repository,
-    ),
-    authorization_service=Depends(
-        get_authorization_service,
-    ),
-    unit_of_work: UnitOfWork = Depends(
-        get_unit_of_work,
-    ),
-    request_context: RequestContext = Depends(
-        get_request_context,
-    ),
-) -> UpdateEmployeeProfileUseCase:
-    """
-    Return UpdateEmployeeProfileUseCase.
-    """
-    return UpdateEmployeeProfileUseCase(
-        employee_repository=employee_repository,
-        employee_profile_repository=employee_profile_repository,
-        authorization_service=authorization_service,
-        unit_of_work=unit_of_work,
-        request_context=request_context,
-    )
 
 def get_employee_document_repository(
     session: Session = Depends(get_session),
@@ -258,9 +245,11 @@ def get_employee_document_repository(
     """
     return SQLAlchemyEmployeeDocumentRepository(session)
 
+
 # -------------------------------------------------------------------------
 # HR Infrastructure Providers
 # -------------------------------------------------------------------------
+
 
 def get_employee_number_generator(
     repository: EmployeeNumberSequenceRepository = Depends(
@@ -273,6 +262,38 @@ def get_employee_number_generator(
     return SQLAlchemyEmployeeNumberGenerator(
         repository=repository,
     )
+
+
+def get_document_filename_generator() -> DocumentFilenameGenerator:
+    """
+    Return the QWOS document filename generator.
+    """
+    return QWOSDocumentFilenameGenerator()
+
+
+def get_document_storage_key_generator() -> DocumentStorageKeyGenerator:
+    """
+    Return the QWOS document storage-key generator.
+    """
+    return QWOSDocumentStorageKeyGenerator()
+
+
+def get_document_storage() -> DocumentStorage:
+    """
+    Return the configured document storage provider.
+    """
+    from qwos.core.config.settings import settings
+
+    if settings.DOCUMENT_STORAGE_PROVIDER != "local":
+        raise RuntimeError(
+            "Unsupported document storage provider: "
+            f"{settings.DOCUMENT_STORAGE_PROVIDER}",
+        )
+
+    return LocalDocumentStorage(
+        root_path=settings.DOCUMENT_STORAGE_ROOT,
+    )
+
 
 # -------------------------------------------------------------------------
 # Validator Providers
@@ -305,6 +326,7 @@ def get_create_employee_reporting_relationship_validator(
 # Employee Use Case Providers
 # -------------------------------------------------------------------------
 
+
 def get_get_employee_use_case(
     employee_repository: EmployeeRepository = Depends(
         get_employee_repository,
@@ -316,6 +338,7 @@ def get_get_employee_use_case(
     return GetEmployeeUseCase(
         employee_repository=employee_repository,
     )
+
 
 def get_list_employees_use_case(
     employee_repository: EmployeeRepository = Depends(
@@ -333,6 +356,7 @@ def get_list_employees_use_case(
         request_context=request_context,
     )
 
+
 def get_get_employee_position_use_case(
     employee_position_repository: EmployeePositionRepository = Depends(
         get_employee_position_repository,
@@ -344,6 +368,7 @@ def get_get_employee_position_use_case(
     return GetEmployeePositionUseCase(
         employee_position_repository=employee_position_repository,
     )
+
 
 def get_create_employee_use_case(
     employee_repository: EmployeeRepository = Depends(
@@ -381,90 +406,11 @@ def get_create_employee_use_case(
         request_context=request_context,
     )
 
-def get_document_filename_generator() -> DocumentFilenameGenerator:
-    """
-    Return the QWOS document filename generator.
-    """
-    return QWOSDocumentFilenameGenerator()
-
-
-def get_document_storage_key_generator() -> DocumentStorageKeyGenerator:
-    """
-    Return the QWOS document storage-key generator.
-    """
-    return QWOSDocumentStorageKeyGenerator()
-
-
-def get_document_storage() -> DocumentStorage:
-    """
-    Return the configured document storage provider.
-    """
-    from qwos.core.config.settings import settings
-
-    if settings.DOCUMENT_STORAGE_PROVIDER != "local":
-        raise RuntimeError(
-            "Unsupported document storage provider: "
-            f"{settings.DOCUMENT_STORAGE_PROVIDER}"
-        )
-
-    return LocalDocumentStorage(
-        root_path=settings.DOCUMENT_STORAGE_ROOT,
-    )
-
-def get_upload_employee_document_use_case(
-    employee_repository: EmployeeRepository = Depends(
-        get_employee_repository,
-    ),
-    employee_immigration_repository: EmployeeImmigrationRepository = Depends(
-        get_employee_immigration_repository,
-    ),
-    employee_document_repository: EmployeeDocumentRepository = Depends(
-        get_employee_document_repository,
-    ),
-    authorization_service: AuthorizationService = Depends(
-        get_authorization_service,
-    ),
-    filename_generator: DocumentFilenameGenerator = Depends(
-        get_document_filename_generator,
-    ),
-    storage_key_generator: DocumentStorageKeyGenerator = Depends(
-        get_document_storage_key_generator,
-    ),
-    document_storage: DocumentStorage = Depends(
-        get_document_storage,
-    ),
-    id_generator: IdGenerator = Depends(
-        get_id_generator,
-    ),
-    unit_of_work: UnitOfWork = Depends(
-        get_unit_of_work,
-    ),
-    request_context: RequestContext = Depends(
-        get_request_context,
-    ),
-) -> UploadEmployeeDocumentUseCase:
-    """
-    Return UploadEmployeeDocumentUseCase.
-    """
-    return UploadEmployeeDocumentUseCase(
-        employee_repository=employee_repository,
-        employee_immigration_repository=employee_immigration_repository,
-        employee_document_repository=employee_document_repository,
-        authorization_service=authorization_service,
-        filename_generator=filename_generator,
-        storage_key_generator=storage_key_generator,
-        document_storage=document_storage,
-        id_generator=id_generator,
-        unit_of_work=unit_of_work,
-        request_context=request_context,
-    )
-authorization_service: AuthorizationService = Depends(
-    get_authorization_service,
-),
 
 # -------------------------------------------------------------------------
 # Employee Profile Providers
 # -------------------------------------------------------------------------
+
 
 def get_create_employee_profile_use_case(
     employee_repository: EmployeeRepository = Depends(
@@ -498,6 +444,7 @@ def get_create_employee_profile_use_case(
         request_context=request_context,
     )
 
+
 def get_get_employee_profile_use_case(
     employee_profile_repository: EmployeeProfileRepository = Depends(
         get_employee_profile_repository,
@@ -510,9 +457,40 @@ def get_get_employee_profile_use_case(
         employee_profile_repository=employee_profile_repository,
     )
 
+
+def get_update_employee_profile_use_case(
+    employee_repository: EmployeeRepository = Depends(
+        get_employee_repository,
+    ),
+    employee_profile_repository: EmployeeProfileRepository = Depends(
+        get_employee_profile_repository,
+    ),
+    authorization_service: AuthorizationService = Depends(
+        get_authorization_service,
+    ),
+    unit_of_work: UnitOfWork = Depends(
+        get_unit_of_work,
+    ),
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+) -> UpdateEmployeeProfileUseCase:
+    """
+    Return UpdateEmployeeProfileUseCase.
+    """
+    return UpdateEmployeeProfileUseCase(
+        employee_repository=employee_repository,
+        employee_profile_repository=employee_profile_repository,
+        authorization_service=authorization_service,
+        unit_of_work=unit_of_work,
+        request_context=request_context,
+    )
+
+
 # -------------------------------------------------------------------------
 # Employee ↔ User Providers
 # -------------------------------------------------------------------------
+
 
 def get_link_employee_to_user_use_case(
     employee_repository: EmployeeRepository = Depends(
@@ -546,9 +524,11 @@ def get_link_employee_to_user_use_case(
         request_context=request_context,
     )
 
+
 # -------------------------------------------------------------------------
 # Employee Reporting Relationship Providers
 # -------------------------------------------------------------------------
+
 
 def get_create_employee_reporting_relationship_use_case(
     employee_repository: EmployeeRepository = Depends(
@@ -582,6 +562,7 @@ def get_create_employee_reporting_relationship_use_case(
         request_context=request_context,
     )
 
+
 def get_get_employee_manager_use_case(
     employee_repository: EmployeeRepository = Depends(
         get_employee_repository,
@@ -598,9 +579,11 @@ def get_get_employee_manager_use_case(
         relationship_repository=relationship_repository,
     )
 
+
 # -------------------------------------------------------------------------
 # Employee Immigration Providers
-# ------------------------------------------------------------------------- 
+# -------------------------------------------------------------------------
+
 
 def get_get_employee_immigration_use_case(
     employee_immigration_repository: EmployeeImmigrationRepository = Depends(
@@ -640,40 +623,60 @@ def get_list_expiring_employee_immigration_use_case(
         employee_immigration_repository=employee_immigration_repository,
     )
 
+
 # -------------------------------------------------------------------------
-# Employee Storage Providers
-# ------------------------------------------------------------------------- 
+# Employee Document Providers
+# -------------------------------------------------------------------------
 
 
-def get_document_filename_generator() -> DocumentFilenameGenerator:
+def get_upload_employee_document_use_case(
+    employee_repository: EmployeeRepository = Depends(
+        get_employee_repository,
+    ),
+    employee_immigration_repository: EmployeeImmigrationRepository = Depends(
+        get_employee_immigration_repository,
+    ),
+    employee_document_repository: EmployeeDocumentRepository = Depends(
+        get_employee_document_repository,
+    ),
+    authorization_service: AuthorizationService = Depends(
+        get_authorization_service,
+    ),
+    filename_generator: DocumentFilenameGenerator = Depends(
+        get_document_filename_generator,
+    ),
+    storage_key_generator: DocumentStorageKeyGenerator = Depends(
+        get_document_storage_key_generator,
+    ),
+    document_storage: DocumentStorage = Depends(
+        get_document_storage,
+    ),
+    id_generator: IdGenerator = Depends(
+        get_id_generator,
+    ),
+    unit_of_work: UnitOfWork = Depends(
+        get_unit_of_work,
+    ),
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+) -> UploadEmployeeDocumentUseCase:
     """
-    Return the QWOS document filename generator.
+    Return UploadEmployeeDocumentUseCase.
     """
-    return QWOSDocumentFilenameGenerator()
-
-
-def get_document_storage_key_generator() -> DocumentStorageKeyGenerator:
-    """
-    Return the QWOS document storage-key generator.
-    """
-    return QWOSDocumentStorageKeyGenerator()
-
-
-def get_document_storage() -> DocumentStorage:
-    """
-    Return the configured document storage provider.
-    """
-    from qwos.core.config.settings import settings
-
-    if settings.DOCUMENT_STORAGE_PROVIDER != "local":
-        raise RuntimeError(
-            "Unsupported document storage provider: "
-            f"{settings.DOCUMENT_STORAGE_PROVIDER}"
-        )
-
-    return LocalDocumentStorage(
-        root_path=settings.DOCUMENT_STORAGE_ROOT,
+    return UploadEmployeeDocumentUseCase(
+        employee_repository=employee_repository,
+        employee_immigration_repository=employee_immigration_repository,
+        employee_document_repository=employee_document_repository,
+        authorization_service=authorization_service,
+        filename_generator=filename_generator,
+        storage_key_generator=storage_key_generator,
+        document_storage=document_storage,
+        id_generator=id_generator,
+        unit_of_work=unit_of_work,
+        request_context=request_context,
     )
+
 
 def get_list_employee_documents_use_case(
     employee_document_repository: EmployeeDocumentRepository = Depends(
@@ -683,11 +686,35 @@ def get_list_employee_documents_use_case(
         get_authorization_service,
     ),
     request_context: RequestContext = Depends(
-        get_request_context,
+        get_authenticated_request_context,
     ),
 ) -> ListEmployeeDocumentsUseCase:
+    """
+    Return ListEmployeeDocumentsUseCase.
+    """
     return ListEmployeeDocumentsUseCase(
         employee_document_repository=employee_document_repository,
         authorization_service=authorization_service,
+        request_context=request_context,
+    )
+
+def get_get_employee_document_content_use_case(
+    employee_document_repository: EmployeeDocumentRepository = Depends(
+        get_employee_document_repository,
+    ),
+    authorization_service: AuthorizationService = Depends(
+        get_authorization_service,
+    ),
+    document_storage: DocumentStorage = Depends(
+        get_document_storage,
+    ),
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+) -> GetEmployeeDocumentContentUseCase:
+    return GetEmployeeDocumentContentUseCase(
+        employee_document_repository=employee_document_repository,
+        authorization_service=authorization_service,
+        document_storage=document_storage,
         request_context=request_context,
     )

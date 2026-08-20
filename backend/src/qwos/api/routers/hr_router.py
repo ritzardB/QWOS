@@ -25,7 +25,15 @@ from __future__ import annotations
 from datetime import date
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    HTTPException,
+    Response,
+    UploadFile,
+    status,
+)
 
 from qwos.api.contracts.requests.hr.create_employee_profile_request import (
     CreateEmployeeProfileRequest,
@@ -72,6 +80,9 @@ from qwos.api.contracts.responses.hr.get_employee_response import (
 from qwos.api.contracts.responses.hr.link_employee_to_user_response import (
     LinkEmployeeToUserResponse,
 )
+from qwos.api.contracts.responses.hr.list_employee_documents_response import (
+    ListEmployeeDocumentsResponse,
+)
 from qwos.api.contracts.responses.hr.list_employee_immigration_response import (
     ListEmployeeImmigrationResponse,
 )
@@ -89,12 +100,14 @@ from qwos.application.common.dependencies.hr import (
     get_create_employee_profile_use_case,
     get_create_employee_reporting_relationship_use_case,
     get_create_employee_use_case,
+    get_get_employee_document_content_use_case,
     get_get_employee_immigration_use_case,
     get_get_employee_manager_use_case,
     get_get_employee_position_use_case,
     get_get_employee_profile_use_case,
     get_get_employee_use_case,
     get_link_employee_to_user_use_case,
+    get_list_employee_documents_use_case,
     get_list_employee_immigration_use_case,
     get_list_employees_use_case,
     get_list_expiring_employee_immigration_use_case,
@@ -130,6 +143,9 @@ from qwos.application.hr.use_cases.create_employee_reporting_relationship_use_ca
 from qwos.application.hr.use_cases.create_employee_use_case import (
     CreateEmployeeUseCase,
 )
+from qwos.application.hr.use_cases.get_employee_document_content_use_case import (
+    GetEmployeeDocumentContentUseCase,
+)
 from qwos.application.hr.use_cases.get_employee_immigration_use_case import (
     GetEmployeeImmigrationUseCase,
 )
@@ -147,6 +163,9 @@ from qwos.application.hr.use_cases.get_employee_use_case import (
 )
 from qwos.application.hr.use_cases.link_employee_to_user_use_case import (
     LinkEmployeeToUserUseCase,
+)
+from qwos.application.hr.use_cases.list_employee_documents_use_case import (
+    ListEmployeeDocumentsUseCase,
 )
 from qwos.application.hr.use_cases.list_employee_immigration_use_case import (
     ListEmployeeImmigrationUseCase,
@@ -168,6 +187,12 @@ router = APIRouter(
     prefix="/hr",
     tags=["HR"],
 )
+
+
+# -------------------------------------------------------------------------
+# Employee Collection
+# -------------------------------------------------------------------------
+
 
 @router.get(
     "/employees",
@@ -193,6 +218,7 @@ async def list_employees(
     return EmployeeMapper.to_list_response(
         application_response,
     )
+
 
 @router.post(
     "/employees",
@@ -224,6 +250,70 @@ async def create_employee(
     return EmployeeMapper.to_create_response(
         application_response,
     )
+
+
+@router.get(
+    "/employees/{employee_id}",
+    response_model=GetEmployeeResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get Employee",
+    description="Retrieve an employee by ID.",
+)
+async def get_employee(
+    employee_id: str,
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+    use_case: GetEmployeeUseCase = Depends(
+        get_get_employee_use_case,
+    ),
+) -> GetEmployeeResponse:
+    """
+    Retrieve an employee by ID.
+    """
+
+    application_response = await use_case.execute(
+        tenant_id=request_context.tenant_id,
+        employee_id=employee_id,
+    )
+
+    return EmployeeMapper.to_get_response(
+        application_response,
+    )
+
+
+# -------------------------------------------------------------------------
+# Employee Documents
+# -------------------------------------------------------------------------
+
+
+@router.get(
+    "/employees/{employee_id}/documents",
+    response_model=ListEmployeeDocumentsResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List Employee Documents",
+    description="List documents belonging to an employee.",
+)
+async def list_employee_documents(
+    employee_id: str,
+    document_category: str | None = None,
+    use_case: ListEmployeeDocumentsUseCase = Depends(
+        get_list_employee_documents_use_case,
+    ),
+) -> ListEmployeeDocumentsResponse:
+    """
+    List documents belonging to an employee.
+    """
+
+    application_response = await use_case.execute(
+        employee_id=employee_id,
+        document_category=document_category,
+    )
+
+    return EmployeeDocumentMapper.to_list_response(
+        application_response,
+    )
+
 
 @router.post(
     "/employees/{employee_id}/documents",
@@ -285,6 +375,55 @@ async def upload_employee_document(
         application_response,
     )
 
+
+@router.get(
+    "/employees/{employee_id}/documents/{document_id}/content",
+    status_code=status.HTTP_200_OK,
+    summary="Get Employee Document Content",
+    description="Retrieve the content of an employee document.",
+)
+async def get_employee_document_content(
+    employee_id: str,
+    document_id: str,
+    use_case: GetEmployeeDocumentContentUseCase = Depends(
+        get_get_employee_document_content_use_case,
+    ),
+) -> Response:
+    """
+    Retrieve an employee document's physical content.
+    """
+
+    application_response = await use_case.execute(
+        employee_id=employee_id,
+        document_id=document_id,
+    )
+
+    filename = (
+        application_response.filename
+        .replace('"', "")
+        .replace("\r", "")
+        .replace("\n", "")
+    )
+
+    return Response(
+        content=application_response.content,
+        media_type=(
+            application_response.mime_type
+            or "application/octet-stream"
+        ),
+        headers={
+            "Content-Disposition": (
+                f'inline; filename="{filename}"'
+            ),
+        },
+    )
+
+
+# -------------------------------------------------------------------------
+# Employee Profile
+# -------------------------------------------------------------------------
+
+
 @router.post(
     "/employees/{employee_id}/profile",
     response_model=CreateEmployeeProfileResponse,
@@ -318,99 +457,6 @@ async def create_employee_profile(
         application_response,
     )
 
-@router.post(
-    "/employees/{employee_id}/link-user",
-    response_model=LinkEmployeeToUserResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Link Employee to User",
-    description=(
-        "Link an employee to an existing QWOS user and create the "
-        "corresponding user profile."
-    ),
-)
-async def link_employee_to_user(
-    employee_id: str,
-    request: LinkEmployeeToUserRequest,
-    request_context: RequestContext = Depends(
-        get_request_context,
-    ),
-    use_case: LinkEmployeeToUserUseCase = Depends(
-        get_link_employee_to_user_use_case,
-    ),
-) -> LinkEmployeeToUserResponse:
-    """
-    Link an employee to an existing QWOS user.
-    """
-
-    command = LinkEmployeeToUserMapper.to_command(
-        employee_id=employee_id,
-        request=request,
-        request_context=request_context,
-    )
-
-    application_response = await use_case.execute(command)
-
-    return LinkEmployeeToUserMapper.to_response(
-        application_response,
-    )
-
-@router.get(
-    "/employees/{employee_id}",
-    response_model=GetEmployeeResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Get Employee",
-    description="Retrieve an employee by ID.",
-)
-async def get_employee(
-    employee_id: str,
-    request_context: RequestContext = Depends(
-        get_request_context,
-    ),
-    use_case: GetEmployeeUseCase = Depends(
-        get_get_employee_use_case,
-    ),
-) -> GetEmployeeResponse:
-    """
-    Retrieve an employee by ID.
-    """
-
-    application_response = await use_case.execute(
-        tenant_id=request_context.tenant_id,
-        employee_id=employee_id,
-    )
-
-    return EmployeeMapper.to_get_response(
-        application_response,
-    )
-
-@router.post(
-    "/employees/{employee_id}/manager",
-    response_model=CreateEmployeeReportingRelationshipResponse,
-    status_code=status.HTTP_201_CREATED,
-    summary="Assign Employee Manager",
-    description="Assign the reporting manager for an employee.",
-)
-async def assign_employee_manager(
-    employee_id: str,
-    request: CreateEmployeeReportingRelationshipRequest,
-    request_context: RequestContext = Depends(
-        get_request_context,
-    ),
-    use_case: CreateEmployeeReportingRelationshipUseCase = Depends(
-        get_create_employee_reporting_relationship_use_case,
-    ),
-) -> CreateEmployeeReportingRelationshipResponse:
-    command = EmployeeReportingRelationshipMapper.to_create_command(
-        employee_id=employee_id,
-        request=request,
-        request_context=request_context,
-    )
-
-    application_response = await use_case.execute(command)
-
-    return EmployeeReportingRelationshipMapper.to_create_response(
-        application_response,
-    )
 
 @router.get(
     "/employees/{employee_id}/profile",
@@ -428,6 +474,10 @@ async def get_employee_profile(
         get_get_employee_profile_use_case,
     ),
 ) -> GetEmployeeProfileResponse:
+    """
+    Retrieve an employee's personal HR profile.
+    """
+
     application_response = await use_case.execute(
         tenant_id=request_context.tenant_id,
         employee_id=employee_id,
@@ -437,154 +487,6 @@ async def get_employee_profile(
         application_response,
     )
 
-@router.get(
-    "/employees/{employee_id}/manager",
-    response_model=GetEmployeeManagerResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Get Employee Manager",
-    description="Retrieve the active primary manager for an employee.",
-)
-async def get_employee_manager(
-    employee_id: str,
-    request_context: RequestContext = Depends(
-        get_request_context,
-    ),
-    use_case: GetEmployeeManagerUseCase = Depends(
-        get_get_employee_manager_use_case,
-    ),
-) -> GetEmployeeManagerResponse:
-    application_response = await use_case.execute(
-        tenant_id=request_context.tenant_id,
-        employee_id=employee_id,
-    )
-
-    return EmployeeReportingRelationshipMapper.to_get_manager_response(
-        application_response,
-    )
-
-@router.get(
-    "/employees/{employee_id}/position",
-    response_model=GetEmployeePositionResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Get Employee Position",
-    description="Retrieve the current organizational position for an employee.",
-)
-async def get_employee_position(
-    employee_id: str,
-    request_context: RequestContext = Depends(
-        get_request_context,
-    ),
-    use_case: GetEmployeePositionUseCase = Depends(
-        get_get_employee_position_use_case,
-    ),
-) -> GetEmployeePositionResponse:
-    """
-    Retrieve an employee's current organizational position.
-    """
-
-    application_response = await use_case.execute(
-        tenant_id=request_context.tenant_id,
-        employee_id=employee_id,
-    )
-
-    return EmployeePositionMapper.to_get_response(
-        application_response,
-    )
-
-@router.get(
-    "/employees/{employee_id}/immigration",
-    response_model=GetEmployeeImmigrationResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Get Employee Immigration",
-    description="Retrieve the current immigration record for an employee.",
-)
-async def get_employee_immigration(
-    employee_id: str,
-    immigration_type: str,
-    request_context: RequestContext = Depends(
-        get_request_context,
-    ),
-    use_case: GetEmployeeImmigrationUseCase = Depends(
-        get_get_employee_immigration_use_case,
-    ),
-) -> GetEmployeeImmigrationResponse:
-    """
-    Retrieve the current immigration record for an employee.
-    """
-
-    application_response = await use_case.execute(
-        tenant_id=request_context.tenant_id,
-        employee_id=employee_id,
-        immigration_type=immigration_type,
-        as_of_date=date.today(),
-    )
-
-    return EmployeeImmigrationMapper.to_get_response(
-        application_response,
-    )
-
-@router.get(
-    "/employees/{employee_id}/immigration/history",
-    response_model=ListEmployeeImmigrationResponse,
-    status_code=status.HTTP_200_OK,
-    summary="List Employee Immigration History",
-    description="Retrieve immigration history for an employee.",
-)
-async def list_employee_immigration(
-    employee_id: str,
-    immigration_type: str | None = None,
-    request_context: RequestContext = Depends(
-        get_request_context,
-    ),
-    use_case: ListEmployeeImmigrationUseCase = Depends(
-        get_list_employee_immigration_use_case,
-    ),
-) -> ListEmployeeImmigrationResponse:
-    """
-    Retrieve immigration history for an employee.
-    """
-
-    application_response = await use_case.execute(
-        tenant_id=request_context.tenant_id,
-        employee_id=employee_id,
-        immigration_type=immigration_type,
-    )
-
-    return EmployeeImmigrationMapper.to_list_response(
-        application_response,
-    )
-
-@router.get(
-    "/immigration/expiring",
-    response_model=ListExpiringEmployeeImmigrationResponse,
-    status_code=status.HTTP_200_OK,
-    summary="List Expiring Immigration Records",
-    description="List immigration records expiring within a specified number of days.",
-)
-async def list_expiring_employee_immigration(
-    days: int = 30,
-    immigration_type: str | None = None,
-    request_context: RequestContext = Depends(
-        get_request_context,
-    ),
-    use_case: ListExpiringEmployeeImmigrationUseCase = Depends(
-        get_list_expiring_employee_immigration_use_case,
-    ),
-) -> ListExpiringEmployeeImmigrationResponse:
-    """
-    Retrieve immigration records expiring within the requested window.
-    """
-
-    application_response = await use_case.execute(
-        tenant_id=request_context.tenant_id,
-        as_of_date=date.today(),
-        days=days,
-        immigration_type=immigration_type,
-    )
-
-    return EmployeeImmigrationMapper.to_expiring_list_response(
-        application_response,
-    )
 
 @router.patch(
     "/employees/{employee_id}/profile",
@@ -640,4 +542,256 @@ async def update_employee_profile(
             application_response.emergency_contact_phone
         ),
         created_at=application_response.created_at,
+    )
+
+
+# -------------------------------------------------------------------------
+# Employee ↔ User
+# -------------------------------------------------------------------------
+
+
+@router.post(
+    "/employees/{employee_id}/link-user",
+    response_model=LinkEmployeeToUserResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Link Employee to User",
+    description=(
+        "Link an employee to an existing QWOS user and create the "
+        "corresponding user profile."
+    ),
+)
+async def link_employee_to_user(
+    employee_id: str,
+    request: LinkEmployeeToUserRequest,
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+    use_case: LinkEmployeeToUserUseCase = Depends(
+        get_link_employee_to_user_use_case,
+    ),
+) -> LinkEmployeeToUserResponse:
+    """
+    Link an employee to an existing QWOS user.
+    """
+
+    command = LinkEmployeeToUserMapper.to_command(
+        employee_id=employee_id,
+        request=request,
+        request_context=request_context,
+    )
+
+    application_response = await use_case.execute(command)
+
+    return LinkEmployeeToUserMapper.to_response(
+        application_response,
+    )
+
+
+# -------------------------------------------------------------------------
+# Employee Reporting
+# -------------------------------------------------------------------------
+
+
+@router.post(
+    "/employees/{employee_id}/manager",
+    response_model=CreateEmployeeReportingRelationshipResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Assign Employee Manager",
+    description="Assign the reporting manager for an employee.",
+)
+async def assign_employee_manager(
+    employee_id: str,
+    request: CreateEmployeeReportingRelationshipRequest,
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+    use_case: CreateEmployeeReportingRelationshipUseCase = Depends(
+        get_create_employee_reporting_relationship_use_case,
+    ),
+) -> CreateEmployeeReportingRelationshipResponse:
+    """
+    Assign the reporting manager for an employee.
+    """
+
+    command = EmployeeReportingRelationshipMapper.to_create_command(
+        employee_id=employee_id,
+        request=request,
+        request_context=request_context,
+    )
+
+    application_response = await use_case.execute(command)
+
+    return EmployeeReportingRelationshipMapper.to_create_response(
+        application_response,
+    )
+
+
+@router.get(
+    "/employees/{employee_id}/manager",
+    response_model=GetEmployeeManagerResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get Employee Manager",
+    description="Retrieve the active primary manager for an employee.",
+)
+async def get_employee_manager(
+    employee_id: str,
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+    use_case: GetEmployeeManagerUseCase = Depends(
+        get_get_employee_manager_use_case,
+    ),
+) -> GetEmployeeManagerResponse:
+    """
+    Retrieve the active primary manager for an employee.
+    """
+
+    application_response = await use_case.execute(
+        tenant_id=request_context.tenant_id,
+        employee_id=employee_id,
+    )
+
+    return EmployeeReportingRelationshipMapper.to_get_manager_response(
+        application_response,
+    )
+
+
+# -------------------------------------------------------------------------
+# Employee Position
+# -------------------------------------------------------------------------
+
+
+@router.get(
+    "/employees/{employee_id}/position",
+    response_model=GetEmployeePositionResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get Employee Position",
+    description="Retrieve the current organizational position for an employee.",
+)
+async def get_employee_position(
+    employee_id: str,
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+    use_case: GetEmployeePositionUseCase = Depends(
+        get_get_employee_position_use_case,
+    ),
+) -> GetEmployeePositionResponse:
+    """
+    Retrieve an employee's current organizational position.
+    """
+
+    application_response = await use_case.execute(
+        tenant_id=request_context.tenant_id,
+        employee_id=employee_id,
+    )
+
+    return EmployeePositionMapper.to_get_response(
+        application_response,
+    )
+
+
+# -------------------------------------------------------------------------
+# Employee Immigration
+# -------------------------------------------------------------------------
+
+
+@router.get(
+    "/employees/{employee_id}/immigration",
+    response_model=GetEmployeeImmigrationResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get Employee Immigration",
+    description="Retrieve the current immigration record for an employee.",
+)
+async def get_employee_immigration(
+    employee_id: str,
+    immigration_type: str,
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+    use_case: GetEmployeeImmigrationUseCase = Depends(
+        get_get_employee_immigration_use_case,
+    ),
+) -> GetEmployeeImmigrationResponse:
+    """
+    Retrieve the current immigration record for an employee.
+    """
+
+    application_response = await use_case.execute(
+        tenant_id=request_context.tenant_id,
+        employee_id=employee_id,
+        immigration_type=immigration_type,
+        as_of_date=date.today(),
+    )
+
+    return EmployeeImmigrationMapper.to_get_response(
+        application_response,
+    )
+
+
+@router.get(
+    "/employees/{employee_id}/immigration/history",
+    response_model=ListEmployeeImmigrationResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List Employee Immigration History",
+    description="Retrieve immigration history for an employee.",
+)
+async def list_employee_immigration(
+    employee_id: str,
+    immigration_type: str | None = None,
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+    use_case: ListEmployeeImmigrationUseCase = Depends(
+        get_list_employee_immigration_use_case,
+    ),
+) -> ListEmployeeImmigrationResponse:
+    """
+    Retrieve immigration history for an employee.
+    """
+
+    application_response = await use_case.execute(
+        tenant_id=request_context.tenant_id,
+        employee_id=employee_id,
+        immigration_type=immigration_type,
+    )
+
+    return EmployeeImmigrationMapper.to_list_response(
+        application_response,
+    )
+
+
+@router.get(
+    "/immigration/expiring",
+    response_model=ListExpiringEmployeeImmigrationResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List Expiring Immigration Records",
+    description=(
+        "List immigration records expiring within a specified "
+        "number of days."
+    ),
+)
+async def list_expiring_employee_immigration(
+    days: int = 30,
+    immigration_type: str | None = None,
+    request_context: RequestContext = Depends(
+        get_request_context,
+    ),
+    use_case: ListExpiringEmployeeImmigrationUseCase = Depends(
+        get_list_expiring_employee_immigration_use_case,
+    ),
+) -> ListExpiringEmployeeImmigrationResponse:
+    """
+    Retrieve immigration records expiring within the requested window.
+    """
+
+    application_response = await use_case.execute(
+        tenant_id=request_context.tenant_id,
+        as_of_date=date.today(),
+        days=days,
+        immigration_type=immigration_type,
+    )
+
+    return EmployeeImmigrationMapper.to_expiring_list_response(
+        application_response,
     )

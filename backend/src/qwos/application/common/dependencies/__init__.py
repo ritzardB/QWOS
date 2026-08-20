@@ -4,6 +4,7 @@ QWOS
 Common dependency exports.
 """
 
+from .authentication import get_authenticated_request_context
 from .common import (
     get_clock,
     get_id_generator,
@@ -16,6 +17,7 @@ from .common import (
 )
 
 __all__ = [
+    "get_authenticated_request_context",
     "get_clock",
     "get_id_generator",
     "get_password_hasher",

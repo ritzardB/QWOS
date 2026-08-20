@@ -1,19 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import "./App.css";
 
-import { AppShell } from "../layouts/AppShell";
 import { ActivityPanel } from "../features/dashboard/components/ActivityPanel";
 import { DashboardHeader } from "../features/dashboard/components/DashboardHeader";
 import { MetricCard } from "../features/dashboard/components/MetricCard";
 import { QuickActions } from "../features/dashboard/components/QuickActions";
 import { dashboardMetrics } from "../features/dashboard/dashboardData";
 import { LoginPage } from "../features/auth/components/LoginPage";
+import { EmployeesPage } from "../features/employees/pages/EmployeesPage";
+import { AppShell } from "../layouts/AppShell";
+import { EmployeeDetailsPage } from "../features/employees/pages/EmployeeDetailsPage";
+
 import {
-    clearAuthentication,
-    getRefreshToken,
-    isAuthenticated,
-  } from "../features/auth/authStorage";
+  clearAuthentication,
+  getRefreshToken,
+  isAuthenticated,
+} from "../features/auth/authStorage";
 
 import { logout } from "../api/identity";
 
@@ -55,6 +58,28 @@ function App() {
   const [authenticated, setAuthenticated] =
     useState(isAuthenticated);
 
+  const [pathname, setPathname] = useState(
+    window.location.pathname,
+  );
+
+  useEffect(() => {
+    function handlePopState(): void {
+      setPathname(window.location.pathname);
+    }
+
+    window.addEventListener(
+      "popstate",
+      handlePopState,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "popstate",
+        handlePopState,
+      );
+    };
+  }, []);
+
   async function handleLogout(): Promise<void> {
     const refreshToken = getRefreshToken();
 
@@ -79,6 +104,25 @@ function App() {
       />
     );
   }
+
+  if (pathname === "/employees") {
+    return (
+      <EmployeesPage onLogout={handleLogout} />
+    );
+  }
+
+  if (pathname.startsWith("/employees/")) {
+  const employeeId = pathname.split("/")[2];
+
+  if (employeeId) {
+    return (
+      <EmployeeDetailsPage
+        employeeId={employeeId}
+        onLogout={handleLogout}
+      />
+    );
+  }
+}
 
   return <Dashboard onLogout={handleLogout} />;
 }

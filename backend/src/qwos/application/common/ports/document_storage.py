@@ -36,6 +36,17 @@ class StoredDocument:
     checksum_sha256: str
 
 
+@dataclass(frozen=True)
+class RetrievedDocument:
+    """
+    Result returned when document content is retrieved.
+    """
+
+    content: bytes
+    filename: str
+    mime_type: str | None
+
+
 class DocumentStorage(Protocol):
     """
     Port for document storage implementations.
@@ -51,6 +62,16 @@ class DocumentStorage(Protocol):
     ) -> StoredDocument:
         """
         Persist document content and return storage metadata.
+        """
+        ...
+
+    def read(
+        self,
+        *,
+        storage_key: str,
+    ) -> RetrievedDocument:
+        """
+        Retrieve document content from storage.
         """
         ...
 

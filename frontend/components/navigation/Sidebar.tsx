@@ -27,10 +27,10 @@ export function Sidebar({ onLogout }: SidebarProps) {
                   key={item.href}
                   href={item.href}
                   className={`qwos-nav-item ${
-                    item.href === "/"
+                    window.location.pathname === item.href
                       ? "qwos-nav-item-active"
                       : ""
-                  }`}
+                  }`} 
                 >
                   <span className="qwos-nav-icon">{item.icon}</span>
                   <span>{item.label}</span>

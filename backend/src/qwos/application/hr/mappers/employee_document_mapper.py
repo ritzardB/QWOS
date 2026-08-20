@@ -10,7 +10,7 @@ File:
     employee_document_mapper.py
 
 Description:
-    Maps employee document API contracts to application objects.
+    Maps employee document application objects to API contracts.
 
 Author:
     Richard Balabarcon
@@ -22,12 +22,19 @@ from __future__ import annotations
 from qwos.api.contracts.requests.hr.upload_employee_document_request import (
     UploadEmployeeDocumentRequest,
 )
+from qwos.api.contracts.responses.hr.list_employee_documents_response import (
+    EmployeeDocumentItemResponse,
+    ListEmployeeDocumentsResponse,
+)
 from qwos.api.contracts.responses.hr.upload_employee_document_response import (
     UploadEmployeeDocumentResponse,
 )
 from qwos.application.common.context.request_context import RequestContext
 from qwos.application.hr.commands.upload_employee_document_command import (
     UploadEmployeeDocumentCommand,
+)
+from qwos.application.hr.responses.list_employee_documents_response import (
+    ListEmployeeDocumentsResponse as ApplicationListEmployeeDocumentsResponse,
 )
 from qwos.application.hr.responses.upload_employee_document_response import (
     UploadEmployeeDocumentResponse as ApplicationUploadEmployeeDocumentResponse,
@@ -71,7 +78,7 @@ class EmployeeDocumentMapper:
         response: ApplicationUploadEmployeeDocumentResponse,
     ) -> UploadEmployeeDocumentResponse:
         """
-        Convert an application response into an API response.
+        Convert an application upload response into an API response.
         """
 
         return UploadEmployeeDocumentResponse(
@@ -89,4 +96,34 @@ class EmployeeDocumentMapper:
             storage_key=response.storage_key,
             checksum_sha256=response.checksum_sha256,
             document_version=response.document_version,
+        )
+
+    @staticmethod
+    def to_list_response(
+        response: ApplicationListEmployeeDocumentsResponse,
+    ) -> ListEmployeeDocumentsResponse:
+        """
+        Convert an application document-list response into an API response.
+        """
+
+        return ListEmployeeDocumentsResponse(
+            items=[
+                EmployeeDocumentItemResponse(
+                    id=item.id,
+                    employee_id=item.employee_id,
+                    immigration_id=item.immigration_id,
+                    document_name=item.document_name,
+                    document_category=item.document_category,
+                    original_filename=item.original_filename,
+                    stored_filename=item.stored_filename,
+                    mime_type=item.mime_type,
+                    file_extension=item.file_extension,
+                    file_size_bytes=item.file_size_bytes,
+                    storage_provider=item.storage_provider,
+                    storage_key=item.storage_key,
+                    checksum_sha256=item.checksum_sha256,
+                    document_version=item.document_version,
+                )
+                for item in response.items
+            ],
         )

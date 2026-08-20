@@ -22,7 +22,9 @@ from unittest.mock import AsyncMock
 from fastapi.testclient import TestClient
 
 from qwos.application.common.context.request_context import RequestContext
-from qwos.application.common.dependencies import get_request_context
+from qwos.application.common.dependencies import (
+    get_authenticated_request_context,
+)
 from qwos.application.common.dependencies.hr import (
     get_upload_employee_document_use_case,
 )
@@ -94,7 +96,7 @@ def install_overrides(
     ] = lambda: use_case
 
     app.dependency_overrides[
-        get_request_context
+        get_authenticated_request_context
     ] = lambda: request_context
 
 

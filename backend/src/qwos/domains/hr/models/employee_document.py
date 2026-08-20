@@ -23,9 +23,10 @@ Author:
 from __future__ import annotations
 
 import re
+from datetime import datetime
 from typing import Any
 
-from sqlalchemy import BigInteger, ForeignKey, String, Text
+from sqlalchemy import BigInteger, DateTime, ForeignKey, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from qwos.core.database.entity_base import TenantEntity
@@ -212,7 +213,33 @@ class EmployeeDocument(TenantEntity):
         default=1,
     )
 
+    uploaded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+
     uploaded_by: Mapped[str | None] = mapped_column(
         ULID,
         nullable=True,
+    )
+
+    # -------------------------------------------------------------------------
+    # Document Lifecycle
+    # -------------------------------------------------------------------------
+
+    uploaded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    uploaded_by: Mapped[str | None] = mapped_column(
+        ULID,
+        nullable=True,
+    )
+
+    document_version: Mapped[int] = mapped_column(
+        nullable=False,
+        default=1,
     )
