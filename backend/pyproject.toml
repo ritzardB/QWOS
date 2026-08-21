@@ -52,6 +52,11 @@ dev = [
     "httpx2>=2.10.0",
 ]
 
+ocr = [
+    "paddleocr>=3.7.0,<4.0.0",
+    "paddlepaddle>=3.0.0",
+]
+
 docs = [
     "mkdocs",
     "mkdocs-material",

@@ -218,30 +218,6 @@ def test_parse_rejects_invalid_expiry_check_digit() -> None:
 
     invalid_line_2 = (
         VALID_LINE_2[:27]
-        + "9"
-        + VALID_LINE_2[28:]
-    )
-
-    invalid_mrz = (
-        VALID_LINE_1
-        + "\n"
-        + invalid_line_2
-    )
-
-    with pytest.raises(
-        PassportMRZParseError,
-        match="expiry date",
-    ):
-        parser.parse(
-            invalid_mrz,
-        )
-
-
-def test_parse_rejects_invalid_expiry_check_digit() -> None:
-    parser = make_parser()
-
-    invalid_line_2 = (
-        VALID_LINE_2[:27]
         + "8"
         + VALID_LINE_2[28:]
     )
@@ -259,7 +235,6 @@ def test_parse_rejects_invalid_expiry_check_digit() -> None:
         parser.parse(
             invalid_mrz,
         )
-
 
 def test_parse_rejects_invalid_sex() -> None:
     parser = make_parser()
