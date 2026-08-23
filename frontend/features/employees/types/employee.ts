@@ -78,3 +78,23 @@ export type EmployeeDocument = {
   document_version: number;
 };
 
+export type DocumentExtractionField = {
+  extraction_result_id: string;
+  field_code: string;
+  raw_value: string | null;
+  normalized_value: string | null;
+  confidence: number | null;
+  source: string;
+
+  is_hr_updateable: boolean;
+  target_entity: string | null;
+  target_field: string | null;
+};
+
+export type EmployeeDocumentExtraction = {
+  document_id: string;
+  employee_id: string;
+  document_family: string;
+  country_code: string | null;
+  fields: DocumentExtractionField[];
+};

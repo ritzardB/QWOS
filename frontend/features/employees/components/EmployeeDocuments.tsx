@@ -9,15 +9,24 @@ import type {
 } from "react";
 
 import {
+  approveEmployeeDocumentExtraction,
+  extractEmployeeDocument,
   downloadEmployeeDocument,
   getEmployeeDocumentContentUrl,
   listEmployeeDocuments,
   uploadEmployeeDocument,
 } from "../api/employeesApi";
+
 import type {
+  DocumentExtractionField,
   EmployeeDocument,
+  EmployeeDocumentExtraction,
   EmployeeImmigration,
 } from "../types/employee";
+
+import {
+  DocumentIntelligenceReviewModal,
+} from "./DocumentIntelligenceReviewModal";
 
 import {
   getAuthenticatedHeaders,
@@ -60,7 +69,7 @@ const DOCUMENT_TYPES: DocumentTypeOption[] = [
     requiresImmigration: false,
   },
   {
-    value: "emirates id",
+    value: "national id",
     label: "Emirates ID",
     requiresImmigration: false,
   },
@@ -257,6 +266,103 @@ export function EmployeeDocuments({
     () => groupDocuments(documents),
     [documents],
   );
+
+  const [
+    intelligenceDocument,
+    setIntelligenceDocument,
+  ] = useState<EmployeeDocument | null>(
+    null,
+  );
+
+  const [
+    intelligenceExtraction,
+    setIntelligenceExtraction,
+  ] =
+    useState<EmployeeDocumentExtraction | null>(
+      null,
+    );
+
+  const [
+    intelligenceLoading,
+    setIntelligenceLoading,
+  ] = useState(false);
+
+  const [
+    intelligenceError,
+    setIntelligenceError,
+  ] = useState<string | null>(null);
+
+  const [
+    intelligenceApproving,
+    setIntelligenceApproving,
+  ] = useState(false);
+
+  async function handleAnalyzeDocument(
+  document: EmployeeDocument,
+): Promise<void> {
+  setIntelligenceDocument(document);
+  setIntelligenceExtraction(null);
+  setIntelligenceError(null);
+  setIntelligenceLoading(true);
+
+  try {
+    const result =
+      await extractEmployeeDocument(
+        employeeId,
+        document.id,
+      );
+
+    setIntelligenceExtraction(result);
+  } catch (error) {
+    setIntelligenceError(
+      error instanceof Error
+        ? error.message
+        : "Unable to analyze document.",
+    );
+  } finally {
+    setIntelligenceLoading(false);
+  }
+}
+
+  async function handleApproveExtraction(
+    fields: DocumentExtractionField[],
+  ): Promise<void> {
+    if (!intelligenceDocument) {
+      return;
+    }
+
+    setIntelligenceApproving(true);
+    setIntelligenceError(null);
+
+    try {
+      await approveEmployeeDocumentExtraction(
+        employeeId,
+        intelligenceDocument.id,
+        fields.map((field) => ({
+          extraction_result_id:
+            field.extraction_result_id,
+          value:
+            field.normalized_value ??
+            field.raw_value ??
+            null,
+        })),
+      );
+
+      await loadDocuments();
+
+      setIntelligenceDocument(null);
+      setIntelligenceExtraction(null);
+      setIntelligenceError(null);
+    } catch (error) {
+      setIntelligenceError(
+        error instanceof Error
+          ? error.message
+          : "Unable to update HR records.",
+      );
+    } finally {
+      setIntelligenceApproving(false);
+    }
+  }
 
   async function loadDocuments(): Promise<void> {
     try {
@@ -919,6 +1025,30 @@ export function EmployeeDocuments({
                             type="button"
                             className="employee-document-action-button"
                             onClick={() =>
+                              void handleAnalyzeDocument(
+                                group.current,
+                              )
+                            }
+                            disabled={
+                              uploading ||
+                              intelligenceLoading ||
+                              previewingDocumentId ===
+                                group.current.id ||
+                              downloadingDocumentId ===
+                                group.current.id
+                            }
+                          >
+                            {intelligenceLoading &&
+                            intelligenceDocument?.id ===
+                              group.current.id
+                              ? "Analyzing..."
+                              : "Analyze"}
+                          </button>
+
+                          <button
+                            type="button"
+                            className="employee-document-action-button"
+                            onClick={() =>
                               void handlePreview(
                                 group.current,
                               )
@@ -1056,6 +1186,30 @@ export function EmployeeDocuments({
             )}
           </div>
         )}
+        {intelligenceDocument && (
+        <DocumentIntelligenceReviewModal
+          employee={intelligenceDocument}
+          extraction={intelligenceExtraction}
+          loading={intelligenceLoading}
+          error={intelligenceError}
+          approving={intelligenceApproving}
+          onAnalyze={() =>
+            void handleAnalyzeDocument(
+              intelligenceDocument,
+            )
+          }
+          onClose={() => {
+            if (!intelligenceApproving) {
+              setIntelligenceDocument(null);
+              setIntelligenceExtraction(null);
+              setIntelligenceError(null);
+            }
+          }}
+          onApprove={(fields) =>
+            void handleApproveExtraction(fields)
+          }
+        />
+      )}
     </article>
   );
 }

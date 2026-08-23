@@ -1465,3 +1465,283 @@
     flex-direction: column;
   }
 }
+
+/* ================================================================
+   Document Intelligence Review Modal
+   ================================================================ */
+
+.employee-document-intelligence-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(4px);
+  overflow: hidden;
+}
+
+.employee-document-intelligence-window {
+  width: min(760px, 100%);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow:
+    0 24px 70px rgba(15, 23, 42, 0.28),
+    0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+/* ------------------------------------------------
+   Modal Header
+   ------------------------------------------------ */
+
+.employee-document-intelligence-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.employee-document-intelligence-header h2 {
+  margin: 0.25rem 0 0;
+}
+
+.employee-document-intelligence-header p {
+  margin: 0.5rem 0 0;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* ------------------------------------------------
+   Modal Review Content
+   ------------------------------------------------ */
+
+.employee-document-intelligence-review {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem;
+}
+
+/* Keep summary above the scrolling field area. */
+
+.employee-document-intelligence-summary {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.employee-document-intelligence-summary > div {
+  min-width: 0;
+}
+
+.employee-document-intelligence-summary > div > span {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.employee-document-intelligence-summary > div > strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.4;
+}
+
+/* ------------------------------------------------
+   Important Field Values
+   ------------------------------------------------ */
+
+.employee-document-intelligence-readonly-value {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #334155;
+  font-weight: 500;
+}
+
+/* ------------------------------------------------
+   Modal Footer
+   ------------------------------------------------ */
+
+.employee-document-intelligence-footer {
+  flex: 0 0 auto;
+  position: relative;
+  bottom: auto;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.employee-document-intelligence-processing-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(4px);
+}
+
+.employee-document-intelligence-processing-modal {
+  width: min(420px, 100%);
+  padding: 2.5rem 2rem;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.25);
+  text-align: center;
+}
+
+.employee-document-intelligence-spinner {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.5rem;
+  border: 5px solid #e2e8f0;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: employee-document-intelligence-spin 0.9s linear infinite;
+}
+
+.employee-document-intelligence-processing-eyebrow {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.employee-document-intelligence-processing-content h3 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.employee-document-intelligence-processing-content p {
+  margin: 0.75rem 0 0;
+  line-height: 1.5;
+}
+
+@keyframes employee-document-intelligence-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.employee-document-intelligence-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.employee-document-intelligence-footer-summary {
+  font-size: 0.9rem;
+}
+
+.employee-document-intelligence-footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.employee-document-secondary-button {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.employee-document-secondary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@media (max-width: 700px) {
+  .employee-document-intelligence-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .employee-document-intelligence-footer-actions {
+    flex-wrap: wrap;
+  }
+}
+
+.employee-document-intelligence-readonly-value {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #334155;
+  font-weight: 500;
+}
+
+.employee-document-intelligence-field-value {
+  width: 100%;
+}
+
+.employee-document-intelligence-field-value input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 42px;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  font: inherit;
+  line-height: 1.4;
+  outline: none;
+}
+
+.employee-document-intelligence-field-value input:focus {
+  border-color: #94a3b8;
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.15);
+}
+
+.employee-document-intelligence-field-value input:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}

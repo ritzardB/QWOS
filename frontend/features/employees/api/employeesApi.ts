@@ -1,6 +1,7 @@
 import type {
   Employee,
   EmployeeDocument,
+  EmployeeDocumentExtraction,
   EmployeeImmigration,
   EmployeeManager,
   EmployeePosition,
@@ -384,3 +385,113 @@ export async function downloadEmployeeDocument(
     URL.revokeObjectURL(url);
   }
 }
+
+export async function extractEmployeeDocument(
+  employeeId: string,
+  documentId: string,
+): Promise<EmployeeDocumentExtraction> {
+  const response = await fetch(
+    `${API_BASE_URL}/hr/employees/${employeeId}/documents/${documentId}/extraction`,
+    {
+      method: "POST",
+      headers: getAuthenticatedHeaders(),
+    },
+  );
+
+  handleAuthenticationFailure(response);
+
+  if (response.status === 403) {
+    throw new Error(
+      "You are not authorized to analyze employee documents.",
+    );
+  }
+
+  if (response.status === 404) {
+    throw new Error(
+      "Employee document or document definition not found.",
+    );
+  }
+
+  if (response.status === 422) {
+    throw new Error(
+      "The document could not be processed.",
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Unable to analyze employee document (${response.status})`,
+    );
+  }
+
+  return (await response.json()) as EmployeeDocumentExtraction;
+}
+
+export type ApprovedEmployeeDocumentFieldInput = {
+  extraction_result_id: string;
+  value: string | null;
+};
+
+export type ApproveEmployeeDocumentExtractionResponse = {
+  document_id: string;
+  employee_id: string;
+  approved_fields: Array<{
+    extraction_result_id: string;
+    field_code: string;
+    target_entity: string;
+    target_field: string;
+    value: string | null;
+  }>;
+};
+
+export async function approveEmployeeDocumentExtraction(
+  employeeId: string,
+  documentId: string,
+  fields: ApprovedEmployeeDocumentFieldInput[],
+): Promise<ApproveEmployeeDocumentExtractionResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/hr/employees/${employeeId}/documents/${documentId}/extraction/approve`,
+    {
+      method: "POST",
+      headers: {
+        ...getAuthenticatedHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fields,
+      }),
+    },
+  );
+
+  handleAuthenticationFailure(response);
+
+  if (response.status === 403) {
+    throw new Error(
+      "You are not authorized to approve document extraction.",
+    );
+  }
+
+  if (response.status === 404) {
+    throw new Error(
+      "Document or extraction result was not found.",
+    );
+  }
+
+  if (response.status === 422) {
+    throw new Error(
+      "One or more approved values are invalid.",
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Unable to approve document extraction (${response.status})`,
+    );
+  }
+
+  return (
+    (await response.json()) as
+      ApproveEmployeeDocumentExtractionResponse
+  );
+}
+
