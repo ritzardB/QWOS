@@ -13,10 +13,10 @@ Description:
     Passport implementation of the QWOS DocumentIntelligence port.
 
 Responsibilities:
-    - Classify passport MRZ content
-    - Extract passport fields from MRZ data
-    - Adapt PassportMRZParser results to the application port
-    - Remain independent of OCR providers
+    - Run OCR against passport documents
+    - Detect the passport MRZ
+    - Parse and validate passport MRZ fields
+    - Return normalized extraction results
 
 Author:
     Richard Balabarcon
@@ -29,6 +29,12 @@ from qwos.application.common.ports.document_intelligence import (
     DocumentClassification,
     DocumentExtraction,
 )
+from qwos.application.common.ports.document_ocr import (
+    DocumentOCR,
+)
+from qwos.infrastructure.document_intelligence.passport.passport_mrz_detector import (
+    PassportMRZDetector,
+)
 from qwos.infrastructure.document_intelligence.passport.passport_mrz_parser import (
     PassportMRZParser,
 )
@@ -36,22 +42,60 @@ from qwos.infrastructure.document_intelligence.passport.passport_mrz_parser impo
 
 class PassportDocumentIntelligence:
     """
-    Passport implementation of DocumentIntelligence.
+    Passport DocumentIntelligence implementation.
 
-    The current implementation operates on MRZ text that has already been
-    extracted from the document.
+    Pipeline:
 
-    OCR/image recognition is intentionally kept outside this adapter so that
-    an OCR provider can be introduced later without changing the application
-    layer.
+        Document
+            ↓
+        OCR
+            ↓
+        MRZ Detection
+            ↓
+        MRZ Parsing
+            ↓
+        DocumentExtraction
     """
 
     def __init__(
         self,
         *,
+        ocr: DocumentOCR,
+        detector: PassportMRZDetector | None = None,
         parser: PassportMRZParser | None = None,
     ) -> None:
-        self._parser = parser or PassportMRZParser()
+        self._ocr = ocr
+        self._detector = (
+            detector or PassportMRZDetector()
+        )
+        self._parser = (
+            parser or PassportMRZParser()
+        )
+
+    def _extract_mrz(
+        self,
+        *,
+        content: bytes,
+        filename: str,
+        mime_type: str | None,
+    ) -> DocumentExtraction:
+        """
+        Execute the complete passport OCR → MRZ pipeline.
+        """
+
+        ocr_result = self._ocr.extract_text(
+            content=content,
+            filename=filename,
+            mime_type=mime_type,
+        )
+
+        mrz = self._detector.detect(
+            ocr_result.text,
+        )
+
+        return self._parser.parse(
+            mrz,
+        )
 
     def classify(
         self,
@@ -59,18 +103,16 @@ class PassportDocumentIntelligence:
         content: bytes,
         filename: str,
         mime_type: str | None = None,
+        document_family: str | None = None, 
     ) -> DocumentClassification:
         """
-        Classify passport content from MRZ text.
+        Classify a passport document.
         """
 
-        mrz = self._decode_mrz_content(
-            content,
+        extraction = self._extract_mrz(
+            content=content,
+            filename=filename,
             mime_type=mime_type,
-        )
-
-        extraction = self._parser.parse(
-            mrz,
         )
 
         return extraction.classification
@@ -85,7 +127,7 @@ class PassportDocumentIntelligence:
         country_code: str | None = None,
     ) -> DocumentExtraction:
         """
-        Extract structured passport fields from MRZ text.
+        Extract structured passport fields.
         """
 
         if (
@@ -98,22 +140,15 @@ class PassportDocumentIntelligence:
                 "the passport document family.",
             )
 
-        mrz = self._decode_mrz_content(
-            content,
+        extraction = self._extract_mrz(
+            content=content,
+            filename=filename,
             mime_type=mime_type,
-        )
-
-        extraction = self._parser.parse(
-            mrz,
-        )
-
-        extracted_country_code = (
-            extraction.classification.country_code
         )
 
         if (
             country_code is not None
-            and extracted_country_code
+            and extraction.classification.country_code
             != country_code.strip().upper()
         ):
             raise ValueError(
@@ -122,57 +157,3 @@ class PassportDocumentIntelligence:
             )
 
         return extraction
-
-    @staticmethod
-    def _decode_mrz_content(
-        content: bytes,
-        *,
-        mime_type: str | None = None,
-    ) -> str:
-        """
-        Decode MRZ text supplied to the adapter.
-
-        The current implementation expects MRZ text as UTF-8.
-
-        Image and PDF documents are intentionally rejected because OCR /
-        MRZ detection has not yet been implemented.
-        """
-
-        if not content:
-            raise ValueError(
-                "Document content cannot be empty.",
-            )
-
-        normalized_mime_type = (
-            mime_type.strip().lower()
-            if mime_type
-            else None
-        )
-
-        if (
-            normalized_mime_type == "application/pdf"
-            or (
-                normalized_mime_type is not None
-                and normalized_mime_type.startswith("image/")
-            )
-        ):
-            raise ValueError(
-                "Binary image/PDF OCR is not implemented yet.",
-            )
-
-        try:
-            text = content.decode("utf-8")
-        except UnicodeDecodeError as exc:
-            raise ValueError(
-                "Passport MRZ adapter requires MRZ text content. "
-                "Binary image/PDF OCR is not implemented yet.",
-            ) from exc
-
-        normalized = text.strip()
-
-        if not normalized:
-            raise ValueError(
-                "Passport MRZ content cannot be empty.",
-            )
-
-        return normalized

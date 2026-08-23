@@ -2,7 +2,7 @@
 ===============================================================================
 Quantum Workforce OS (QWOS)
 
-Application Layer
+API Layer
 
 HR Module
 
@@ -10,7 +10,7 @@ File:
     extract_employee_document_response.py
 
 Description:
-    Response returned after document data has been extracted.
+    API response contract for employee document extraction.
 
 Author:
     Richard Balabarcon
@@ -19,13 +19,12 @@ Author:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass(frozen=True, slots=True)
-class ExtractedEmployeeDocumentField:
+class ExtractedEmployeeDocumentFieldResponse(BaseModel):
     """
-    A single extracted document field.
+    Extracted document field returned for human review.
     """
 
     extraction_result_id: str
@@ -39,17 +38,13 @@ class ExtractedEmployeeDocumentField:
     target_field: str | None
 
 
-@dataclass(frozen=True, slots=True)
-class ExtractEmployeeDocumentResponse:
+class ExtractEmployeeDocumentResponse(BaseModel):
     """
-    Result returned after document extraction.
+    Document extraction response returned to the frontend.
     """
 
     document_id: str
     employee_id: str
     document_family: str
     country_code: str | None
-    fields: tuple[
-        ExtractedEmployeeDocumentField,
-        ...
-    ]
+    fields: list[ExtractedEmployeeDocumentFieldResponse]

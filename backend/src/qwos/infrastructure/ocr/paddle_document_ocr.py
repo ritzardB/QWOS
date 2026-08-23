@@ -10,7 +10,7 @@ File:
     paddle_document_ocr.py
 
 Description:
-    Local OCR implementation backed by PaddleOCR.
+    Local OCR implementation backed by PaddleOCR 3.x.
 
 Responsibilities:
     - Convert image/PDF document content into OCR text
@@ -37,7 +37,7 @@ from qwos.application.common.ports.document_ocr import (
 
 class PaddleDocumentOCR(DocumentOCR):
     """
-    Local OCR implementation using PaddleOCR 3.x.
+    Local OCR implementation using PaddleOCR.
 
     PaddleOCR is initialized lazily so the core QWOS application does not
     initialize OCR models merely because this infrastructure class is
@@ -67,6 +67,9 @@ class PaddleDocumentOCR(DocumentOCR):
 
         self._ocr = PaddleOCR(
             lang="en",
+            use_doc_orientation_classify=False,
+            use_doc_unwarping=False,
+            use_textline_orientation=False,
         )
 
         return self._ocr
@@ -79,7 +82,7 @@ class PaddleDocumentOCR(DocumentOCR):
         mime_type: str | None = None,
     ) -> OCRTextResult:
         """
-        Extract OCR text from an image or PDF document.
+        Extract text from an image or PDF document.
         """
 
         if not content:
@@ -111,6 +114,7 @@ class PaddleDocumentOCR(DocumentOCR):
             )
 
             text_parts: list[str] = []
+            confidence_values: list[float] = []
 
             for result in results:
                 result_json = getattr(
@@ -148,11 +152,38 @@ class PaddleDocumentOCR(DocumentOCR):
                 ):
                     continue
 
-                text_parts.extend(
-                    str(text)
-                    for text in recognized_text
-                    if text
+                recognized_scores = payload.get(
+                    "rec_scores",
                 )
+
+                for index, text in enumerate(
+                    recognized_text,
+                ):
+                    if not text:
+                        continue
+
+                    text_parts.append(
+                        str(text),
+                    )
+
+                    if (
+                        isinstance(
+                            recognized_scores,
+                            list,
+                        )
+                        and index < len(
+                            recognized_scores,
+                        )
+                    ):
+                        score = recognized_scores[index]
+
+                        if isinstance(
+                            score,
+                            (int, float),
+                        ):
+                            confidence_values.append(
+                                float(score),
+                            )
 
             text = "\n".join(
                 text_parts,
@@ -163,10 +194,17 @@ class PaddleDocumentOCR(DocumentOCR):
                     "OCR completed but no text was detected.",
                 )
 
+            confidence = (
+                sum(confidence_values)
+                / len(confidence_values)
+                if confidence_values
+                else None
+            )
+
             return OCRTextResult(
                 text=text,
                 source=self.provider_name,
-                confidence=None,
+                confidence=confidence,
             )
 
         finally:

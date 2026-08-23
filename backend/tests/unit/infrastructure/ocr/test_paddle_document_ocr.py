@@ -92,8 +92,11 @@ def test_extract_text_returns_ocr_result() -> None:
     assert result.confidence is None
 
     paddle_ocr.assert_called_once_with(
-        lang="en",
-    )
+    lang="en",
+    use_doc_orientation_classify=False,
+    use_doc_unwarping=False,
+    use_textline_orientation=False,
+)
 
     fake_engine.predict.assert_called_once()
 
@@ -130,8 +133,11 @@ def test_extract_text_initializes_paddleocr_lazily() -> None:
         )
 
     paddle_ocr.assert_called_once_with(
-        lang="en",
-    )
+    lang="en",
+    use_doc_orientation_classify=False,
+    use_doc_unwarping=False,
+    use_textline_orientation=False,
+)
 
     assert fake_engine.predict.call_count == 2
 

@@ -105,16 +105,30 @@ def make_field(
     *,
     field_id: str = FIELD_ID,
     field_code: str = "document_number",
+    field_label: str = "Document Number",
+    data_type: str = "identifier",
     is_extractable: bool = True,
+    is_hr_updateable: bool = False,
+    target_entity: str | None = None,
+    target_field: str | None = None,
+    validation_pattern: str | None = None,
 ) -> MagicMock:
     field = MagicMock()
 
     field.id = field_id
     field.field_code = field_code
+    field.field_label = field_label
+    field.data_type = data_type
+    field.is_required = False
     field.is_extractable = is_extractable
+    field.sort_order = 0
+    field.is_hr_updateable = is_hr_updateable
+    field.target_entity = target_entity
+    field.target_field = target_field
+    field.validation_pattern = validation_pattern
+    field.is_active = True
 
     return field
-
 
 def make_use_case() -> tuple[
     ExtractEmployeeDocumentUseCase,
@@ -473,6 +487,7 @@ def test_execute_extracts_and_persists_result() -> None:
         content=b"passport content",
         filename="passport.pdf",
         mime_type="application/pdf",
+        document_family="passport",
     )
 
     document_intelligence.extract.assert_called_once_with(

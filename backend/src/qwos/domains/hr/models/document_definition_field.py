@@ -48,6 +48,9 @@ class DocumentDefinitionField(TenantEntity):
         data_type: str,
         is_required: bool = False,
         is_extractable: bool = True,
+        is_hr_updateable: bool = False,
+        target_entity: str | None = None,
+        target_field: str | None = None,
         sort_order: int = 0,
         validation_pattern: str | None = None,
         is_active: bool = True,
@@ -60,6 +63,18 @@ class DocumentDefinitionField(TenantEntity):
         normalized_code = field_code.strip().lower()
         normalized_label = field_label.strip()
         normalized_type = data_type.strip().lower()
+
+        normalized_target_entity = (
+            target_entity.strip().lower()
+            if target_entity
+            else None
+        )
+
+        normalized_target_field = (
+            target_field.strip().lower()
+            if target_field
+            else None
+        )
 
         if not normalized_code:
             raise ValueError(
@@ -81,6 +96,22 @@ class DocumentDefinitionField(TenantEntity):
                 "sort_order cannot be negative.",
             )
 
+        if is_hr_updateable:
+            if not normalized_target_entity:
+                raise ValueError(
+                    "target_entity is required when "
+                    "is_hr_updateable is true.",
+                )
+
+            if not normalized_target_field:
+                raise ValueError(
+                    "target_field is required when "
+                    "is_hr_updateable is true.",
+                )
+        else:
+            normalized_target_entity = None
+            normalized_target_field = None
+
         return cls(
             id=id,
             tenant_id=tenant_id,
@@ -90,6 +121,9 @@ class DocumentDefinitionField(TenantEntity):
             data_type=normalized_type,
             is_required=is_required,
             is_extractable=is_extractable,
+            is_hr_updateable=is_hr_updateable,
+            target_entity=normalized_target_entity,
+            target_field=normalized_target_field,
             sort_order=sort_order,
             validation_pattern=(
                 validation_pattern.strip()
@@ -101,6 +135,10 @@ class DocumentDefinitionField(TenantEntity):
             updated_by=created_by,
         )
 
+    # -------------------------------------------------------------------------
+    # Definition Ownership
+    # -------------------------------------------------------------------------
+
     document_definition_id: Mapped[str] = mapped_column(
         ULID,
         ForeignKey(
@@ -109,6 +147,10 @@ class DocumentDefinitionField(TenantEntity):
         ),
         nullable=False,
     )
+
+    # -------------------------------------------------------------------------
+    # Field Identity
+    # -------------------------------------------------------------------------
 
     field_code: Mapped[str] = mapped_column(
         String(100),
@@ -120,10 +162,18 @@ class DocumentDefinitionField(TenantEntity):
         nullable=False,
     )
 
+    # -------------------------------------------------------------------------
+    # Data Definition
+    # -------------------------------------------------------------------------
+
     data_type: Mapped[str] = mapped_column(
         String(30),
         nullable=False,
     )
+
+    # -------------------------------------------------------------------------
+    # Behavior
+    # -------------------------------------------------------------------------
 
     is_required: Mapped[bool] = mapped_column(
         Boolean,
@@ -137,16 +187,44 @@ class DocumentDefinitionField(TenantEntity):
         default=True,
     )
 
+    # -------------------------------------------------------------------------
+    # HR Update Mapping
+    # -------------------------------------------------------------------------
+
+    is_hr_updateable: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+    )
+
+    target_entity: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+
+    target_field: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+
     sort_order: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
         default=0,
     )
 
+    # -------------------------------------------------------------------------
+    # Optional Validation
+    # -------------------------------------------------------------------------
+
     validation_pattern: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
     )
+
+    # -------------------------------------------------------------------------
+    # Lifecycle
+    # -------------------------------------------------------------------------
 
     is_active: Mapped[bool] = mapped_column(
         Boolean,

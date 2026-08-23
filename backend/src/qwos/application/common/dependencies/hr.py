@@ -26,9 +26,6 @@ Author:
 from __future__ import annotations
 
 from fastapi import Depends
-from qwos.infrastructure.repositories.hr.sqlalchemy_document_definition_repository import (
-    SQLAlchemyDocumentDefinitionRepository,
-)
 from sqlalchemy.orm import Session
 
 from qwos.application.common.context.request_context import RequestContext
@@ -49,6 +46,9 @@ from qwos.application.common.persistence.unit_of_work import UnitOfWork
 from qwos.application.common.ports.document_filename_generator import (
     DocumentFilenameGenerator,
 )
+from qwos.application.common.ports.document_intelligence import (
+    DocumentIntelligence,
+)
 from qwos.application.common.ports.document_storage import (
     DocumentStorage,
 )
@@ -59,6 +59,9 @@ from qwos.application.common.ports.employee_number_generator import (
     EmployeeNumberGenerator,
 )
 from qwos.application.common.ports.id_generator import IdGenerator
+from qwos.application.hr.use_cases.approve_employee_document_extraction_use_case import (
+    ApproveEmployeeDocumentExtractionUseCase,
+)
 from qwos.application.hr.use_cases.create_employee_profile_use_case import (
     CreateEmployeeProfileUseCase,
 )
@@ -67,6 +70,9 @@ from qwos.application.hr.use_cases.create_employee_reporting_relationship_use_ca
 )
 from qwos.application.hr.use_cases.create_employee_use_case import (
     CreateEmployeeUseCase,
+)
+from qwos.application.hr.use_cases.extract_employee_document_use_case import (
+    ExtractEmployeeDocumentUseCase,
 )
 from qwos.application.hr.use_cases.get_employee_document_content_use_case import (
     GetEmployeeDocumentContentUseCase,
@@ -117,8 +123,14 @@ from qwos.application.hr.validators.create_employee_validator import (
     CreateEmployeeValidator,
 )
 from qwos.core.database.session import get_session
+from qwos.domains.hr.repositories.document_definition_field_repository import (
+    DocumentDefinitionFieldRepository,
+)
 from qwos.domains.hr.repositories.document_definition_repository import (
     DocumentDefinitionRepository,
+)
+from qwos.domains.hr.repositories.document_extraction_result_repository import (
+    DocumentExtractionResultRepository,
 )
 from qwos.domains.hr.repositories.employee_document_repository import (
     EmployeeDocumentRepository,
@@ -149,6 +161,27 @@ from qwos.domains.identity.repositories.user_repository import (
 )
 from qwos.domains.identity.services.authorization_service import (
     AuthorizationService,
+)
+from qwos.infrastructure.document_intelligence.document_intelligence_router import (
+    DocumentIntelligenceRouter,
+)
+from qwos.infrastructure.document_intelligence.national_id.national_id_document_intelligence import (
+    NationalIdDocumentIntelligence,
+)
+from qwos.infrastructure.document_intelligence.passport.passport_document_intelligence import (
+    PassportDocumentIntelligence,
+)
+from qwos.infrastructure.ocr.paddle_document_ocr import (
+    PaddleDocumentOCR,
+)
+from qwos.infrastructure.repositories.hr.sqlalchemy_document_definition_field_repository import (
+    SQLAlchemyDocumentDefinitionFieldRepository,
+)
+from qwos.infrastructure.repositories.hr.sqlalchemy_document_definition_repository import (
+    SQLAlchemyDocumentDefinitionRepository,
+)
+from qwos.infrastructure.repositories.hr.sqlalchemy_document_extraction_result_repository import (
+    SQLAlchemyDocumentExtractionResultRepository,
 )
 from qwos.infrastructure.repositories.hr.sqlalchemy_employee_document_repository import (
     SQLAlchemyEmployeeDocumentRepository,
@@ -251,6 +284,28 @@ def get_employee_document_repository(
     """
     return SQLAlchemyEmployeeDocumentRepository(session)
 
+def get_document_definition_field_repository(
+    session: Session = Depends(get_session),
+) -> DocumentDefinitionFieldRepository:
+    """
+    Return DocumentDefinitionField repository.
+    """
+
+    return SQLAlchemyDocumentDefinitionFieldRepository(
+        session,
+    )
+
+
+def get_document_extraction_result_repository(
+    session: Session = Depends(get_session),
+) -> DocumentExtractionResultRepository:
+    """
+    Return DocumentExtractionResult repository.
+    """
+
+    return SQLAlchemyDocumentExtractionResultRepository(
+        session,
+    )
 
 # -------------------------------------------------------------------------
 # HR Infrastructure Providers
@@ -327,6 +382,28 @@ def get_create_employee_reporting_relationship_validator(
     """
     return CreateEmployeeReportingRelationshipValidator()
 
+def get_document_intelligence() -> DocumentIntelligence:
+    """
+    Return the QWOS document-intelligence implementation.
+
+    The current provider supports passport documents through:
+        PaddleOCR
+        ->
+        Passport MRZ detector
+        ->
+        Passport MRZ parser
+    """
+
+    return DocumentIntelligenceRouter(
+    implementations={
+        "passport": PassportDocumentIntelligence(
+            ocr=PaddleDocumentOCR(),
+        ),
+        "national id": NationalIdDocumentIntelligence(
+            ocr=PaddleDocumentOCR(),
+        ),
+    },
+)
 
 # -------------------------------------------------------------------------
 # Employee Use Case Providers
@@ -733,3 +810,117 @@ def get_document_definition_repository(
     """
     return SQLAlchemyDocumentDefinitionRepository(session)
 
+def get_extract_employee_document_use_case(
+    employee_document_repository: EmployeeDocumentRepository = Depends(
+        get_employee_document_repository,
+    ),
+    document_definition_repository: DocumentDefinitionRepository = Depends(
+        get_document_definition_repository,
+    ),
+    document_definition_field_repository: DocumentDefinitionFieldRepository = Depends(
+        get_document_definition_field_repository,
+    ),
+    document_extraction_result_repository: DocumentExtractionResultRepository = Depends(
+        get_document_extraction_result_repository,
+    ),
+    authorization_service: AuthorizationService = Depends(
+        get_authorization_service,
+    ),
+    document_storage: DocumentStorage = Depends(
+        get_document_storage,
+    ),
+    document_intelligence: DocumentIntelligence = Depends(
+        get_document_intelligence,
+    ),
+    id_generator: IdGenerator = Depends(
+        get_id_generator,
+    ),
+    unit_of_work: UnitOfWork = Depends(
+        get_unit_of_work,
+    ),
+) -> ExtractEmployeeDocumentUseCase:
+    return ExtractEmployeeDocumentUseCase(
+        employee_document_repository=employee_document_repository,
+        document_definition_repository=document_definition_repository,
+        document_definition_field_repository=(
+            document_definition_field_repository
+        ),
+        document_extraction_result_repository=(
+            document_extraction_result_repository
+        ),
+        authorization_service=authorization_service,
+        document_storage=document_storage,
+        document_intelligence=document_intelligence,
+        id_generator=id_generator,
+        unit_of_work=unit_of_work,
+    )
+
+def get_approve_employee_document_extraction_use_case(
+    employee_document_repository: EmployeeDocumentRepository = Depends(
+        get_employee_document_repository,
+    ),
+    document_definition_field_repository: DocumentDefinitionFieldRepository = Depends(
+        get_document_definition_field_repository,
+    ),
+    document_extraction_result_repository: DocumentExtractionResultRepository = Depends(
+        get_document_extraction_result_repository,
+    ),
+    employee_profile_repository: EmployeeProfileRepository = Depends(
+        get_employee_profile_repository,
+    ),
+    employee_immigration_repository: EmployeeImmigrationRepository = Depends(
+        get_employee_immigration_repository,
+    ),
+    authorization_service: AuthorizationService = Depends(
+        get_authorization_service,
+    ),
+    unit_of_work: UnitOfWork = Depends(
+        get_unit_of_work,
+    ),
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+) -> ApproveEmployeeDocumentExtractionUseCase:
+    """
+    Return ApproveEmployeeDocumentExtractionUseCase.
+    """
+
+    return ApproveEmployeeDocumentExtractionUseCase(
+        employee_document_repository=employee_document_repository,
+        document_definition_field_repository=(
+            document_definition_field_repository
+        ),
+        document_extraction_result_repository=(
+            document_extraction_result_repository
+        ),
+        employee_profile_repository=employee_profile_repository,
+        employee_immigration_repository=(
+            employee_immigration_repository
+        ),
+        authorization_service=authorization_service,
+        unit_of_work=unit_of_work,
+        request_context=request_context,
+    )
+
+def get_document_definition_field_repository(
+    session: Session = Depends(get_session),
+) -> DocumentDefinitionFieldRepository:
+    """
+    Return DocumentDefinitionField repository.
+    """
+
+    return SQLAlchemyDocumentDefinitionFieldRepository(
+        session,
+    )
+
+
+def get_document_extraction_result_repository(
+    session: Session = Depends(get_session),
+) -> DocumentExtractionResultRepository:
+    """
+    Return DocumentExtractionResult repository.
+    """
+
+    return SQLAlchemyDocumentExtractionResultRepository(
+        session,
+    )

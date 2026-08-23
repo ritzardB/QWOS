@@ -69,6 +69,9 @@ from qwos.domains.hr.repositories.employee_document_repository import (
 from qwos.domains.identity.services.authorization_service import (
     AuthorizationService,
 )
+from qwos.infrastructure.document_intelligence.document_field_validator import (
+    DocumentFieldValidator,
+)
 
 
 class ExtractEmployeeDocumentUseCase:
@@ -221,6 +224,7 @@ class ExtractEmployeeDocumentUseCase:
                 content=stored_document.content,
                 filename=document.original_filename,
                 mime_type=document.mime_type,
+                document_family=document_definition.document_family,
             )
         )
 
@@ -291,6 +295,18 @@ class ExtractEmployeeDocumentUseCase:
             if configured_field is None:
                 continue
 
+            # ------------------------------------------------------------------
+            # Validate extracted candidate against the configured field pattern
+            # ------------------------------------------------------------------
+
+            if not DocumentFieldValidator.matches(
+                value=extracted_field.raw_value,
+                validation_pattern=(
+                    configured_field.validation_pattern
+                ),
+            ):
+                continue
+
             result = DocumentExtractionResult.create(
                 id=self._id_generator.generate(),
                 tenant_id=tenant_id,
@@ -331,30 +347,43 @@ class ExtractEmployeeDocumentUseCase:
         # Response
         # ------------------------------------------------------------------
 
+        definition_fields_by_id = {
+            field.id: field
+            for field in definition_fields
+        }
+
         return ExtractEmployeeDocumentResponse(
             document_id=document.id,
             employee_id=document.employee_id,
-            document_family=(
-                document_definition.document_family
-            ),
-            country_code=(
-                classification.country_code
-            ),
+            document_family=document_definition.document_family,
+            country_code=classification.country_code,
             fields=tuple(
                 ExtractedEmployeeDocumentField(
                     extraction_result_id=result.id,
                     field_code=(
-                        next(
-                            field.field_code
-                            for field in definition_fields
-                            if field.id
-                            == result.document_definition_field_id
-                        )
+                        definition_fields_by_id[
+                            result.document_definition_field_id
+                        ].field_code
                     ),
                     raw_value=result.raw_value,
                     normalized_value=result.normalized_value,
                     confidence=result.confidence,
                     source=result.source,
+                    is_hr_updateable=(
+                        definition_fields_by_id[
+                            result.document_definition_field_id
+                        ].is_hr_updateable
+                    ),
+                    target_entity=(
+                        definition_fields_by_id[
+                            result.document_definition_field_id
+                        ].target_entity
+                    ),
+                    target_field=(
+                        definition_fields_by_id[
+                            result.document_definition_field_id
+                        ].target_field
+                    ),
                 )
                 for result in extraction_candidates
             ),

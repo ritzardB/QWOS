@@ -35,6 +35,9 @@ from fastapi import (
     status,
 )
 
+from qwos.api.contracts.requests.hr.approve_employee_document_extraction_request import (
+    ApproveEmployeeDocumentExtractionRequest,
+)
 from qwos.api.contracts.requests.hr.create_employee_profile_request import (
     CreateEmployeeProfileRequest,
 )
@@ -53,6 +56,10 @@ from qwos.api.contracts.requests.hr.update_employee_profile_request import (
 from qwos.api.contracts.requests.hr.upload_employee_document_request import (
     UploadEmployeeDocumentRequest,
 )
+from qwos.api.contracts.responses.hr.approve_employee_document_extraction_response import (
+    ApprovedEmployeeDocumentFieldResponse,
+    ApproveEmployeeDocumentExtractionResponse,
+)
 from qwos.api.contracts.responses.hr.create_employee_profile_response import (
     CreateEmployeeProfileResponse,
 )
@@ -61,6 +68,9 @@ from qwos.api.contracts.responses.hr.create_employee_reporting_relationship_resp
 )
 from qwos.api.contracts.responses.hr.create_employee_response import (
     CreateEmployeeResponse,
+)
+from qwos.api.contracts.responses.hr.extract_employee_document_response import (
+    ExtractEmployeeDocumentResponse,
 )
 from qwos.api.contracts.responses.hr.get_employee_immigration_response import (
     GetEmployeeImmigrationResponse,
@@ -96,10 +106,15 @@ from qwos.api.contracts.responses.hr.upload_employee_document_response import (
     UploadEmployeeDocumentResponse,
 )
 from qwos.application.common.context.request_context import RequestContext
+from qwos.application.common.dependencies.authentication import (
+    get_authenticated_request_context,
+)
 from qwos.application.common.dependencies.hr import (
+    get_approve_employee_document_extraction_use_case,
     get_create_employee_profile_use_case,
     get_create_employee_reporting_relationship_use_case,
     get_create_employee_use_case,
+    get_extract_employee_document_use_case,
     get_get_employee_document_content_use_case,
     get_get_employee_immigration_use_case,
     get_get_employee_manager_use_case,
@@ -114,6 +129,13 @@ from qwos.application.common.dependencies.hr import (
     get_request_context,
     get_update_employee_profile_use_case,
     get_upload_employee_document_use_case,
+)
+from qwos.application.hr.commands.approve_employee_document_extraction_command import (
+    ApprovedEmployeeDocumentField,
+    ApproveEmployeeDocumentExtractionCommand,
+)
+from qwos.application.hr.commands.extract_employee_document_command import (
+    ExtractEmployeeDocumentCommand,
 )
 from qwos.application.hr.mappers.employee_document_mapper import (
     EmployeeDocumentMapper,
@@ -134,6 +156,9 @@ from qwos.application.hr.mappers.employee_reporting_relationship_mapper import (
 from qwos.application.hr.mappers.link_employee_to_user_mapper import (
     LinkEmployeeToUserMapper,
 )
+from qwos.application.hr.use_cases.approve_employee_document_extraction_use_case import (
+    ApproveEmployeeDocumentExtractionUseCase,
+)
 from qwos.application.hr.use_cases.create_employee_profile_use_case import (
     CreateEmployeeProfileUseCase,
 )
@@ -142,6 +167,9 @@ from qwos.application.hr.use_cases.create_employee_reporting_relationship_use_ca
 )
 from qwos.application.hr.use_cases.create_employee_use_case import (
     CreateEmployeeUseCase,
+)
+from qwos.application.hr.use_cases.extract_employee_document_use_case import (
+    ExtractEmployeeDocumentUseCase,
 )
 from qwos.application.hr.use_cases.get_employee_document_content_use_case import (
     GetEmployeeDocumentContentUseCase,
@@ -794,4 +822,101 @@ async def list_expiring_employee_immigration(
 
     return EmployeeImmigrationMapper.to_expiring_list_response(
         application_response,
+    )
+
+@router.post(
+    "/employees/{employee_id}/documents/{document_id}/extraction",
+    response_model=ExtractEmployeeDocumentResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Extract Employee Document",
+    description=(
+        "Run document intelligence against an employee document and "
+        "return extraction candidates for human review."
+    ),
+)
+async def extract_employee_document(
+    employee_id: str,
+    document_id: str,
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+    use_case: ExtractEmployeeDocumentUseCase = Depends(
+        get_extract_employee_document_use_case,
+    ),
+) -> ExtractEmployeeDocumentResponse:
+    """
+    Extract structured information from an employee document.
+
+    Extraction results are evidence only and do not update HR records.
+    """
+
+    command = ExtractEmployeeDocumentCommand(
+        employee_id=employee_id,
+        document_id=document_id,
+        request_context=request_context,
+    )
+
+    application_response = await use_case.execute(
+        command,
+    )
+
+    return EmployeeDocumentMapper.to_extract_response(
+        application_response,
+    )
+
+@router.post(
+    "/employees/{employee_id}/documents/{document_id}/extraction/approve",
+    response_model=ApproveEmployeeDocumentExtractionResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Approve Employee Document Extraction",
+    description=(
+        "Apply human-approved document extraction values to "
+        "supported HR records."
+    ),
+)
+async def approve_employee_document_extraction(
+    employee_id: str,
+    document_id: str,
+    request: ApproveEmployeeDocumentExtractionRequest,
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+    use_case: ApproveEmployeeDocumentExtractionUseCase = Depends(
+        get_approve_employee_document_extraction_use_case,
+    ),
+) -> ApproveEmployeeDocumentExtractionResponse:
+    """
+    Apply human-confirmed extraction values to supported HR records.
+    """
+
+    command = ApproveEmployeeDocumentExtractionCommand(
+        tenant_id=request_context.tenant_id,
+        employee_id=employee_id,
+        document_id=document_id,
+        fields=tuple(
+            ApprovedEmployeeDocumentField(
+                extraction_result_id=field.extraction_result_id,
+                value=field.value,
+            )
+            for field in request.fields
+        ),
+    )
+
+    application_response = await use_case.execute(
+        command,
+    )
+
+    return ApproveEmployeeDocumentExtractionResponse(
+        document_id=application_response.document_id,
+        employee_id=application_response.employee_id,
+        approved_fields=[
+            ApprovedEmployeeDocumentFieldResponse(
+                extraction_result_id=item.extraction_result_id,
+                field_code=item.field_code,
+                target_entity=item.target_entity,
+                target_field=item.target_field,
+                value=item.value,
+            )
+            for item in application_response.approved_fields
+        ],
     )

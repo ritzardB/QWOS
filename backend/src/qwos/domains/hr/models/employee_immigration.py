@@ -95,6 +95,66 @@ class EmployeeImmigration(TenantEntity):
             created_by=created_by,
             updated_by=created_by,
         )
+    
+    # -------------------------------------------------------------------------
+    # Update
+    # -------------------------------------------------------------------------
+
+    def update(
+        self,
+        *,
+        immigration_type: str | None = None,
+        status: str | None = None,
+        document_number: str | None = None,
+        sponsor_name: str | None = None,
+        issuing_authority: str | None = None,
+        issue_date: date | None = None,
+        expiry_date: date | None = None,
+        notes: str | None = None,
+        updated_by: str | None = None,
+    ) -> None:
+        """
+        Update the mutable immigration record fields.
+        """
+
+        if immigration_type is not None:
+            self.immigration_type = (
+                immigration_type.strip().lower()
+            )
+
+        if status is not None:
+            self.status = status.strip().lower()
+
+        if document_number is not None:
+            self.document_number = document_number.strip()
+
+        if sponsor_name is not None:
+            self.sponsor_name = sponsor_name.strip()
+
+        if issuing_authority is not None:
+            self.issuing_authority = (
+                issuing_authority.strip()
+            )
+
+        if issue_date is not None:
+            self.issue_date = issue_date
+
+        if expiry_date is not None:
+            self.expiry_date = expiry_date
+
+        if notes is not None:
+            self.notes = notes.strip()
+
+        if (
+            self.issue_date is not None
+            and self.expiry_date is not None
+            and self.expiry_date < self.issue_date
+        ):
+            raise ValueError(
+                "expiry_date cannot be earlier than issue_date.",
+            )
+
+        self.updated_by = updated_by
 
     # -------------------------------------------------------------------------
     # Ownership

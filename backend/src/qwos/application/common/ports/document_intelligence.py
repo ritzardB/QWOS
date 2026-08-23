@@ -77,6 +77,7 @@ class DocumentIntelligence(Protocol):
         content: bytes,
         filename: str,
         mime_type: str | None = None,
+        document_family: str | None = None,
     ) -> DocumentClassification:
         """
         Classify the supplied document.

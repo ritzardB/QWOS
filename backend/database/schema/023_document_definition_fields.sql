@@ -58,6 +58,8 @@ CREATE TABLE document_definition_fields (
     -- Definition Ownership
     ---------------------------------------------------------------------------
 
+    tenant_id CHAR(26),
+    
     document_definition_id CHAR(26) NOT NULL,
 
     ---------------------------------------------------------------------------
@@ -89,6 +91,18 @@ CREATE TABLE document_definition_fields (
     sort_order INTEGER
         NOT NULL
         DEFAULT 0,
+
+        ---------------------------------------------------------------------------
+    -- HR Update Mapping
+    ---------------------------------------------------------------------------
+
+    is_hr_updateable BOOLEAN
+        NOT NULL
+        DEFAULT FALSE,
+
+    target_entity VARCHAR(100),
+
+    target_field VARCHAR(100),
 
     ---------------------------------------------------------------------------
     -- Optional Validation
@@ -159,6 +173,23 @@ CREATE TABLE document_definition_fields (
     CONSTRAINT chk_document_definition_fields_sort_order
         CHECK (
             sort_order >= 0
+        ),
+
+    CONSTRAINT chk_document_definition_fields_hr_mapping
+        CHECK (
+            (
+                is_hr_updateable = FALSE
+                AND target_entity IS NULL
+                AND target_field IS NULL
+            )
+            OR
+            (
+                is_hr_updateable = TRUE
+                AND target_entity IS NOT NULL
+                AND target_field IS NOT NULL
+                AND LENGTH(TRIM(target_entity)) > 0
+                AND LENGTH(TRIM(target_field)) > 0
+            )
         )
 
 );
