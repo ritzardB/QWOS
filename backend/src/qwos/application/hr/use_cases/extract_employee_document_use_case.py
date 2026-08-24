@@ -190,24 +190,6 @@ class ExtractEmployeeDocumentUseCase:
             )
 
         # ------------------------------------------------------------------
-        # Resolve generic document definition
-        # ------------------------------------------------------------------
-
-        document_definition = (
-            self._document_definition_repository.get_by_family(
-                tenant_id=tenant_id,
-                country_code=None,
-                document_family=document.document_category,
-            )
-        )
-
-        if document_definition is None:
-            raise ResourceNotFoundException(
-                resource="DocumentDefinition",
-                identifier=document.document_category,
-            )
-
-        # ------------------------------------------------------------------
         # Read physical document
         # ------------------------------------------------------------------
 
@@ -224,15 +206,15 @@ class ExtractEmployeeDocumentUseCase:
                 content=stored_document.content,
                 filename=document.original_filename,
                 mime_type=document.mime_type,
-                document_family=document_definition.document_family,
+                document_family=document.document_category,
             )
         )
 
         # ------------------------------------------------------------------
-        # Resolve country-specific definition when available
+        # Resolve country-specific document definition
         # ------------------------------------------------------------------
 
-        resolved_definition = (
+        document_definition = (
             self._document_definition_repository.get_by_family(
                 tenant_id=tenant_id,
                 country_code=classification.country_code,
@@ -240,9 +222,14 @@ class ExtractEmployeeDocumentUseCase:
             )
         )
 
-        if resolved_definition is not None:
-            document_definition = resolved_definition
-
+        if document_definition is None:
+            raise ResourceNotFoundException(
+                resource="DocumentDefinition",
+                identifier=(
+                    f"{classification.document_family}:"
+                    f"{classification.country_code or 'generic'}"
+                ),
+            )
         # ------------------------------------------------------------------
         # Load configured extraction fields
         # ------------------------------------------------------------------

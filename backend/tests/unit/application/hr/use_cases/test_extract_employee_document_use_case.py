@@ -444,10 +444,7 @@ def test_execute_extracts_and_persists_result() -> None:
 
     definition = make_definition()
 
-    definition_repository.get_by_family.side_effect = [
-        definition,
-        definition,
-    ]
+    definition_repository.get_by_family.return_value = definition
 
     field_repository.list_by_definition_id.return_value = [
         make_field(),

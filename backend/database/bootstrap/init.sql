@@ -78,6 +78,7 @@
 \i ../schema/022_document_definitions.sql
 \i ../schema/023_document_definition_fields.sql
 \i ../schema/024_document_extraction_results.sql
+\i ../schema/025_document_defintion_seed.sql
 
 -- ---------------------------------------------------------------------------
 -- Triggers
