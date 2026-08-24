@@ -20,7 +20,7 @@ from qwos.domains.attendance.models.employee_attendance_policy import (
 
 class EmployeeAttendancePolicyRepository(Protocol):
     """
-    Contract for EmployeeAttendancePolicy persistence.
+    Contract for EmployeeAttendancePolicy persistence and queries.
     """
 
     # -------------------------------------------------------------------------
@@ -43,13 +43,14 @@ class EmployeeAttendancePolicyRepository(Protocol):
         employee_attendance_policy_id: str,
     ) -> EmployeeAttendancePolicy | None:
         """
-        Retrieve a non-deleted assignment within a tenant.
+        Retrieve a non-deleted employee attendance policy assignment
+        within a tenant.
         """
         ...
 
     def save(
         self,
-        employee_attendance_policy: EmployeeAttendancePolicy,
+        assignment: EmployeeAttendancePolicy,
     ) -> None:
         """
         Persist an employee attendance policy assignment.
@@ -57,10 +58,10 @@ class EmployeeAttendancePolicyRepository(Protocol):
         ...
 
     # -------------------------------------------------------------------------
-    # Employee Policy Queries
+    # Effective Policy
     # -------------------------------------------------------------------------
 
-    def get_effective_for_employee(
+    def get_effective_policy(
         self,
         *,
         tenant_id: str,
@@ -73,6 +74,10 @@ class EmployeeAttendancePolicyRepository(Protocol):
         """
         ...
 
+    # -------------------------------------------------------------------------
+    # Employee Queries
+    # -------------------------------------------------------------------------
+
     def list_by_employee(
         self,
         *,
@@ -80,16 +85,36 @@ class EmployeeAttendancePolicyRepository(Protocol):
         employee_id: str,
     ) -> list[EmployeeAttendancePolicy]:
         """
-        Retrieve attendance policy assignments for an employee.
+        Retrieve all non-deleted attendance policy assignments for an employee.
         """
         ...
 
-    def list_active(
+    def list_by_employee_and_period(
         self,
         *,
         tenant_id: str,
+        employee_id: str,
+        effective_from: date,
+        effective_until: date,
     ) -> list[EmployeeAttendancePolicy]:
         """
-        Retrieve active employee attendance policy assignments for a tenant.
+        Retrieve attendance policy assignments overlapping a date range.
+        """
+        ...
+
+    # -------------------------------------------------------------------------
+    # Existence
+    # -------------------------------------------------------------------------
+
+    def exists_effective_policy(
+        self,
+        *,
+        tenant_id: str,
+        employee_id: str,
+        effective_date: date,
+    ) -> bool:
+        """
+        Determine whether an attendance policy assignment exists for an
+        employee on a specific date.
         """
         ...
