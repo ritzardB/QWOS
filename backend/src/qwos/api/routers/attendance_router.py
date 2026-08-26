@@ -39,13 +39,12 @@ from qwos.application.attendance.use_cases.clock_in_use_case import (
 from qwos.application.common.context.request_context import (
     RequestContext,
 )
-from qwos.application.common.dependencies.authentication import (
-    get_authenticated_request_context,
-)
 from qwos.application.common.dependencies.attendance import (
     get_clock_in_use_case,
 )
-
+from qwos.application.common.dependencies.authentication import (
+    get_authenticated_request_context,
+)
 
 router = APIRouter(
     prefix="/attendance",

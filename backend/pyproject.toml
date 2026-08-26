@@ -96,3 +96,8 @@ packages = ["src/qwos"]
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest-asyncio>=1.4.0",
+]

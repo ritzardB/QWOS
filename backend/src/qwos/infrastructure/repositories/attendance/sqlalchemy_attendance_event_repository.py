@@ -79,24 +79,17 @@ class SQLAlchemyAttendanceEventRepository(
         *,
         tenant_id: str,
         employee_id: str,
-        attendance_date: date, 
     ) -> list[AttendanceEvent]:
-        """
-        Retrieve non-deleted attendance events for an employee.
-        """
-        next_date = attendance_date + timedelta(days=1) 
-
         stmt = (
             select(AttendanceEvent)
             .where(
                 AttendanceEvent.tenant_id == tenant_id,
                 AttendanceEvent.employee_id == employee_id,
                 AttendanceEvent.deleted_at.is_(None),
-                AttendanceEvent.event_at >= attendance_date,
-                AttendanceEvent.event_at < next_date,
             )
             .order_by(
                 AttendanceEvent.event_at.desc(),
+                AttendanceEvent.id.desc(),
             )
         )
 
@@ -115,6 +108,8 @@ class SQLAlchemyAttendanceEventRepository(
         Retrieve attendance events for an employee on a specific date.
         """
 
+        next_date = attendance_date + timedelta(days=1)
+
         stmt = (
             select(AttendanceEvent)
             .where(
@@ -122,9 +117,11 @@ class SQLAlchemyAttendanceEventRepository(
                 AttendanceEvent.employee_id == employee_id,
                 AttendanceEvent.deleted_at.is_(None),
                 AttendanceEvent.event_at >= attendance_date,
+                AttendanceEvent.event_at < next_date,
             )
             .order_by(
                 AttendanceEvent.event_at.asc(),
+                AttendanceEvent.id.asc(),
             )
         )
 

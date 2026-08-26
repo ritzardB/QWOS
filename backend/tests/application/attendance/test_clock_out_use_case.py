@@ -7,10 +7,10 @@ Application Tests
 Attendance Module
 
 File:
-    test_clock_in_use_case.py
+    test_clock_out_use_case.py
 
 Description:
-    Unit tests for the ClockInUseCase.
+    Unit tests for the ClockOutUseCase.
 
 Author:
     Richard Balabarcon
@@ -24,20 +24,17 @@ from unittest.mock import Mock
 
 import pytest
 
-from qwos.application.attendance.commands.clock_in_command import (
-    ClockInCommand,
+from qwos.application.attendance.commands.clock_out_command import (
+    ClockOutCommand,
 )
-from qwos.application.attendance.use_cases.clock_in_use_case import (
-    ClockInUseCase,
+from qwos.application.attendance.use_cases.clock_out_use_case import (
+    ClockOutUseCase,
 )
-from qwos.application.attendance.validators.clock_in_validator import (
-    ClockInValidator,
+from qwos.application.attendance.validators.clock_out_validator import (
+    ClockOutValidator,
 )
 from qwos.application.common.context.request_context import (
     RequestContext,
-)
-from qwos.application.common.exceptions.duplicate_resource_exception import (
-    DuplicateResourceException,
 )
 from qwos.application.common.exceptions.resource_not_found_exception import (
     ResourceNotFoundException,
@@ -68,6 +65,15 @@ CLOCK_IN_AT = datetime(
     8,
     24,
     8,
+    30,
+    tzinfo=timezone.utc,
+)
+
+CLOCK_OUT_AT = datetime(
+    2026,
+    8,
+    24,
+    17,
     30,
     tzinfo=timezone.utc,
 )
@@ -115,6 +121,27 @@ def build_unit_of_work() -> Mock:
     return unit_of_work
 
 
+def build_attendance_record(
+    *,
+    clock_in_at: datetime | None = CLOCK_IN_AT,
+    clock_out_at: datetime | None = None,
+) -> AttendanceRecord:
+    """
+    Build an attendance record suitable for clock-out tests.
+    """
+
+    return AttendanceRecord.create(
+        id=ATTENDANCE_RECORD_ID,
+        tenant_id=TENANT_ID,
+        employee_id=EMPLOYEE_ID,
+        attendance_date=CLOCK_IN_AT.date(),
+        clock_in_at=clock_in_at,
+        clock_out_at=clock_out_at,
+        status="present",
+        created_by=USER_ID,
+    )
+
+
 def build_use_case(
     *,
     employee_repository: Mock | None = None,
@@ -123,11 +150,11 @@ def build_use_case(
     id_generator: Mock | None = None,
     clock: Mock | None = None,
     unit_of_work: Mock | None = None,
-    validator: ClockInValidator | Mock | None = None,
+    validator: ClockOutValidator | Mock | None = None,
     request_context: Mock | None = None,
-) -> ClockInUseCase:
+) -> ClockOutUseCase:
     """
-    Construct the ClockInUseCase with mocked dependencies.
+    Construct the ClockOutUseCase with mocked dependencies.
     """
 
     employee_repository = (
@@ -162,7 +189,7 @@ def build_use_case(
 
     validator = (
         validator
-        or ClockInValidator()
+        or ClockOutValidator()
     )
 
     request_context = (
@@ -170,7 +197,7 @@ def build_use_case(
         or build_request_context()
     )
 
-    return ClockInUseCase(
+    return ClockOutUseCase(
         employee_repository=employee_repository,
         attendance_record_repository=attendance_record_repository,
         attendance_event_repository=attendance_event_repository,
@@ -184,48 +211,49 @@ def build_use_case(
 
 def build_command(
     *,
-    clock_in_at: datetime | None = CLOCK_IN_AT,
+    clock_out_at: datetime | None = CLOCK_OUT_AT,
     event_source: str = "web",
     notes: str | None = None,
-) -> ClockInCommand:
+) -> ClockOutCommand:
     """
-    Build a standard ClockInCommand.
+    Build a standard ClockOutCommand.
     """
 
-    return ClockInCommand(
+    return ClockOutCommand(
         tenant_id=TENANT_ID,
         employee_id=EMPLOYEE_ID,
-        clock_in_at=clock_in_at,
+        clock_out_at=clock_out_at,
         event_source=event_source,
         notes=notes,
     )
 
 
 # =============================================================================
-# Successful Clock-In
+# Successful Clock-Out
 # =============================================================================
 
 
 @pytest.mark.asyncio
-async def test_clock_in_creates_attendance_record_and_event() -> None:
+async def test_clock_out_updates_attendance_record_and_creates_event() -> None:
     """
-    A first clock-in should create both an attendance record
-    and an attendance event.
+    A valid clock-out should update the attendance record and create
+    an attendance event.
     """
 
     employee_repository = Mock()
     employee_repository.get_by_id.return_value = build_employee()
 
+    attendance_record = build_attendance_record()
+
     attendance_record_repository = Mock()
-    attendance_record_repository.get_by_employee_and_date.return_value = None
+    attendance_record_repository.get_by_employee_and_date.return_value = (
+        attendance_record
+    )
 
     attendance_event_repository = Mock()
 
     id_generator = Mock()
-    id_generator.generate.side_effect = [
-        ATTENDANCE_RECORD_ID,
-        ATTENDANCE_EVENT_ID,
-    ]
+    id_generator.generate.return_value = ATTENDANCE_EVENT_ID
 
     unit_of_work = build_unit_of_work()
 
@@ -239,16 +267,20 @@ async def test_clock_in_creates_attendance_record_and_event() -> None:
 
     response = await use_case.execute(
         build_command(
-            notes="Started work from office.",
+            notes="Finished work.",
         )
     )
 
     assert response.attendance_record_id == ATTENDANCE_RECORD_ID
     assert response.attendance_event_id == ATTENDANCE_EVENT_ID
     assert response.employee_id == EMPLOYEE_ID
-    assert response.attendance_date == CLOCK_IN_AT.date()
+    assert response.attendance_date == CLOCK_OUT_AT.date()
     assert response.clock_in_at == CLOCK_IN_AT
+    assert response.clock_out_at == CLOCK_OUT_AT
+    assert response.worked_minutes == 540
     assert response.status == "present"
+    assert response.event_type == "clock_out"
+    assert response.event_at == CLOCK_OUT_AT
 
     attendance_record_repository.save.assert_called_once()
     attendance_event_repository.save.assert_called_once()
@@ -277,91 +309,42 @@ async def test_clock_in_creates_attendance_record_and_event() -> None:
     assert saved_record.employee_id == EMPLOYEE_ID
     assert saved_record.attendance_date == CLOCK_IN_AT.date()
     assert saved_record.clock_in_at == CLOCK_IN_AT
-    assert saved_record.status == "present"
+    assert saved_record.clock_out_at == CLOCK_OUT_AT
+    assert saved_record.worked_minutes == 540
 
     assert saved_event.id == ATTENDANCE_EVENT_ID
     assert saved_event.tenant_id == TENANT_ID
     assert saved_event.employee_id == EMPLOYEE_ID
     assert saved_event.attendance_record_id == ATTENDANCE_RECORD_ID
-    assert saved_event.event_type == "clock_in"
-    assert saved_event.event_at == CLOCK_IN_AT
+    assert saved_event.event_type == "clock_out"
+    assert saved_event.event_at == CLOCK_OUT_AT
     assert saved_event.event_source == "web"
-    assert saved_event.notes == "Started work from office."
+    assert saved_event.notes == "Finished work."
+
+
+# =============================================================================
+# Clock Resolution
+# =============================================================================
 
 
 @pytest.mark.asyncio
-async def test_clock_in_uses_clock_when_timestamp_is_not_supplied() -> None:
+async def test_clock_out_uses_clock_when_timestamp_is_not_supplied() -> None:
     """
-    When clock_in_at is omitted, the application Clock should provide
+    When clock_out_at is omitted, the application Clock should provide
     the timestamp.
     """
 
     clock = Mock()
-    clock.now.return_value = CLOCK_IN_AT
+    clock.now.return_value = CLOCK_OUT_AT
 
     employee_repository = Mock()
     employee_repository.get_by_id.return_value = build_employee()
 
-    attendance_record_repository = Mock()
-    attendance_record_repository.get_by_employee_and_date.return_value = None
-
-    id_generator = Mock()
-    id_generator.generate.side_effect = [
-        ATTENDANCE_RECORD_ID,
-        ATTENDANCE_EVENT_ID,
-    ]
-
-    attendance_event_repository = Mock()
-    unit_of_work = build_unit_of_work()
-
-    use_case = build_use_case(
-        employee_repository=employee_repository,
-        attendance_record_repository=attendance_record_repository,
-        attendance_event_repository=attendance_event_repository,
-        id_generator=id_generator,
-        clock=clock,
-        unit_of_work=unit_of_work,
-    )
-
-    command = build_command(
-        clock_in_at=None,
-    )
-
-    response = await use_case.execute(command)
-
-    clock.now.assert_called_once()
-
-    assert response.clock_in_at == CLOCK_IN_AT
-
-    saved_record = (
-        attendance_record_repository.save.call_args.args[0]
-    )
-
-    assert saved_record.clock_in_at == CLOCK_IN_AT
-
-
-@pytest.mark.asyncio
-async def test_clock_in_updates_existing_attendance_record_without_clock_in() -> None:
-    """
-    If an attendance record already exists for the day but has not yet
-    been clocked in, the existing record should be reused.
-    """
-
-    existing_record = AttendanceRecord.create(
-        id=ATTENDANCE_RECORD_ID,
-        tenant_id=TENANT_ID,
-        employee_id=EMPLOYEE_ID,
-        attendance_date=CLOCK_IN_AT.date(),
-        status="present",
-        created_by=USER_ID,
-    )
-
-    employee_repository = Mock()
-    employee_repository.get_by_id.return_value = build_employee()
+    attendance_record = build_attendance_record()
 
     attendance_record_repository = Mock()
     attendance_record_repository.get_by_employee_and_date.return_value = (
-        existing_record
+        attendance_record
     )
 
     attendance_event_repository = Mock()
@@ -376,75 +359,20 @@ async def test_clock_in_updates_existing_attendance_record_without_clock_in() ->
         attendance_record_repository=attendance_record_repository,
         attendance_event_repository=attendance_event_repository,
         id_generator=id_generator,
+        clock=clock,
         unit_of_work=unit_of_work,
     )
 
     response = await use_case.execute(
-        build_command()
-    )
-
-    assert response.attendance_record_id == ATTENDANCE_RECORD_ID
-    assert response.attendance_event_id == ATTENDANCE_EVENT_ID
-
-    saved_record = (
-        attendance_record_repository.save.call_args.args[0]
-    )
-
-    assert saved_record is existing_record
-
-    # The current production use case reuses the existing record but
-    # does not explicitly assign clock_in_at. This assertion documents
-    # the intended domain behavior and will expose that gap.
-    assert saved_record.clock_in_at == CLOCK_IN_AT
-
-
-# =============================================================================
-# Duplicate Clock-In
-# =============================================================================
-
-
-@pytest.mark.asyncio
-async def test_clock_in_rejects_duplicate_clock_in() -> None:
-    """
-    An employee cannot clock in twice for the same attendance day.
-    """
-
-    existing_record = AttendanceRecord.create(
-        id=ATTENDANCE_RECORD_ID,
-        tenant_id=TENANT_ID,
-        employee_id=EMPLOYEE_ID,
-        attendance_date=CLOCK_IN_AT.date(),
-        clock_in_at=CLOCK_IN_AT,
-        status="present",
-        created_by=USER_ID,
-    )
-
-    employee_repository = Mock()
-    employee_repository.get_by_id.return_value = build_employee()
-
-    attendance_record_repository = Mock()
-    attendance_record_repository.get_by_employee_and_date.return_value = (
-        existing_record
-    )
-
-    attendance_event_repository = Mock()
-    unit_of_work = build_unit_of_work()
-
-    use_case = build_use_case(
-        employee_repository=employee_repository,
-        attendance_record_repository=attendance_record_repository,
-        attendance_event_repository=attendance_event_repository,
-        unit_of_work=unit_of_work,
-    )
-
-    with pytest.raises(DuplicateResourceException):
-        await use_case.execute(
-            build_command()
+        build_command(
+            clock_out_at=None,
         )
+    )
 
-    attendance_record_repository.save.assert_not_called()
-    attendance_event_repository.save.assert_not_called()
-    unit_of_work.flush.assert_not_called()
+    clock.now.assert_called_once()
+
+    assert response.clock_out_at == CLOCK_OUT_AT
+    assert response.worked_minutes == 540
 
 
 # =============================================================================
@@ -453,9 +381,9 @@ async def test_clock_in_rejects_duplicate_clock_in() -> None:
 
 
 @pytest.mark.asyncio
-async def test_clock_in_rejects_unknown_employee() -> None:
+async def test_clock_out_rejects_unknown_employee() -> None:
     """
-    Clock-in should fail when the employee does not exist.
+    Clock-out should fail when the employee does not exist.
     """
 
     employee_repository = Mock()
@@ -488,9 +416,9 @@ async def test_clock_in_rejects_unknown_employee() -> None:
 
 
 @pytest.mark.asyncio
-async def test_clock_in_rejects_employee_from_different_tenant() -> None:
+async def test_clock_out_rejects_employee_from_different_tenant() -> None:
     """
-    Clock-in should reject an employee belonging to another tenant.
+    Clock-out should reject an employee belonging to another tenant.
     """
 
     employee = build_employee()
@@ -522,80 +450,15 @@ async def test_clock_in_rejects_employee_from_different_tenant() -> None:
 
 
 # =============================================================================
-# Command Validation
+# Attendance Record Validation
 # =============================================================================
 
 
 @pytest.mark.asyncio
-async def test_clock_in_rejects_missing_tenant_id() -> None:
+async def test_clock_out_rejects_missing_attendance_record() -> None:
     """
-    tenant_id is required.
+    Clock-out should fail when no attendance record exists.
     """
-
-    command = ClockInCommand(
-        tenant_id="",
-        employee_id=EMPLOYEE_ID,
-        clock_in_at=CLOCK_IN_AT,
-    )
-
-    use_case = build_use_case()
-
-    with pytest.raises(ValidationException):
-        await use_case.execute(command)
-
-
-@pytest.mark.asyncio
-async def test_clock_in_rejects_missing_employee_id() -> None:
-    """
-    employee_id is required.
-    """
-
-    command = ClockInCommand(
-        tenant_id=TENANT_ID,
-        employee_id="",
-        clock_in_at=CLOCK_IN_AT,
-    )
-
-    use_case = build_use_case()
-
-    with pytest.raises(ValidationException):
-        await use_case.execute(command)
-
-
-@pytest.mark.asyncio
-async def test_clock_in_rejects_naive_timestamp() -> None:
-    """
-    A supplied clock-in timestamp must be timezone-aware.
-    """
-
-    naive_timestamp = datetime(
-        2026,
-        8,
-        24,
-        8,
-        30,
-    )
-
-    command = ClockInCommand(
-        tenant_id=TENANT_ID,
-        employee_id=EMPLOYEE_ID,
-        clock_in_at=naive_timestamp,
-    )
-
-    use_case = build_use_case()
-
-    with pytest.raises(ValidationException):
-        await use_case.execute(command)
-
-
-@pytest.mark.asyncio
-async def test_clock_in_allows_missing_timestamp_for_clock_resolution() -> None:
-    """
-    clock_in_at is optional because the application Clock can provide it.
-    """
-
-    clock = Mock()
-    clock.now.return_value = CLOCK_IN_AT
 
     employee_repository = Mock()
     employee_repository.get_by_id.return_value = build_employee()
@@ -604,12 +467,247 @@ async def test_clock_in_allows_missing_timestamp_for_clock_resolution() -> None:
     attendance_record_repository.get_by_employee_and_date.return_value = None
 
     attendance_event_repository = Mock()
+    unit_of_work = build_unit_of_work()
+
+    use_case = build_use_case(
+        employee_repository=employee_repository,
+        attendance_record_repository=attendance_record_repository,
+        attendance_event_repository=attendance_event_repository,
+        unit_of_work=unit_of_work,
+    )
+
+    with pytest.raises(ResourceNotFoundException):
+        await use_case.execute(
+            build_command()
+        )
+
+    attendance_record_repository.save.assert_not_called()
+    attendance_event_repository.save.assert_not_called()
+    unit_of_work.flush.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_clock_out_rejects_missing_clock_in() -> None:
+    """
+    An employee must clock in before clocking out.
+    """
+
+    employee_repository = Mock()
+    employee_repository.get_by_id.return_value = build_employee()
+
+    attendance_record = build_attendance_record(
+        clock_in_at=None,
+    )
+
+    attendance_record_repository = Mock()
+    attendance_record_repository.get_by_employee_and_date.return_value = (
+        attendance_record
+    )
+
+    attendance_event_repository = Mock()
+    unit_of_work = build_unit_of_work()
+
+    use_case = build_use_case(
+        employee_repository=employee_repository,
+        attendance_record_repository=attendance_record_repository,
+        attendance_event_repository=attendance_event_repository,
+        unit_of_work=unit_of_work,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="clock in before clocking out",
+    ):
+        await use_case.execute(
+            build_command()
+        )
+
+    attendance_record_repository.save.assert_not_called()
+    attendance_event_repository.save.assert_not_called()
+    unit_of_work.flush.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_clock_out_rejects_duplicate_clock_out() -> None:
+    """
+    An employee cannot clock out twice for the same attendance day.
+    """
+
+    employee_repository = Mock()
+    employee_repository.get_by_id.return_value = build_employee()
+
+    attendance_record = build_attendance_record(
+        clock_out_at=CLOCK_OUT_AT,
+    )
+
+    attendance_record_repository = Mock()
+    attendance_record_repository.get_by_employee_and_date.return_value = (
+        attendance_record
+    )
+
+    attendance_event_repository = Mock()
+    unit_of_work = build_unit_of_work()
+
+    use_case = build_use_case(
+        employee_repository=employee_repository,
+        attendance_record_repository=attendance_record_repository,
+        attendance_event_repository=attendance_event_repository,
+        unit_of_work=unit_of_work,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="already clocked out",
+    ):
+        await use_case.execute(
+            build_command()
+        )
+
+    attendance_record_repository.save.assert_not_called()
+    attendance_event_repository.save.assert_not_called()
+    unit_of_work.flush.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_clock_out_rejects_timestamp_before_clock_in() -> None:
+    """
+    Clock-out cannot occur before clock-in.
+    """
+
+    employee_repository = Mock()
+    employee_repository.get_by_id.return_value = build_employee()
+
+    attendance_record = build_attendance_record()
+
+    attendance_record_repository = Mock()
+    attendance_record_repository.get_by_employee_and_date.return_value = (
+        attendance_record
+    )
+
+    attendance_event_repository = Mock()
+    unit_of_work = build_unit_of_work()
+
+    invalid_clock_out = datetime(
+        2026,
+        8,
+        24,
+        8,
+        29,
+        tzinfo=timezone.utc,
+    )
+
+    use_case = build_use_case(
+        employee_repository=employee_repository,
+        attendance_record_repository=attendance_record_repository,
+        attendance_event_repository=attendance_event_repository,
+        unit_of_work=unit_of_work,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="earlier than clock_in_at",
+    ):
+        await use_case.execute(
+            build_command(
+                clock_out_at=invalid_clock_out,
+            )
+        )
+
+    attendance_record_repository.save.assert_not_called()
+    attendance_event_repository.save.assert_not_called()
+    unit_of_work.flush.assert_not_called()
+
+
+# =============================================================================
+# Command Validation
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_clock_out_rejects_missing_tenant_id() -> None:
+    """
+    tenant_id is required.
+    """
+
+    command = ClockOutCommand(
+        tenant_id="",
+        employee_id=EMPLOYEE_ID,
+        clock_out_at=CLOCK_OUT_AT,
+    )
+
+    use_case = build_use_case()
+
+    with pytest.raises(ValidationException):
+        await use_case.execute(command)
+
+
+@pytest.mark.asyncio
+async def test_clock_out_rejects_missing_employee_id() -> None:
+    """
+    employee_id is required.
+    """
+
+    command = ClockOutCommand(
+        tenant_id=TENANT_ID,
+        employee_id="",
+        clock_out_at=CLOCK_OUT_AT,
+    )
+
+    use_case = build_use_case()
+
+    with pytest.raises(ValidationException):
+        await use_case.execute(command)
+
+
+@pytest.mark.asyncio
+async def test_clock_out_rejects_naive_timestamp() -> None:
+    """
+    A supplied clock-out timestamp must be timezone-aware.
+    """
+
+    naive_timestamp = datetime(
+        2026,
+        8,
+        24,
+        17,
+        30,
+    )
+
+    command = ClockOutCommand(
+        tenant_id=TENANT_ID,
+        employee_id=EMPLOYEE_ID,
+        clock_out_at=naive_timestamp,
+    )
+
+    use_case = build_use_case()
+
+    with pytest.raises(ValidationException):
+        await use_case.execute(command)
+
+
+@pytest.mark.asyncio
+async def test_clock_out_allows_missing_timestamp_for_clock_resolution() -> None:
+    """
+    clock_out_at is optional because the application Clock can provide it.
+    """
+
+    clock = Mock()
+    clock.now.return_value = CLOCK_OUT_AT
+
+    employee_repository = Mock()
+    employee_repository.get_by_id.return_value = build_employee()
+
+    attendance_record = build_attendance_record()
+
+    attendance_record_repository = Mock()
+    attendance_record_repository.get_by_employee_and_date.return_value = (
+        attendance_record
+    )
+
+    attendance_event_repository = Mock()
 
     id_generator = Mock()
-    id_generator.generate.side_effect = [
-        ATTENDANCE_RECORD_ID,
-        ATTENDANCE_EVENT_ID,
-    ]
+    id_generator.generate.return_value = ATTENDANCE_EVENT_ID
 
     unit_of_work = build_unit_of_work()
 
@@ -624,16 +722,17 @@ async def test_clock_in_allows_missing_timestamp_for_clock_resolution() -> None:
 
     response = await use_case.execute(
         build_command(
-            clock_in_at=None,
+            clock_out_at=None,
         )
     )
 
-    assert response.clock_in_at == CLOCK_IN_AT
+    assert response.clock_out_at == CLOCK_OUT_AT
+    assert response.worked_minutes == 540
     clock.now.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_clock_in_rejects_blank_event_source() -> None:
+async def test_clock_out_rejects_blank_event_source() -> None:
     """
     event_source must contain a non-whitespace value.
     """
@@ -654,7 +753,7 @@ async def test_clock_in_rejects_blank_event_source() -> None:
 
 
 @pytest.mark.asyncio
-async def test_clock_in_persists_custom_event_source() -> None:
+async def test_clock_out_persists_custom_event_source() -> None:
     """
     The requested event source should be stored on the attendance event.
     """
@@ -662,16 +761,17 @@ async def test_clock_in_persists_custom_event_source() -> None:
     employee_repository = Mock()
     employee_repository.get_by_id.return_value = build_employee()
 
+    attendance_record = build_attendance_record()
+
     attendance_record_repository = Mock()
-    attendance_record_repository.get_by_employee_and_date.return_value = None
+    attendance_record_repository.get_by_employee_and_date.return_value = (
+        attendance_record
+    )
 
     attendance_event_repository = Mock()
 
     id_generator = Mock()
-    id_generator.generate.side_effect = [
-        ATTENDANCE_RECORD_ID,
-        ATTENDANCE_EVENT_ID,
-    ]
+    id_generator.generate.return_value = ATTENDANCE_EVENT_ID
 
     unit_of_work = build_unit_of_work()
 
@@ -702,7 +802,7 @@ async def test_clock_in_persists_custom_event_source() -> None:
 
 
 @pytest.mark.asyncio
-async def test_clock_in_persists_record_and_event_in_same_unit_of_work() -> None:
+async def test_clock_out_persists_record_and_event_in_same_unit_of_work() -> None:
     """
     Attendance record and event should be persisted within the same
     UnitOfWork transaction.
@@ -711,16 +811,17 @@ async def test_clock_in_persists_record_and_event_in_same_unit_of_work() -> None
     employee_repository = Mock()
     employee_repository.get_by_id.return_value = build_employee()
 
+    attendance_record = build_attendance_record()
+
     attendance_record_repository = Mock()
-    attendance_record_repository.get_by_employee_and_date.return_value = None
+    attendance_record_repository.get_by_employee_and_date.return_value = (
+        attendance_record
+    )
 
     attendance_event_repository = Mock()
 
     id_generator = Mock()
-    id_generator.generate.side_effect = [
-        ATTENDANCE_RECORD_ID,
-        ATTENDANCE_EVENT_ID,
-    ]
+    id_generator.generate.return_value = ATTENDANCE_EVENT_ID
 
     unit_of_work = build_unit_of_work()
 

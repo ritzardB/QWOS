@@ -12,7 +12,6 @@ from datetime import date
 
 from qwos.domains.attendance.models import EmployeeWorkArrangement
 
-
 TENANT_ID = "01M0TEN00000000000000000001"
 OTHER_TENANT_ID = "01M0TEN00000000000000000002"
 EMPLOYEE_ID = "01M0EMP00000000000000000001"

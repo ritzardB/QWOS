@@ -18,6 +18,7 @@ Author:
 from __future__ import annotations
 
 from datetime import date
+from enum import Enum
 from typing import Any
 
 from sqlalchemy import Boolean, Date, ForeignKey
@@ -25,8 +26,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from qwos.core.database.entity_base import TenantEntity
 from qwos.core.database.types import ULID, enum_column
-
-from enum import Enum
 
 
 class WorkArrangement(str, Enum):

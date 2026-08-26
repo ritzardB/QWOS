@@ -42,7 +42,6 @@ from qwos.application.common.context.request_context import (
     RequestContext,
 )
 
-
 TENANT_ID = "01TENANT000000000000000000"
 USER_ID = "01USER000000000000000000000"
 EMPLOYEE_ID = "01EMPLOYEE0000000000000000"
