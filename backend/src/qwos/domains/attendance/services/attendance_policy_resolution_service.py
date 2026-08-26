@@ -8,8 +8,8 @@ File:
     attendance_policy_resolution_service.py
 
 Description:
-    Resolves the effective attendance policy, work arrangement, and work
-    agreement for an employee on a specific date.
+    Resolves the effective attendance policy and work arrangement for an
+    employee on a specific date.
 
 Author:
     Richard Balabarcon
@@ -36,7 +36,7 @@ class ResolvedAttendanceContext:
     """
     Effective attendance configuration for an employee on a specific date.
 
-    This object represents the result of policy resolution.
+    This object represents the result of attendance policy resolution.
 
     It does not perform attendance calculations.
     """
@@ -79,11 +79,11 @@ class AttendancePolicyAssignmentRepository(Protocol):
         tenant_id: str,
         employee_id: str,
         effective_date: date,
-    ) -> AttendancePolicy:
+    ) -> AttendancePolicy | None:
         """
         Retrieve the effective attendance policy assignment.
 
-        Implementations must raise LookupError when no policy assignment
+        Implementations should return None when no policy assignment
         exists for the employee on the requested date.
         """
         ...
@@ -100,7 +100,7 @@ class WorkArrangementRepository(Protocol):
         tenant_id: str,
         employee_id: str,
         effective_date: date,
-    ) -> str:
+    ) -> str | None:
         """
         Retrieve the effective work arrangement.
 
@@ -111,11 +111,9 @@ class WorkArrangementRepository(Protocol):
             hybrid
         """
         ...
-
-
 class WorkAgreementRepository(Protocol):
     """
-    Contract required to resolve an employee's work agreement.
+    Contract required to resolve an employee's effective work agreement.
     """
 
     def get_effective_for_employee(
@@ -135,7 +133,6 @@ class WorkAgreementRepository(Protocol):
         """
         ...
 
-
 # =============================================================================
 # Service
 # =============================================================================
@@ -151,9 +148,7 @@ class AttendancePolicyResolutionService:
 
         Employee Attendance Policy
         +
-        Work Arrangement
-        +
-        Work Agreement
+        Employee Work Arrangement
 
     into a single immutable attendance context.
 
@@ -219,8 +214,8 @@ class AttendancePolicyResolutionService:
                 When tenant_id, employee_id, or effective_date is invalid.
 
             LookupError:
-                When an effective policy, work arrangement, or work agreement
-                cannot be resolved.
+                When an effective policy or work arrangement cannot
+                be resolved.
         """
 
         self._validate_inputs(
@@ -229,34 +224,26 @@ class AttendancePolicyResolutionService:
             effective_date=effective_date,
         )
 
-        policy = (
-            self._attendance_policy_repository
-            .get_effective_for_employee(
-                tenant_id=tenant_id,
-                employee_id=employee_id,
-                effective_date=effective_date,
-            )
+        policy = self._attendance_policy_repository.get_effective_for_employee(
+            tenant_id=tenant_id,
+            employee_id=employee_id,
+            effective_date=effective_date,
         )
 
         if policy is None:
             raise LookupError(
-                "No effective attendance policy found for "
-                f"employee '{employee_id}' on {effective_date}."
+                f"No effective attendance policy found for employee '{employee_id}' on {effective_date}.",
             )
 
-        work_arrangement = (
-            self._work_arrangement_repository
-            .get_effective_for_employee(
-                tenant_id=tenant_id,
-                employee_id=employee_id,
-                effective_date=effective_date,
-            )
+        work_arrangement = self._work_arrangement_repository.get_effective_for_employee(
+            tenant_id=tenant_id,
+            employee_id=employee_id,
+            effective_date=effective_date,
         )
 
         if not work_arrangement:
             raise LookupError(
-                "No effective work arrangement found for "
-                f"employee '{employee_id}' on {effective_date}."
+                f"No effective work arrangement found for employee '{employee_id}' on {effective_date}.",
             )
 
         work_agreement = (
@@ -337,18 +324,23 @@ class AttendancePolicyResolutionService:
 
         if not tenant_id.strip():
             raise ValueError(
-                "tenant_id is required."
+                "tenant_id is required.",
             )
 
         if not employee_id.strip():
             raise ValueError(
-                "employee_id is required."
+                "employee_id is required.",
             )
 
         if not isinstance(effective_date, date):
             raise ValueError(
-                "effective_date must be a date."
-            )
+                "effective_date must be a date.",
+        )
+
+    # -------------------------------------------------------------------------
+    # Normalize value
+    # -------------------------------------------------------------------------
+    
 
     @staticmethod
     def _normalize_required_value(
