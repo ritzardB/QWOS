@@ -6,18 +6,19 @@ from .employee_work_agreement import (
     EmployeeWorkAgreement,
     PayFrequency,
 )
-from .work_schedule import WorkSchedule
-
 from .employee_work_arrangement import (
     EmployeeWorkArrangement,
     WorkArrangement,
 )
+from .employee_work_schedule import EmployeeWorkSchedule
+from .work_schedule import WorkSchedule
 from .work_schedule_day import (
     ScheduleDayType,
     WorkScheduleDay,
 )
 
 __all__ = [
+    "EmployeeWorkSchedule",
     "ScheduleDayType",
     "WorkScheduleDay",
     "WorkSchedule",

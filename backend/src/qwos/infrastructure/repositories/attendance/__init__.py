@@ -13,14 +13,18 @@ from .sqlalchemy_employee_work_agreement_repository import (
 from .sqlalchemy_employee_work_arrangement_repository import (
     SQLAlchemyEmployeeWorkArrangementRepository,
 )
-from .sqlalchemy_work_schedule_repository import (
-    SQLAlchemyWorkScheduleRepository,
+from .sqlalchemy_employee_work_schedule_repository import (
+    SQLAlchemyEmployeeWorkScheduleRepository,
 )
 from .sqlalchemy_work_schedule_day_repository import (
     SQLAlchemyWorkScheduleDayRepository,
 )
+from .sqlalchemy_work_schedule_repository import (
+    SQLAlchemyWorkScheduleRepository,
+)
 
 __all__ = [
+    "SQLAlchemyEmployeeWorkScheduleRepository",
     "SQLAlchemyWorkScheduleDayRepository",
     "SQLAlchemyWorkScheduleRepository",
     "SQLAlchemyAttendanceEventRepository",

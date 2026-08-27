@@ -26,6 +26,9 @@ from qwos.application.attendance.use_cases.create_employee_work_arrangement_use_
 from qwos.application.attendance.use_cases.create_employee_work_schedule_use_case import (
     CreateEmployeeWorkScheduleUseCase,
 )
+from qwos.application.attendance.use_cases.create_work_schedule_day_use_case import (
+    CreateWorkScheduleDayUseCase,
+)
 from qwos.application.attendance.validators.clock_in_validator import (
     ClockInValidator,
 )
@@ -34,6 +37,9 @@ from qwos.application.attendance.validators.create_employee_work_arrangement_val
 )
 from qwos.application.attendance.validators.create_employee_work_schedule_validator import (
     CreateEmployeeWorkScheduleValidator,
+)
+from qwos.application.attendance.validators.create_work_schedule_day_validator import (
+    CreateWorkScheduleDayValidator,
 )
 from qwos.application.common.context.request_context import (
     RequestContext,
@@ -108,6 +114,27 @@ def get_create_employee_work_schedule_use_case(
         ),
         employee_work_schedule_repository=(
             unit_of_work.employee_work_schedule_repository
+        ),
+        id_generator=id_generator,
+        unit_of_work=unit_of_work,
+        validator=validator,
+        request_context=request_context,
+    )
+
+def get_create_work_schedule_day_use_case(
+    unit_of_work: UnitOfWork = Depends(get_unit_of_work),
+    id_generator: IdGenerator = Depends(get_id_generator),
+    validator: CreateWorkScheduleDayValidator = Depends(),
+    request_context: RequestContext = Depends(get_request_context),
+) -> CreateWorkScheduleDayUseCase:
+    """
+    Provide the CreateWorkScheduleDayUseCase instance.
+    """
+
+    return CreateWorkScheduleDayUseCase(
+        work_schedule_repository=unit_of_work.work_schedule_repository,
+        work_schedule_day_repository=(
+            unit_of_work.work_schedule_day_repository
         ),
         id_generator=id_generator,
         unit_of_work=unit_of_work,

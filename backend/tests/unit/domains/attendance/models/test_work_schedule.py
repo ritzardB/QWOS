@@ -21,7 +21,6 @@ import pytest
 
 from qwos.domains.attendance.models import WorkSchedule
 
-
 TENANT_ID = "01M0TEN00000000000000000001"
 
 

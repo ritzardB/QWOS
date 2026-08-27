@@ -33,6 +33,9 @@ from qwos.api.contracts.requests.attendance.create_employee_work_arrangement_req
 from qwos.api.contracts.requests.attendance.create_employee_work_schedule_request import (
     CreateEmployeeWorkScheduleRequest,
 )
+from qwos.api.contracts.requests.attendance.create_work_schedule_day_request import (
+    CreateWorkScheduleDayRequest,
+)
 from qwos.api.contracts.responses.attendance.clock_in_response import (
     ClockInResponse,
 )
@@ -41,6 +44,9 @@ from qwos.api.contracts.responses.attendance.create_employee_work_arrangement_re
 )
 from qwos.api.contracts.responses.attendance.create_employee_work_schedule_response import (
     CreateEmployeeWorkScheduleResponse,
+)
+from qwos.api.contracts.responses.attendance.create_work_schedule_day_response import (
+    CreateWorkScheduleDayResponse,
 )
 from qwos.application.attendance.mappers.clock_in_mapper import (
     ClockInMapper,
@@ -51,6 +57,9 @@ from qwos.application.attendance.mappers.employee_work_arrangement_mapper import
 from qwos.application.attendance.mappers.employee_work_schedule_mapper import (
     EmployeeWorkScheduleMapper,
 )
+from qwos.application.attendance.mappers.work_schedule_day_mapper import (
+    WorkScheduleDayMapper,
+)
 from qwos.application.attendance.use_cases.clock_in_use_case import (
     ClockInUseCase,
 )
@@ -60,6 +69,9 @@ from qwos.application.attendance.use_cases.create_employee_work_arrangement_use_
 from qwos.application.attendance.use_cases.create_employee_work_schedule_use_case import (
     CreateEmployeeWorkScheduleUseCase,
 )
+from qwos.application.attendance.use_cases.create_work_schedule_day_use_case import (
+    CreateWorkScheduleDayUseCase,
+)
 from qwos.application.common.context.request_context import (
     RequestContext,
 )
@@ -67,6 +79,7 @@ from qwos.application.common.dependencies.attendance import (
     get_clock_in_use_case,
     get_create_employee_work_arrangement_use_case,
     get_create_employee_work_schedule_use_case,
+    get_create_work_schedule_day_use_case,
 )
 from qwos.application.common.dependencies.authentication import (
     get_authenticated_request_context,
@@ -196,5 +209,45 @@ async def create_employee_work_schedule(
     )
 
     return EmployeeWorkScheduleMapper.to_create_response(
+        application_response,
+    )
+
+# -------------------------------------------------------------------------
+# Create Work Schedule Day
+# -------------------------------------------------------------------------
+
+
+@router.post(
+    "/work-schedules/{work_schedule_id}/days",
+    response_model=CreateWorkScheduleDayResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create Work Schedule Day",
+    description="Create a weekly day rule for a work schedule.",
+)
+async def create_work_schedule_day(
+    work_schedule_id: str,
+    request: CreateWorkScheduleDayRequest,
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+    use_case: CreateWorkScheduleDayUseCase = Depends(
+        get_create_work_schedule_day_use_case,
+    ),
+) -> CreateWorkScheduleDayResponse:
+    """
+    Create a work schedule day rule.
+    """
+
+    command = WorkScheduleDayMapper.to_create_command(
+        work_schedule_id=work_schedule_id,
+        request=request,
+        request_context=request_context,
+    )
+
+    application_response = await use_case.execute(
+        command,
+    )
+
+    return WorkScheduleDayMapper.to_create_response(
         application_response,
     )
