@@ -30,11 +30,17 @@ from qwos.api.contracts.requests.attendance.clock_in_request import (
 from qwos.api.contracts.requests.attendance.create_employee_work_arrangement_request import (
     CreateEmployeeWorkArrangementRequest,
 )
+from qwos.api.contracts.requests.attendance.create_employee_work_schedule_request import (
+    CreateEmployeeWorkScheduleRequest,
+)
 from qwos.api.contracts.responses.attendance.clock_in_response import (
     ClockInResponse,
 )
 from qwos.api.contracts.responses.attendance.create_employee_work_arrangement_response import (
     CreateEmployeeWorkArrangementResponse,
+)
+from qwos.api.contracts.responses.attendance.create_employee_work_schedule_response import (
+    CreateEmployeeWorkScheduleResponse,
 )
 from qwos.application.attendance.mappers.clock_in_mapper import (
     ClockInMapper,
@@ -42,11 +48,17 @@ from qwos.application.attendance.mappers.clock_in_mapper import (
 from qwos.application.attendance.mappers.employee_work_arrangement_mapper import (
     EmployeeWorkArrangementMapper,
 )
+from qwos.application.attendance.mappers.employee_work_schedule_mapper import (
+    EmployeeWorkScheduleMapper,
+)
 from qwos.application.attendance.use_cases.clock_in_use_case import (
     ClockInUseCase,
 )
 from qwos.application.attendance.use_cases.create_employee_work_arrangement_use_case import (
     CreateEmployeeWorkArrangementUseCase,
+)
+from qwos.application.attendance.use_cases.create_employee_work_schedule_use_case import (
+    CreateEmployeeWorkScheduleUseCase,
 )
 from qwos.application.common.context.request_context import (
     RequestContext,
@@ -54,6 +66,7 @@ from qwos.application.common.context.request_context import (
 from qwos.application.common.dependencies.attendance import (
     get_clock_in_use_case,
     get_create_employee_work_arrangement_use_case,
+    get_create_employee_work_schedule_use_case,
 )
 from qwos.application.common.dependencies.authentication import (
     get_authenticated_request_context,
@@ -140,5 +153,48 @@ async def create_employee_work_arrangement(
     )
 
     return EmployeeWorkArrangementMapper.to_create_response(
+        application_response,
+    )
+
+# -------------------------------------------------------------------------
+# Create Employee Work Schedule
+# -------------------------------------------------------------------------
+
+
+@router.post(
+    "/employees/{employee_id}/work-schedules",
+    response_model=CreateEmployeeWorkScheduleResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create Employee Work Schedule",
+    description=(
+        "Create an effective-dated work schedule assignment "
+        "for an employee."
+    ),
+)
+async def create_employee_work_schedule(
+    employee_id: str,
+    request: CreateEmployeeWorkScheduleRequest,
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+    use_case: CreateEmployeeWorkScheduleUseCase = Depends(
+        get_create_employee_work_schedule_use_case,
+    ),
+) -> CreateEmployeeWorkScheduleResponse:
+    """
+    Create an employee work schedule assignment.
+    """
+
+    command = EmployeeWorkScheduleMapper.to_create_command(
+        employee_id=employee_id,
+        request=request,
+        request_context=request_context,
+    )
+
+    application_response = await use_case.execute(
+        command,
+    )
+
+    return EmployeeWorkScheduleMapper.to_create_response(
         application_response,
     )
