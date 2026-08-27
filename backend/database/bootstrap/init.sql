@@ -78,8 +78,25 @@
 \i ../schema/022_document_definitions.sql
 \i ../schema/023_document_definition_fields.sql
 \i ../schema/024_document_extraction_results.sql
-\i ../schema/025_document_defintion_seed.sql
+\i ../schema/025_document_definition_seed.sql
 
+-- ---------------------------------------------------------------------------
+-- Attendance & Payroll
+-- ---------------------------------------------------------------------------
+
+\echo 'Creating Attendance & Payroll Schema...'
+
+\i ../schema/026_attendance_policies.sql
+\i ../schema/027_employee_work_arrangements.sql
+\i ../schema/028_employee_attendance_policies.sql
+\i ../schema/029_employee_work_agreements.sql
+\i ../schema/030_pay_calendars.sql
+\i ../schema/031_pay_periods.sql
+\i ../schema/032_attendance_records.sql
+\i ../schema/033_attendance_events.sql
+\i ../schema/034_work_schedules.sql
+\i ../schema/035_work_schedule_days.sql
+\i ../schema/036_employee_work_schedules.sql
 -- ---------------------------------------------------------------------------
 -- Triggers
 -- ---------------------------------------------------------------------------
