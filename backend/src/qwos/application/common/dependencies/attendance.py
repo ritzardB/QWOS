@@ -29,6 +29,15 @@ from qwos.application.attendance.use_cases.create_employee_work_schedule_use_cas
 from qwos.application.attendance.use_cases.create_work_schedule_day_use_case import (
     CreateWorkScheduleDayUseCase,
 )
+from qwos.application.attendance.use_cases.get_work_schedule_use_case import (
+    GetWorkScheduleUseCase,
+)
+from qwos.application.attendance.use_cases.list_work_schedule_days_use_case import (
+    ListWorkScheduleDaysUseCase,
+)
+from qwos.application.attendance.use_cases.list_work_schedules_use_case import (
+    ListWorkSchedulesUseCase,
+)
 from qwos.application.attendance.validators.clock_in_validator import (
     ClockInValidator,
 )
@@ -139,5 +148,47 @@ def get_create_work_schedule_day_use_case(
         id_generator=id_generator,
         unit_of_work=unit_of_work,
         validator=validator,
+        request_context=request_context,
+    )
+
+def get_list_work_schedules_use_case(
+    unit_of_work: UnitOfWork = Depends(get_unit_of_work),
+    request_context: RequestContext = Depends(get_request_context),
+) -> ListWorkSchedulesUseCase:
+    """
+    Provide the ListWorkSchedulesUseCase instance.
+    """
+
+    return ListWorkSchedulesUseCase(
+        work_schedule_repository=unit_of_work.work_schedule_repository,
+        request_context=request_context,
+    )
+
+def get_work_schedule_use_case(
+    unit_of_work: UnitOfWork = Depends(get_unit_of_work),
+    request_context: RequestContext = Depends(get_request_context),
+) -> GetWorkScheduleUseCase:
+    """
+    Provide the GetWorkScheduleUseCase instance.
+    """
+
+    return GetWorkScheduleUseCase(
+        work_schedule_repository=unit_of_work.work_schedule_repository,
+        request_context=request_context,
+    )
+
+def get_list_work_schedule_days_use_case(
+    unit_of_work: UnitOfWork = Depends(get_unit_of_work),
+    request_context: RequestContext = Depends(get_request_context),
+) -> ListWorkScheduleDaysUseCase:
+    """
+    Provide the ListWorkScheduleDaysUseCase instance.
+    """
+
+    return ListWorkScheduleDaysUseCase(
+        work_schedule_repository=unit_of_work.work_schedule_repository,
+        work_schedule_day_repository=(
+            unit_of_work.work_schedule_day_repository
+        ),
         request_context=request_context,
     )

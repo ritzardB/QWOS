@@ -48,6 +48,15 @@ from qwos.api.contracts.responses.attendance.create_employee_work_schedule_respo
 from qwos.api.contracts.responses.attendance.create_work_schedule_day_response import (
     CreateWorkScheduleDayResponse,
 )
+from qwos.api.contracts.responses.attendance.get_work_schedule_response import (
+    GetWorkScheduleResponse,
+)
+from qwos.api.contracts.responses.attendance.list_work_schedule_days_response import (
+    ListWorkScheduleDaysResponse,
+)
+from qwos.api.contracts.responses.attendance.list_work_schedules_response import (
+    ListWorkSchedulesResponse,
+)
 from qwos.application.attendance.mappers.clock_in_mapper import (
     ClockInMapper,
 )
@@ -59,6 +68,9 @@ from qwos.application.attendance.mappers.employee_work_schedule_mapper import (
 )
 from qwos.application.attendance.mappers.work_schedule_day_mapper import (
     WorkScheduleDayMapper,
+)
+from qwos.application.attendance.mappers.work_schedule_mapper import (
+    WorkScheduleMapper,
 )
 from qwos.application.attendance.use_cases.clock_in_use_case import (
     ClockInUseCase,
@@ -72,6 +84,15 @@ from qwos.application.attendance.use_cases.create_employee_work_schedule_use_cas
 from qwos.application.attendance.use_cases.create_work_schedule_day_use_case import (
     CreateWorkScheduleDayUseCase,
 )
+from qwos.application.attendance.use_cases.get_work_schedule_use_case import (
+    GetWorkScheduleUseCase,
+)
+from qwos.application.attendance.use_cases.list_work_schedule_days_use_case import (
+    ListWorkScheduleDaysUseCase,
+)
+from qwos.application.attendance.use_cases.list_work_schedules_use_case import (
+    ListWorkSchedulesUseCase,
+)
 from qwos.application.common.context.request_context import (
     RequestContext,
 )
@@ -80,6 +101,9 @@ from qwos.application.common.dependencies.attendance import (
     get_create_employee_work_arrangement_use_case,
     get_create_employee_work_schedule_use_case,
     get_create_work_schedule_day_use_case,
+    get_list_work_schedule_days_use_case,
+    get_list_work_schedules_use_case,
+    get_work_schedule_use_case,
 )
 from qwos.application.common.dependencies.authentication import (
     get_authenticated_request_context,
@@ -249,5 +273,101 @@ async def create_work_schedule_day(
     )
 
     return WorkScheduleDayMapper.to_create_response(
+        application_response,
+    )
+
+# -------------------------------------------------------------------------
+# List Work Schedules
+# -------------------------------------------------------------------------
+
+
+@router.get(
+    "/work-schedules",
+    response_model=ListWorkSchedulesResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List Work Schedules",
+    description="List work schedules for the current tenant.",
+)
+async def list_work_schedules(
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+    use_case: ListWorkSchedulesUseCase = Depends(
+        get_list_work_schedules_use_case,
+    ),
+) -> ListWorkSchedulesResponse:
+    """
+    List work schedules for the current tenant.
+    """
+
+    application_response = await use_case.execute()
+
+    return WorkScheduleMapper.to_list_response(
+        application_response,
+    )
+
+# -------------------------------------------------------------------------
+# Get Work Schedule
+# -------------------------------------------------------------------------
+
+
+@router.get(
+    "/work-schedules/{work_schedule_id}",
+    response_model=GetWorkScheduleResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get Work Schedule",
+    description="Retrieve a work schedule for the current tenant.",
+)
+async def get_work_schedule(
+    work_schedule_id: str,
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+    use_case: GetWorkScheduleUseCase = Depends(
+        get_work_schedule_use_case,
+    ),
+) -> GetWorkScheduleResponse:
+    """
+    Retrieve a work schedule for the current tenant.
+    """
+
+    application_response = await use_case.execute(
+        work_schedule_id,
+    )
+
+    return WorkScheduleMapper.to_get_response(
+        application_response,
+    )
+
+# -------------------------------------------------------------------------
+# List Work Schedule Days
+# -------------------------------------------------------------------------
+
+
+@router.get(
+    "/work-schedules/{work_schedule_id}/days",
+    response_model=ListWorkScheduleDaysResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List Work Schedule Days",
+    description="List weekly day rules for a work schedule.",
+)
+async def list_work_schedule_days(
+    work_schedule_id: str,
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+    use_case: ListWorkScheduleDaysUseCase = Depends(
+        get_list_work_schedule_days_use_case,
+    ),
+) -> ListWorkScheduleDaysResponse:
+    """
+    List weekly day rules for a work schedule.
+    """
+
+    application_response = await use_case.execute(
+        work_schedule_id,
+    )
+
+    return WorkScheduleDayMapper.to_list_response(
         application_response,
     )
