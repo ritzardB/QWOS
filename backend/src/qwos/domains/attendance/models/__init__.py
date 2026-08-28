@@ -16,8 +16,9 @@ from .work_schedule_day import (
     ScheduleDayType,
     WorkScheduleDay,
 )
-
+from .attendance_time_segment import AttendanceTimeSegment
 __all__ = [
+    "AttendanceTimeSegment",
     "EmployeeWorkSchedule",
     "ScheduleDayType",
     "WorkScheduleDay",
