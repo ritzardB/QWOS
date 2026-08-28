@@ -20,8 +20,18 @@ from .attendance_time_segment import AttendanceTimeSegment
 from .attendance_pay_classification import (
     AttendancePayClassification,
 )
+from .attendance_premium_rule import (
+    AttendancePremiumCalculationType,
+    AttendancePremiumRule,
+    AttendancePremiumRuleType,
+    AttendancePremiumStackingStrategy,
+)
 
 __all__ = [
+    "AttendancePremiumCalculationType",
+    "AttendancePremiumRule",
+    "AttendancePremiumRuleType",
+    "AttendancePremiumStackingStrategy",
     "AttendancePayClassification",
     "AttendanceTimeSegment",
     "EmployeeWorkSchedule",
