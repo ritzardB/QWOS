@@ -340,7 +340,6 @@ class AttendancePolicyResolutionService:
     # -------------------------------------------------------------------------
     # Normalize value
     # -------------------------------------------------------------------------
-    
 
     @staticmethod
     def _normalize_required_value(
@@ -353,14 +352,14 @@ class AttendancePolicyResolutionService:
 
         if value is None:
             raise ValueError(
-                f"{field_name} is required."
+                f"{field_name} is required.",
             )
 
         normalized = value.strip().lower()
 
         if not normalized:
             raise ValueError(
-                f"{field_name} is required."
+                f"{field_name} is required.",
             )
 
         return normalized
