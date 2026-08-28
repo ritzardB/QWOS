@@ -17,7 +17,12 @@ from .work_schedule_day import (
     WorkScheduleDay,
 )
 from .attendance_time_segment import AttendanceTimeSegment
+from .attendance_pay_classification import (
+    AttendancePayClassification,
+)
+
 __all__ = [
+    "AttendancePayClassification",
     "AttendanceTimeSegment",
     "EmployeeWorkSchedule",
     "ScheduleDayType",

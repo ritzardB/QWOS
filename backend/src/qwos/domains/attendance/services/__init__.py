@@ -23,8 +23,16 @@ from .attendance_schedule_resolution_service import (
 from .effective_work_schedule_resolution_service import (
     EffectiveWorkScheduleResolutionService,
 )
+from .attendance_time_segment_service import (
+    AttendanceTimeSegmentService,
+)
+from .attendance_pay_classification_service import (
+    AttendancePayClassificationService,
+)
 
 __all__ = [
+    "AttendancePayClassificationService",
+    "AttendanceTimeSegmentService",
     "AttendanceScheduleResolution",
     "AttendanceScheduleResolutionService",
     "EffectiveWorkScheduleResolutionService",
