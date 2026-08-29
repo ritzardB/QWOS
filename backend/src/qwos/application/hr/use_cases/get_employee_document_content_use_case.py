@@ -56,9 +56,7 @@ class GetEmployeeDocumentContentUseCase:
         document_storage: DocumentStorage,
         request_context: RequestContext,
     ) -> None:
-        self._employee_document_repository = (
-            employee_document_repository
-        )
+        self._employee_document_repository = employee_document_repository
         self._authorization_service = authorization_service
         self._document_storage = document_storage
         self._request_context = request_context
@@ -84,9 +82,7 @@ class GetEmployeeDocumentContentUseCase:
 
         if not allowed:
             raise ForbiddenException(
-                message=(
-                    "User is not authorized to view employee documents."
-                ),
+                message=("User is not authorized to view employee documents."),
             )
 
         document = self._employee_document_repository.get_by_id(

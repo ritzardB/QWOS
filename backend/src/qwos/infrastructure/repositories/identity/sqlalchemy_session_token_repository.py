@@ -91,10 +91,6 @@ class SQLAlchemySessionTokenRepository(
         Retrieve all tokens belonging to a session.
         """
 
-        stmt = (
-            select(SessionToken)
-            .where(SessionToken.session_id == session_id)
-            .order_by(SessionToken.issued_at.desc())
-        )
+        stmt = select(SessionToken).where(SessionToken.session_id == session_id).order_by(SessionToken.issued_at.desc())
 
         return list(self._session.scalars(stmt).all())

@@ -40,9 +40,7 @@ class GetEmployeeProfileUseCase:
         *,
         employee_profile_repository: EmployeeProfileRepository,
     ) -> None:
-        self._employee_profile_repository = (
-            employee_profile_repository
-        )
+        self._employee_profile_repository = employee_profile_repository
 
     async def execute(
         self,
@@ -54,11 +52,9 @@ class GetEmployeeProfileUseCase:
         Retrieve the employee profile.
         """
 
-        profile = (
-            self._employee_profile_repository.get_by_employee_id(
-                tenant_id=tenant_id,
-                employee_id=employee_id,
-            )
+        profile = self._employee_profile_repository.get_by_employee_id(
+            tenant_id=tenant_id,
+            employee_id=employee_id,
         )
 
         if profile is None:
@@ -83,9 +79,7 @@ class GetEmployeeProfileUseCase:
             postal_code=profile.postal_code,
             country_code=profile.country_code,
             emergency_contact_name=profile.emergency_contact_name,
-            emergency_contact_relationship=(
-                profile.emergency_contact_relationship
-            ),
+            emergency_contact_relationship=(profile.emergency_contact_relationship),
             emergency_contact_phone=profile.emergency_contact_phone,
             created_at=profile.created_at,
         )

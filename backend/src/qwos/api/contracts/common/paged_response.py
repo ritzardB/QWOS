@@ -10,7 +10,6 @@ T = TypeVar("T")
 
 
 class PagedResponse(BaseModel, Generic[T]):
-
     success: bool = True
 
     data: list[T]

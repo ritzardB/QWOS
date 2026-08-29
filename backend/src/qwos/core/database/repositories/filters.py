@@ -173,12 +173,7 @@ class Filter:
     # --------------------------------------------------------------
 
     def __repr__(self) -> str:
-        return (
-            f"Filter("
-            f"field={self.field!r}, "
-            f"operator={self.operator.value!r}, "
-            f"value={self.value!r})"
-        )
+        return f"Filter(field={self.field!r}, operator={self.operator.value!r}, value={self.value!r})"
 
 
 # ----------------------------------------------------------------------

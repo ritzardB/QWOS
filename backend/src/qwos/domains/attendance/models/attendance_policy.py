@@ -99,17 +99,11 @@ class AttendancePolicy(TenantEntity):
         Create a normalized attendance policy.
         """
 
-        normalized_code = (
-            policy_code.strip().lower()
-        )
+        normalized_code = policy_code.strip().lower()
 
-        normalized_name = (
-            policy_name.strip()
-        )
+        normalized_name = policy_name.strip()
 
-        normalized_requirement = (
-            attendance_requirement.strip().lower()
-        )
+        normalized_requirement = attendance_requirement.strip().lower()
 
         if not normalized_code:
             raise ValueError(
@@ -127,8 +121,7 @@ class AttendancePolicy(TenantEntity):
             "required",
         }:
             raise ValueError(
-                "attendance_requirement must be one of: "
-                "not_required, tracking_only, required.",
+                "attendance_requirement must be one of: not_required, tracking_only, required.",
             )
 
         if grace_period_minutes < 0:
@@ -141,22 +134,14 @@ class AttendancePolicy(TenantEntity):
             tenant_id=tenant_id,
             policy_code=normalized_code,
             policy_name=normalized_name,
-            attendance_requirement=(
-                normalized_requirement
-            ),
+            attendance_requirement=(normalized_requirement),
             clock_in_required=clock_in_required,
             clock_out_required=clock_out_required,
-            payroll_impact_enabled=(
-                payroll_impact_enabled
-            ),
+            payroll_impact_enabled=(payroll_impact_enabled),
             overtime_enabled=overtime_enabled,
             undertime_enabled=undertime_enabled,
-            late_deduction_enabled=(
-                late_deduction_enabled
-            ),
-            grace_period_minutes=(
-                grace_period_minutes
-            ),
+            late_deduction_enabled=(late_deduction_enabled),
+            grace_period_minutes=(grace_period_minutes),
             created_by=created_by,
             updated_by=created_by,
         )

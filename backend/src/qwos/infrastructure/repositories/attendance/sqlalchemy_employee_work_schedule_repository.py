@@ -101,10 +101,7 @@ class SQLAlchemyEmployeeWorkScheduleRepository(
                 EmployeeWorkSchedule.effective_from <= effective_date,
                 (
                     EmployeeWorkSchedule.effective_until.is_(None)
-                    | (
-                        EmployeeWorkSchedule.effective_until
-                        >= effective_date
-                    )
+                    | (EmployeeWorkSchedule.effective_until >= effective_date)
                 ),
                 EmployeeWorkSchedule.deleted_at.is_(None),
             )

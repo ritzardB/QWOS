@@ -98,15 +98,10 @@ class SQLAlchemyPermissionRepository(
         """
         normalized_module = module.strip().lower()
 
-        stmt = (
-            select(Permission)
-            .where(func.lower(Permission.module) == normalized_module)
-            .order_by(Permission.code)
-        )
+        stmt = select(Permission).where(func.lower(Permission.module) == normalized_module).order_by(Permission.code)
 
-        return list(
-            self._session.scalars(stmt).all()
-        )
+        return list(self._session.scalars(stmt).all())
+
     def exists_by_code(
         self,
         code: str,

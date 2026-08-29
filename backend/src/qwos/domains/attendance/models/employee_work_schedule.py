@@ -66,13 +66,9 @@ class EmployeeWorkSchedule(TenantEntity):
         Create a normalized employee work schedule assignment.
         """
 
-        if (
-            effective_until is not None
-            and effective_until < effective_from
-        ):
+        if effective_until is not None and effective_until < effective_from:
             raise ValueError(
-                "effective_until cannot be earlier than "
-                "effective_from.",
+                "effective_until cannot be earlier than effective_from.",
             )
 
         return cls(

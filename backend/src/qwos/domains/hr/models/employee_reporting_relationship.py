@@ -59,9 +59,7 @@ class EmployeeReportingRelationship(TenantEntity):
         """
 
         if employee_id == manager_employee_id:
-            raise ValueError(
-                "An employee cannot report to themselves."
-            )
+            raise ValueError("An employee cannot report to themselves.")
 
         return cls(
             id=id,

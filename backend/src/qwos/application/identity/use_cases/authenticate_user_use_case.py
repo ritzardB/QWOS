@@ -183,15 +183,18 @@ class AuthenticateUserUseCase:
         # Password
         # ------------------------------------------------------------------
 
-        logger.warning(
-            "AUTH DEBUG: password_hash_present=%s hash_length=%s hash_prefix=%r",
-            bool(user.password_hash),
-            len(user.password_hash) if user.password_hash else None,
-            user.password_hash[:7] if user.password_hash else None,
-        )
-
         if not user.password_hash:
+            logger.warning(
+                "AUTH DEBUG: user has no password hash",
+            )
             raise InvalidCredentialsException()
+
+        logger.warning(
+            "AUTH DEBUG: password_hash_present=%s hash_length=%d hash_prefix=%r",
+            bool(user.password_hash),
+            len(user.password_hash),
+            user.password_hash[:7],
+        )
 
         password_valid = self._password_hasher.verify(
             command.password,
@@ -204,7 +207,7 @@ class AuthenticateUserUseCase:
         )
 
         if not password_valid:
-            raise ValueError("Invalid email or password.")
+            raise InvalidCredentialsException()
 
         # ------------------------------------------------------------------
         # Time

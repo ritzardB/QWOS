@@ -68,10 +68,8 @@ class SQLAlchemyEmployeeAttendancePolicyRepository(
         """
 
         stmt = select(EmployeeAttendancePolicy).where(
-            EmployeeAttendancePolicy.id
-            == employee_attendance_policy_id,
-            EmployeeAttendancePolicy.tenant_id
-            == tenant_id,
+            EmployeeAttendancePolicy.id == employee_attendance_policy_id,
+            EmployeeAttendancePolicy.tenant_id == tenant_id,
             EmployeeAttendancePolicy.deleted_at.is_(None),
         )
 
@@ -96,18 +94,12 @@ class SQLAlchemyEmployeeAttendancePolicyRepository(
         stmt = (
             select(EmployeeAttendancePolicy)
             .where(
-                EmployeeAttendancePolicy.tenant_id
-                == tenant_id,
-                EmployeeAttendancePolicy.employee_id
-                == employee_id,
-                EmployeeAttendancePolicy.effective_from
-                <= effective_date,
+                EmployeeAttendancePolicy.tenant_id == tenant_id,
+                EmployeeAttendancePolicy.employee_id == employee_id,
+                EmployeeAttendancePolicy.effective_from <= effective_date,
                 (
                     EmployeeAttendancePolicy.effective_until.is_(None)
-                    | (
-                        EmployeeAttendancePolicy.effective_until
-                        >= effective_date
-                    )
+                    | (EmployeeAttendancePolicy.effective_until >= effective_date)
                 ),
                 EmployeeAttendancePolicy.is_active.is_(True),
                 EmployeeAttendancePolicy.deleted_at.is_(None),
@@ -136,10 +128,8 @@ class SQLAlchemyEmployeeAttendancePolicyRepository(
         stmt = (
             select(EmployeeAttendancePolicy)
             .where(
-                EmployeeAttendancePolicy.tenant_id
-                == tenant_id,
-                EmployeeAttendancePolicy.employee_id
-                == employee_id,
+                EmployeeAttendancePolicy.tenant_id == tenant_id,
+                EmployeeAttendancePolicy.employee_id == employee_id,
                 EmployeeAttendancePolicy.deleted_at.is_(None),
             )
             .order_by(
@@ -166,19 +156,13 @@ class SQLAlchemyEmployeeAttendancePolicyRepository(
         stmt = (
             select(EmployeeAttendancePolicy)
             .where(
-                EmployeeAttendancePolicy.tenant_id
-                == tenant_id,
-                EmployeeAttendancePolicy.employee_id
-                == employee_id,
+                EmployeeAttendancePolicy.tenant_id == tenant_id,
+                EmployeeAttendancePolicy.employee_id == employee_id,
                 EmployeeAttendancePolicy.deleted_at.is_(None),
-                EmployeeAttendancePolicy.effective_from
-                <= effective_until,
+                EmployeeAttendancePolicy.effective_from <= effective_until,
                 (
                     EmployeeAttendancePolicy.effective_until.is_(None)
-                    | (
-                        EmployeeAttendancePolicy.effective_until
-                        >= effective_from
-                    )
+                    | (EmployeeAttendancePolicy.effective_until >= effective_from)
                 ),
             )
             .order_by(
@@ -207,18 +191,12 @@ class SQLAlchemyEmployeeAttendancePolicyRepository(
         """
 
         stmt = select(EmployeeAttendancePolicy.id).where(
-            EmployeeAttendancePolicy.tenant_id
-            == tenant_id,
-            EmployeeAttendancePolicy.employee_id
-            == employee_id,
-            EmployeeAttendancePolicy.effective_from
-            <= effective_date,
+            EmployeeAttendancePolicy.tenant_id == tenant_id,
+            EmployeeAttendancePolicy.employee_id == employee_id,
+            EmployeeAttendancePolicy.effective_from <= effective_date,
             (
                 EmployeeAttendancePolicy.effective_until.is_(None)
-                | (
-                    EmployeeAttendancePolicy.effective_until
-                    >= effective_date
-                )
+                | (EmployeeAttendancePolicy.effective_until >= effective_date)
             ),
             EmployeeAttendancePolicy.is_active.is_(True),
             EmployeeAttendancePolicy.deleted_at.is_(None),

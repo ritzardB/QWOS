@@ -98,26 +98,18 @@ class EmployeeWorkAgreement(TenantEntity):
         Create a normalized employee work agreement.
         """
 
-        normalized_basis = (
-            compensation_basis.strip().lower()
-        )
+        normalized_basis = compensation_basis.strip().lower()
 
-        normalized_frequency = (
-            pay_frequency.strip().lower()
-        )
+        normalized_frequency = pay_frequency.strip().lower()
 
         if not normalized_basis:
             raise ValueError(
                 "compensation_basis is required.",
             )
 
-        if normalized_basis not in {
-            basis.value
-            for basis in CompensationBasis
-        }:
+        if normalized_basis not in {basis.value for basis in CompensationBasis}:
             raise ValueError(
-                "compensation_basis must be one of: "
-                "hourly, daily, monthly.",
+                "compensation_basis must be one of: hourly, daily, monthly.",
             )
 
         if not normalized_frequency:
@@ -125,22 +117,14 @@ class EmployeeWorkAgreement(TenantEntity):
                 "pay_frequency is required.",
             )
 
-        if normalized_frequency not in {
-            frequency.value
-            for frequency in PayFrequency
-        }:
+        if normalized_frequency not in {frequency.value for frequency in PayFrequency}:
             raise ValueError(
-                "pay_frequency must be one of: "
-                "weekly, biweekly, semimonthly, monthly.",
+                "pay_frequency must be one of: weekly, biweekly, semimonthly, monthly.",
             )
 
-        if (
-            effective_until is not None
-            and effective_until < effective_from
-        ):
+        if effective_until is not None and effective_until < effective_from:
             raise ValueError(
-                "effective_until cannot be earlier than "
-                "effective_from.",
+                "effective_until cannot be earlier than effective_from.",
             )
 
         return cls(

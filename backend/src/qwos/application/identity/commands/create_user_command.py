@@ -34,6 +34,7 @@ class CreateUserCommand:
     """
     Command for creating a new user.
     """
+
     tenant_id: str
     first_name: str
     last_name: str

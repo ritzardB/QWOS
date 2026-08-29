@@ -13,6 +13,7 @@ Author:
 
 ===============================================================================
 """
+
 from collections.abc import Generator
 
 from sqlalchemy.orm import Session, sessionmaker

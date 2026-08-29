@@ -111,11 +111,7 @@ async def get_authenticated_request_context(
             "en-US",
         ),
         timezone="UTC",
-        ip_address=(
-            request.client.host
-            if request.client is not None
-            else None
-        ),
+        ip_address=(request.client.host if request.client is not None else None),
         user_agent=request.headers.get(
             "User-Agent",
         ),

@@ -95,10 +95,7 @@ class WorkScheduleDay(TenantEntity):
                 "day_type is required.",
             )
 
-        if normalized_day_type not in {
-            day_type.value
-            for day_type in ScheduleDayType
-        }:
+        if normalized_day_type not in {day_type.value for day_type in ScheduleDayType}:
             raise ValueError(
                 "day_type must be one of: workday, rest_day.",
             )

@@ -79,9 +79,7 @@ class PassportMRZDetector:
         for index in range(
             len(lines) - (self.LINE_COUNT - 1),
         ):
-            candidate_lines = lines[
-                index : index + self.LINE_COUNT
-            ]
+            candidate_lines = lines[index : index + self.LINE_COUNT]
 
             if self._is_valid_candidate(
                 candidate_lines,
@@ -108,10 +106,7 @@ class PassportMRZDetector:
         insert spaces into a fixed-width MRZ line.
         """
 
-        normalized_text = (
-            ocr_text.replace("\r\n", "\n")
-            .replace("\r", "\n")
-        )
+        normalized_text = ocr_text.replace("\r\n", "\n").replace("\r", "\n")
 
         normalized_lines: list[str] = []
 
@@ -121,11 +116,7 @@ class PassportMRZDetector:
             if not line:
                 continue
 
-            line = (
-                line.upper()
-                .replace(" ", "")
-                .replace("\t", "")
-            )
+            line = line.upper().replace(" ", "").replace("\t", "")
 
             normalized_lines.append(
                 line,

@@ -33,7 +33,6 @@ class EmployeeRepository(Protocol):
         """
         ...
 
-
     def get_by_id_for_tenant(
         self,
         *,
@@ -45,7 +44,6 @@ class EmployeeRepository(Protocol):
         """
         ...
 
-
     def save(
         self,
         employee: Employee,
@@ -54,7 +52,7 @@ class EmployeeRepository(Protocol):
         Persist an employee.
         """
         ...
-        
+
     # -------------------------------------------------------------------------
     # Employee Queries
     # -------------------------------------------------------------------------
@@ -90,7 +88,6 @@ class EmployeeRepository(Protocol):
         Retrieve active employees for a tenant.
         """
         ...
-            
 
     def exists_by_employee_number(
         self,

@@ -57,10 +57,7 @@ class AttendanceEventSequenceValidator:
         Break events may repeat, but must always occur in pairs.
         """
 
-        normalized_events = [
-            event.strip().lower()
-            for event in events
-        ]
+        normalized_events = [event.strip().lower() for event in events]
 
         for event in normalized_events:
             if event not in cls.VALID_EVENTS:
@@ -81,7 +78,6 @@ class AttendanceEventSequenceValidator:
         break_started = False
 
         for event in normalized_events:
-
             if clocked_out:
                 raise AttendanceEventSequenceError(
                     "No events are allowed after clock_out.",

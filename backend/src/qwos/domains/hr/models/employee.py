@@ -75,16 +75,8 @@ class Employee(TenantEntity):
             hire_date=hire_date,
             employment_status=employment_status,
             employment_type=employment_type,
-            work_email=(
-                work_email.strip().lower()
-                if work_email
-                else None
-            ),
-            work_phone=(
-                work_phone.strip()
-                if work_phone
-                else None
-            ),
+            work_email=(work_email.strip().lower() if work_email else None),
+            work_phone=(work_phone.strip() if work_phone else None),
             created_by=created_by,
             updated_by=created_by,
         )

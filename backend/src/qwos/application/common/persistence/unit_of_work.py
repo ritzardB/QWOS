@@ -25,8 +25,7 @@ class UnitOfWork(ABC):
     """
 
     @abstractmethod
-    def __enter__(self) -> "UnitOfWork":
-        ...
+    def __enter__(self) -> "UnitOfWork": ...
 
     @abstractmethod
     def __exit__(
@@ -34,8 +33,7 @@ class UnitOfWork(ABC):
         exc_type: type[BaseException] | None,
         exc: BaseException | None,
         tb: TracebackType | None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @abstractmethod
     def commit(self) -> None:

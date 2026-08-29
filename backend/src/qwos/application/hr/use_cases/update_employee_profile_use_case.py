@@ -42,9 +42,7 @@ class UpdateEmployeeProfileUseCase:
         request_context: RequestContext,
     ) -> None:
         self._employee_repository = employee_repository
-        self._employee_profile_repository = (
-            employee_profile_repository
-        )
+        self._employee_profile_repository = employee_profile_repository
         self._authorization_service = authorization_service
         self._unit_of_work = unit_of_work
         self._request_context = request_context
@@ -71,9 +69,7 @@ class UpdateEmployeeProfileUseCase:
         )
 
         if not allowed:
-            raise ForbiddenException(
-                message="User is not authorized to update employee profiles."
-            )
+            raise ForbiddenException(message="User is not authorized to update employee profiles.")
 
         # ------------------------------------------------------------------
         # Locate employee
@@ -103,11 +99,9 @@ class UpdateEmployeeProfileUseCase:
         # Locate profile
         # ------------------------------------------------------------------
 
-        profile = (
-            self._employee_profile_repository.get_by_employee_id(
-                tenant_id=tenant_id,
-                employee_id=command.employee_id,
-            )
+        profile = self._employee_profile_repository.get_by_employee_id(
+            tenant_id=tenant_id,
+            employee_id=command.employee_id,
         )
 
         if profile is None:
@@ -133,15 +127,9 @@ class UpdateEmployeeProfileUseCase:
             state_province=command.state_province,
             postal_code=command.postal_code,
             country_code=command.country_code,
-            emergency_contact_name=(
-                command.emergency_contact_name
-            ),
-            emergency_contact_relationship=(
-                command.emergency_contact_relationship
-            ),
-            emergency_contact_phone=(
-                command.emergency_contact_phone
-            ),
+            emergency_contact_name=(command.emergency_contact_name),
+            emergency_contact_relationship=(command.emergency_contact_relationship),
+            emergency_contact_phone=(command.emergency_contact_phone),
             updated_by=user_id,
         )
 
@@ -172,14 +160,8 @@ class UpdateEmployeeProfileUseCase:
             state_province=profile.state_province,
             postal_code=profile.postal_code,
             country_code=profile.country_code,
-            emergency_contact_name=(
-                profile.emergency_contact_name
-            ),
-            emergency_contact_relationship=(
-                profile.emergency_contact_relationship
-            ),
-            emergency_contact_phone=(
-                profile.emergency_contact_phone
-            ),
+            emergency_contact_name=(profile.emergency_contact_name),
+            emergency_contact_relationship=(profile.emergency_contact_relationship),
+            emergency_contact_phone=(profile.emergency_contact_phone),
             created_at=profile.created_at,
         )

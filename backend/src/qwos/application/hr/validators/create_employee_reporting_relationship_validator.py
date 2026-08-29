@@ -58,17 +58,11 @@ class CreateEmployeeReportingRelationshipValidator:
                 )
             )
 
-        if (
-            command.effective_to is not None
-            and command.effective_to < command.effective_from
-        ):
+        if command.effective_to is not None and command.effective_to < command.effective_from:
             errors.append(
                 ValidationError(
                     field="effective_to",
-                    message=(
-                        "Effective-to date cannot be earlier than "
-                        "effective-from date."
-                    ),
+                    message=("Effective-to date cannot be earlier than effective-from date."),
                 )
             )
 

@@ -54,7 +54,7 @@ def _get_status_code(
     """
     if isinstance(exc, ForbiddenException):
         return 403
-    
+
     if isinstance(exc, ValidationException):
         return 400
 
@@ -96,6 +96,7 @@ def application_exception_handler(
         content=response.model_dump(mode="json"),
     )
 
+
 def _get_status_code(
     exc: ApplicationException,
 ) -> int:
@@ -122,4 +123,3 @@ def _get_status_code(
         return 403
 
     return 400
-

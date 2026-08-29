@@ -40,9 +40,7 @@ class GetEmployeePositionUseCase:
         *,
         employee_position_repository: EmployeePositionRepository,
     ) -> None:
-        self._employee_position_repository = (
-            employee_position_repository
-        )
+        self._employee_position_repository = employee_position_repository
 
     async def execute(
         self,
@@ -54,11 +52,9 @@ class GetEmployeePositionUseCase:
         Retrieve the employee's current position.
         """
 
-        position = (
-            self._employee_position_repository.get_current_by_employee_id(
-                tenant_id=tenant_id,
-                employee_id=employee_id,
-            )
+        position = self._employee_position_repository.get_current_by_employee_id(
+            tenant_id=tenant_id,
+            employee_id=employee_id,
         )
 
         if position is None:

@@ -132,10 +132,8 @@ class RefreshAccessTokenUseCase:
             command.refresh_token,
         )
 
-        session_token = (
-            self._session_token_repository.get_active_by_token_hash(
-                token_hash,
-            )
+        session_token = self._session_token_repository.get_active_by_token_hash(
+            token_hash,
         )
 
         if session_token is None:

@@ -63,11 +63,9 @@ class ListWorkScheduleDaysUseCase:
         # Verify work schedule exists within tenant
         # ------------------------------------------------------------------
 
-        work_schedule = (
-            self._work_schedule_repository.get_by_id_for_tenant(
-                tenant_id=self._request_context.tenant_id,
-                schedule_id=work_schedule_id,
-            )
+        work_schedule = self._work_schedule_repository.get_by_id_for_tenant(
+            tenant_id=self._request_context.tenant_id,
+            schedule_id=work_schedule_id,
         )
 
         if work_schedule is None:
@@ -80,11 +78,9 @@ class ListWorkScheduleDaysUseCase:
         # Retrieve schedule days
         # ------------------------------------------------------------------
 
-        schedule_days = (
-            self._work_schedule_day_repository.list_by_schedule(
-                tenant_id=self._request_context.tenant_id,
-                work_schedule_id=work_schedule_id,
-            )
+        schedule_days = self._work_schedule_day_repository.list_by_schedule(
+            tenant_id=self._request_context.tenant_id,
+            work_schedule_id=work_schedule_id,
         )
 
         # ------------------------------------------------------------------

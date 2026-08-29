@@ -54,9 +54,7 @@ class QWOSDocumentFilenameGenerator:
         """
 
         if version <= 0:
-            raise ValueError(
-                "version must be greater than zero."
-            )
+            raise ValueError("version must be greater than zero.")
 
         normalized_employee_number = self._normalize_token(
             employee_number,
@@ -66,16 +64,10 @@ class QWOSDocumentFilenameGenerator:
             document_category,
         )
 
-        normalized_extension = (
-            extension.strip()
-            .lower()
-            .lstrip(".")
-        )
+        normalized_extension = extension.strip().lower().lstrip(".")
 
         if not normalized_extension:
-            raise ValueError(
-                "extension is required."
-            )
+            raise ValueError("extension is required.")
 
         parts = [
             normalized_employee_number,
@@ -115,8 +107,6 @@ class QWOSDocumentFilenameGenerator:
         normalized = normalized.strip("-")
 
         if not normalized:
-            raise ValueError(
-                "Filename token cannot be empty."
-            )
+            raise ValueError("Filename token cannot be empty.")
 
         return normalized

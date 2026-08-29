@@ -21,9 +21,7 @@ class ListExpiringEmployeeImmigrationUseCase:
         *,
         employee_immigration_repository: EmployeeImmigrationRepository,
     ) -> None:
-        self._employee_immigration_repository = (
-            employee_immigration_repository
-        )
+        self._employee_immigration_repository = employee_immigration_repository
 
     async def execute(
         self,
@@ -38,13 +36,11 @@ class ListExpiringEmployeeImmigrationUseCase:
 
         end_date = as_of_date + timedelta(days=days)
 
-        records = (
-            self._employee_immigration_repository.list_expiring_between(
-                tenant_id=tenant_id,
-                start_date=as_of_date,
-                end_date=end_date,
-                immigration_type=immigration_type,
-            )
+        records = self._employee_immigration_repository.list_expiring_between(
+            tenant_id=tenant_id,
+            start_date=as_of_date,
+            end_date=end_date,
+            immigration_type=immigration_type,
         )
 
         return ListExpiringEmployeeImmigrationResponse(
@@ -57,9 +53,7 @@ class ListExpiringEmployeeImmigrationUseCase:
                     document_number=record.document_number,
                     issue_date=record.issue_date,
                     expiry_date=record.expiry_date,
-                    days_until_expiry=(
-                        record.expiry_date - as_of_date
-                    ).days,
+                    days_until_expiry=(record.expiry_date - as_of_date).days,
                 )
                 for record in records
                 if record.expiry_date is not None

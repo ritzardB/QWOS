@@ -477,10 +477,7 @@ def test_authenticate_user_rejects_invalid_password() -> None:
         password="WrongPassword123!",
     )
 
-    with pytest.raises(
-        ValueError,
-        match="Invalid email or password",
-    ):
+    with pytest.raises(InvalidCredentialsException):
         asyncio.run(use_case.execute(command))
 
     assert password_hasher.verified_password == (

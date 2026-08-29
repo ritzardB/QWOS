@@ -65,9 +65,7 @@ class AttendancePremiumRule:
     rule_type: AttendancePremiumRuleType
     calculation_type: AttendancePremiumCalculationType
     value: Decimal
-    stacking_strategy: AttendancePremiumStackingStrategy = (
-        AttendancePremiumStackingStrategy.STACK
-    )
+    stacking_strategy: AttendancePremiumStackingStrategy = AttendancePremiumStackingStrategy.STACK
     priority: int = 0
     effective_from: date | None = None
     effective_until: date | None = None
@@ -99,15 +97,10 @@ class AttendancePremiumRule:
             and self.effective_until < self.effective_from
         ):
             raise ValueError(
-                "effective_until cannot be earlier than "
-                "effective_from.",
+                "effective_until cannot be earlier than effective_from.",
             )
 
-        if (
-            self.calculation_type
-            == AttendancePremiumCalculationType.PERCENTAGE
-            and self.value > Decimal("100")
-        ):
+        if self.calculation_type == AttendancePremiumCalculationType.PERCENTAGE and self.value > Decimal("100"):
             raise ValueError(
                 "percentage value cannot exceed 100.",
             )
@@ -120,16 +113,10 @@ class AttendancePremiumRule:
         if not self.is_active:
             return False
 
-        if (
-            self.effective_from is not None
-            and effective_date < self.effective_from
-        ):
+        if self.effective_from is not None and effective_date < self.effective_from:
             return False
 
-        if (
-            self.effective_until is not None
-            and effective_date > self.effective_until
-        ):
+        if self.effective_until is not None and effective_date > self.effective_until:
             return False
 
         return True
@@ -140,10 +127,7 @@ class AttendancePremiumRule:
         Return whether the rule uses percentage calculation.
         """
 
-        return (
-            self.calculation_type
-            == AttendancePremiumCalculationType.PERCENTAGE
-        )
+        return self.calculation_type == AttendancePremiumCalculationType.PERCENTAGE
 
     @property
     def is_multiplier(self) -> bool:
@@ -151,10 +135,7 @@ class AttendancePremiumRule:
         Return whether the rule uses multiplier calculation.
         """
 
-        return (
-            self.calculation_type
-            == AttendancePremiumCalculationType.MULTIPLIER
-        )
+        return self.calculation_type == AttendancePremiumCalculationType.MULTIPLIER
 
     @property
     def is_exclusive(self) -> bool:
@@ -162,7 +143,4 @@ class AttendancePremiumRule:
         Return whether this rule excludes stacking with other rules.
         """
 
-        return (
-            self.stacking_strategy
-            == AttendancePremiumStackingStrategy.EXCLUSIVE
-        )
+        return self.stacking_strategy == AttendancePremiumStackingStrategy.EXCLUSIVE

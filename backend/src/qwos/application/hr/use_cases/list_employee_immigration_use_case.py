@@ -19,9 +19,7 @@ class ListEmployeeImmigrationUseCase:
         *,
         employee_immigration_repository: EmployeeImmigrationRepository,
     ) -> None:
-        self._employee_immigration_repository = (
-            employee_immigration_repository
-        )
+        self._employee_immigration_repository = employee_immigration_repository
 
     async def execute(
         self,
@@ -30,12 +28,10 @@ class ListEmployeeImmigrationUseCase:
         employee_id: str,
         immigration_type: str | None = None,
     ) -> ListEmployeeImmigrationResponse:
-        records = (
-            self._employee_immigration_repository.list_by_employee_id(
-                tenant_id=tenant_id,
-                employee_id=employee_id,
-                immigration_type=immigration_type,
-            )
+        records = self._employee_immigration_repository.list_by_employee_id(
+            tenant_id=tenant_id,
+            employee_id=employee_id,
+            immigration_type=immigration_type,
         )
 
         return ListEmployeeImmigrationResponse(

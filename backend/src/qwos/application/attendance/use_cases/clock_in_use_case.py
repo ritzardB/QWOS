@@ -92,12 +92,8 @@ class ClockInUseCase:
         request_context: RequestContext,
     ) -> None:
         self._employee_repository = employee_repository
-        self._attendance_record_repository = (
-            attendance_record_repository
-        )
-        self._attendance_event_repository = (
-            attendance_event_repository
-        )
+        self._attendance_record_repository = attendance_record_repository
+        self._attendance_event_repository = attendance_event_repository
         self._id_generator = id_generator
         self._clock = clock
         self._unit_of_work = unit_of_work
@@ -156,15 +152,13 @@ class ClockInUseCase:
         # Existing attendance record
         # ---------------------------------------------------------------------
 
-        attendance_record = (
-            self._attendance_record_repository.get_by_employee_and_date(
-                tenant_id=command.tenant_id,
-                employee_id=command.employee_id,
-                attendance_date=attendance_date,
-            )
+        attendance_record = self._attendance_record_repository.get_by_employee_and_date(
+            tenant_id=command.tenant_id,
+            employee_id=command.employee_id,
+            attendance_date=attendance_date,
         )
 
-                # ---------------------------------------------------------------------
+        # ---------------------------------------------------------------------
         # Duplicate clock-in protection
         # ---------------------------------------------------------------------
 
@@ -223,7 +217,7 @@ class ClockInUseCase:
             )
 
             self._unit_of_work.flush()
-            
+
         # ---------------------------------------------------------------------
         # Response
         # ---------------------------------------------------------------------

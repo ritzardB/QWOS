@@ -41,6 +41,4 @@ class ApproveEmployeeDocumentExtractionResponse(BaseModel):
 
     document_id: str
     employee_id: str
-    approved_fields: list[
-        ApprovedEmployeeDocumentFieldResponse
-    ]
+    approved_fields: list[ApprovedEmployeeDocumentFieldResponse]

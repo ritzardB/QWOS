@@ -47,9 +47,7 @@ class CreateEmployeeImmigrationUseCase:
         request_context: RequestContext,
     ) -> None:
         self._employee_repository = employee_repository
-        self._employee_immigration_repository = (
-            employee_immigration_repository
-        )
+        self._employee_immigration_repository = employee_immigration_repository
         self._authorization_service = authorization_service
         self._id_generator = id_generator
         self._unit_of_work = unit_of_work
@@ -78,10 +76,7 @@ class CreateEmployeeImmigrationUseCase:
 
         if not allowed:
             raise ForbiddenException(
-                message=(
-                    "User is not authorized to create "
-                    "employee immigration records."
-                ),
+                message=("User is not authorized to create employee immigration records."),
             )
 
         # ------------------------------------------------------------------

@@ -64,27 +64,13 @@ class SQLAlchemyRolePermissionRepository(
                 RolePermission.role_id == role_id,
                 RolePermission.is_enabled.is_(True),
                 RolePermission.deleted_at.is_(None),
-                (
-                    RolePermission.effective_from.is_(None)
-                    | (
-                        RolePermission.effective_from
-                        <= now
-                    )
-                ),
-                (
-                    RolePermission.effective_until.is_(None)
-                    | (
-                        RolePermission.effective_until
-                        >= now
-                    )
-                ),
+                (RolePermission.effective_from.is_(None) | (RolePermission.effective_from <= now)),
+                (RolePermission.effective_until.is_(None) | (RolePermission.effective_until >= now)),
             )
             .order_by(RolePermission.created_at.asc())
         )
 
-        return list(
-            self._session.scalars(stmt).all()
-        )
+        return list(self._session.scalars(stmt).all())
 
     def exists_assignment(
         self,

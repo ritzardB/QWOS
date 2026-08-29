@@ -30,9 +30,7 @@ class ListEmployeeDocumentsUseCase:
         authorization_service: AuthorizationService,
         request_context: RequestContext,
     ) -> None:
-        self._employee_document_repository = (
-            employee_document_repository
-        )
+        self._employee_document_repository = employee_document_repository
         self._authorization_service = authorization_service
         self._request_context = request_context
 

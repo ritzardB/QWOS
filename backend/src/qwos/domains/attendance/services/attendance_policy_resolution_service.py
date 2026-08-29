@@ -111,6 +111,8 @@ class WorkArrangementRepository(Protocol):
             hybrid
         """
         ...
+
+
 class WorkAgreementRepository(Protocol):
     """
     Contract required to resolve an employee's effective work agreement.
@@ -132,6 +134,7 @@ class WorkAgreementRepository(Protocol):
             pay_frequency
         """
         ...
+
 
 # =============================================================================
 # Service
@@ -170,17 +173,11 @@ class AttendancePolicyResolutionService:
         work_arrangement_repository: WorkArrangementRepository,
         work_agreement_repository: WorkAgreementRepository,
     ) -> None:
-        self._attendance_policy_repository = (
-            attendance_policy_repository
-        )
+        self._attendance_policy_repository = attendance_policy_repository
 
-        self._work_arrangement_repository = (
-            work_arrangement_repository
-        )
+        self._work_arrangement_repository = work_arrangement_repository
 
-        self._work_agreement_repository = (
-            work_agreement_repository
-        )
+        self._work_agreement_repository = work_agreement_repository
 
     # -------------------------------------------------------------------------
     # Resolution
@@ -246,33 +243,23 @@ class AttendancePolicyResolutionService:
                 f"No effective work arrangement found for employee '{employee_id}' on {effective_date}.",
             )
 
-        work_agreement = (
-            self._work_agreement_repository
-            .get_effective_for_employee(
-                tenant_id=tenant_id,
-                employee_id=employee_id,
-                effective_date=effective_date,
-            )
+        work_agreement = self._work_agreement_repository.get_effective_for_employee(
+            tenant_id=tenant_id,
+            employee_id=employee_id,
+            effective_date=effective_date,
         )
 
         if work_agreement is None:
-            raise LookupError(
-                "No effective work agreement found for "
-                f"employee '{employee_id}' on {effective_date}."
-            )
+            raise LookupError(f"No effective work agreement found for employee '{employee_id}' on {effective_date}.")
 
-        attendance_required = (
-            policy.attendance_requirement != "not_required"
-        )
+        attendance_required = policy.attendance_requirement != "not_required"
 
         return ResolvedAttendanceContext(
             tenant_id=tenant_id,
             employee_id=employee_id,
             effective_date=effective_date,
             attendance_policy=policy,
-            work_arrangement=(
-                work_arrangement.strip().lower()
-            ),
+            work_arrangement=(work_arrangement.strip().lower()),
             compensation_basis=(
                 self._normalize_required_value(
                     work_agreement.compensation_basis,
@@ -286,25 +273,13 @@ class AttendancePolicyResolutionService:
                 )
             ),
             attendance_required=attendance_required,
-            clock_in_required=(
-                attendance_required
-                and policy.clock_in_required
-            ),
-            clock_out_required=(
-                attendance_required
-                and policy.clock_out_required
-            ),
-            payroll_impact_enabled=(
-                policy.payroll_impact_enabled
-            ),
+            clock_in_required=(attendance_required and policy.clock_in_required),
+            clock_out_required=(attendance_required and policy.clock_out_required),
+            payroll_impact_enabled=(policy.payroll_impact_enabled),
             overtime_enabled=policy.overtime_enabled,
             undertime_enabled=policy.undertime_enabled,
-            late_deduction_enabled=(
-                policy.late_deduction_enabled
-            ),
-            grace_period_minutes=(
-                policy.grace_period_minutes
-            ),
+            late_deduction_enabled=(policy.late_deduction_enabled),
+            grace_period_minutes=(policy.grace_period_minutes),
         )
 
     # -------------------------------------------------------------------------
@@ -335,7 +310,7 @@ class AttendancePolicyResolutionService:
         if not isinstance(effective_date, date):
             raise ValueError(
                 "effective_date must be a date.",
-        )
+            )
 
     # -------------------------------------------------------------------------
     # Normalize value

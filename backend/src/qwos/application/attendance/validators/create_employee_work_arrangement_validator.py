@@ -75,9 +75,7 @@ class CreateEmployeeWorkArrangementValidator:
         # Work Arrangement
         # ------------------------------------------------------------------
 
-        normalized_arrangement = (
-            command.work_arrangement.strip().lower()
-        )
+        normalized_arrangement = command.work_arrangement.strip().lower()
 
         if not normalized_arrangement:
             errors.append(
@@ -87,16 +85,11 @@ class CreateEmployeeWorkArrangementValidator:
                 )
             )
 
-        elif normalized_arrangement not in (
-            self.ALLOWED_WORK_ARRANGEMENTS
-        ):
+        elif normalized_arrangement not in (self.ALLOWED_WORK_ARRANGEMENTS):
             errors.append(
                 ValidationError(
                     field="work_arrangement",
-                    message=(
-                        "Work arrangement must be one of: "
-                        "office, hybrid, remote."
-                    ),
+                    message=("Work arrangement must be one of: office, hybrid, remote."),
                 )
             )
 
@@ -124,10 +117,7 @@ class CreateEmployeeWorkArrangementValidator:
             errors.append(
                 ValidationError(
                     field="effective_until",
-                    message=(
-                        "Effective until cannot be earlier than "
-                        "effective from."
-                    ),
+                    message=("Effective until cannot be earlier than effective from."),
                 )
             )
 

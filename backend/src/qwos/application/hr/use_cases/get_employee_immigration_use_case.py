@@ -23,9 +23,7 @@ class GetEmployeeImmigrationUseCase:
         *,
         employee_immigration_repository: EmployeeImmigrationRepository,
     ) -> None:
-        self._employee_immigration_repository = (
-            employee_immigration_repository
-        )
+        self._employee_immigration_repository = employee_immigration_repository
 
     async def execute(
         self,
@@ -35,13 +33,11 @@ class GetEmployeeImmigrationUseCase:
         immigration_type: str,
         as_of_date: date,
     ) -> GetEmployeeImmigrationResponse:
-        immigration = (
-            self._employee_immigration_repository.get_current_by_employee_id(
-                tenant_id=tenant_id,
-                employee_id=employee_id,
-                immigration_type=immigration_type,
-                as_of_date=as_of_date,
-            )
+        immigration = self._employee_immigration_repository.get_current_by_employee_id(
+            tenant_id=tenant_id,
+            employee_id=employee_id,
+            immigration_type=immigration_type,
+            as_of_date=as_of_date,
         )
 
         if immigration is None:

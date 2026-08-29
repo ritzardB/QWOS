@@ -22,11 +22,9 @@ class Settings(BaseSettings):
     APP_NAME: str = "Quantum Workforce OS"
     APP_VERSION: str = "0.1.0"
     ENVIRONMENT: str = "development"
-    QWOS_TENANT_ID: str 
+    QWOS_TENANT_ID: str
 
-    DATABASE_URL: str = (
-        "postgresql+psycopg://richardbalabarcon@localhost/qwos_dev"
-    )
+    DATABASE_URL: str = "postgresql+psycopg://richardbalabarcon@localhost/qwos_dev"
 
     # -------------------------------------------------------------------------
     # JWT Authentication
@@ -49,9 +47,7 @@ class Settings(BaseSettings):
     DOCUMENT_STORAGE_ROOT: str = "./storage/documents"
     DOCUMENT_STORAGE_PROVIDER: str = "local"
 
-    DATABASE_URL: str = (
-        "postgresql+psycopg://richardbalabarcon@localhost/qwos_dev"
-    )
+    DATABASE_URL: str = "postgresql+psycopg://richardbalabarcon@localhost/qwos_dev"
 
     # -------------------------------------------------------------------------
     # Document Storage
@@ -64,6 +60,7 @@ class Settings(BaseSettings):
     # JWT Authentication
     # -------------------------------------------------------------------------
 
+
 @lru_cache
 def get_settings() -> Settings:
     """Return cached application settings."""
@@ -71,4 +68,3 @@ def get_settings() -> Settings:
 
 
 settings = get_settings()
-

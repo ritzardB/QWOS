@@ -143,8 +143,8 @@ __all__ = [
     "get_request_password_reset_use_case",
     "get_reset_password_use_case",
     "get_change_password_use_case",
-    
 ]
+
 
 def get_user_repository(
     session: Session = Depends(get_session),
@@ -153,6 +153,7 @@ def get_user_repository(
     Return User repository.
     """
     return SQLAlchemyUserRepository(session)
+
 
 def get_session_repository(
     session: Session = Depends(get_session),
@@ -171,6 +172,7 @@ def get_session_token_repository(
     """
     return SQLAlchemySessionTokenRepository(session)
 
+
 def get_user_profile_repository(
     session: Session = Depends(get_session),
 ) -> UserProfileRepository:
@@ -179,6 +181,7 @@ def get_user_profile_repository(
     """
     return user_profile_repo.SQLAlchemyUserProfileRepository(session)
 
+
 def get_password_reset_repository(
     session: Session = Depends(get_session),
 ) -> PasswordResetRepository:
@@ -186,6 +189,7 @@ def get_password_reset_repository(
     Return PasswordReset repository.
     """
     return SQLAlchemyPasswordResetRepository(session)
+
 
 # -------------------------------------------------------------------------
 # Validator Providers
@@ -198,9 +202,11 @@ def get_create_user_validator() -> CreateUserValidator:
     """
     return CreateUserValidator()
 
+
 # -------------------------------------------------------------------------
 # Authenticate Provider
 # -------------------------------------------------------------------------
+
 
 def get_authenticate_user_use_case(
     user_repository: UserRepository = Depends(
@@ -251,9 +257,11 @@ def get_authenticate_user_use_case(
         request_context=request_context,
     )
 
+
 # -------------------------------------------------------------------------
 # Use Case Providers
 # -------------------------------------------------------------------------
+
 
 def get_create_user_use_case(
     user_repository: UserRepository = Depends(
@@ -296,6 +304,7 @@ def get_create_user_use_case(
         request_context=request_context,
     )
 
+
 def get_request_password_reset_use_case(
     user_repository: UserRepository = Depends(
         get_user_repository,
@@ -336,6 +345,7 @@ def get_request_password_reset_use_case(
         request_context=request_context,
     )
 
+
 def get_reset_password_use_case(
     user_repository: UserRepository = Depends(
         get_user_repository,
@@ -372,9 +382,11 @@ def get_reset_password_use_case(
         request_context=request_context,
     )
 
+
 # -------------------------------------------------------------------------
-# Change Password Proividers    
+# Change Password Proividers
 # -------------------------------------------------------------------------
+
 
 def get_change_password_use_case(
     user_repository: UserRepository = Depends(
@@ -405,9 +417,11 @@ def get_change_password_use_case(
         request_context=request_context,
     )
 
+
 # -------------------------------------------------------------------------
 # Logout Provider
 # -------------------------------------------------------------------------
+
 
 def get_logout_user_use_case(
     session_repository: SessionRepository = Depends(
@@ -446,9 +460,11 @@ def get_logout_user_use_case(
         request_context=request_context,
     )
 
+
 # -------------------------------------------------------------------------
 # Refresh Access Token Provider
 # -------------------------------------------------------------------------
+
 
 def get_refresh_access_token_use_case(
     user_repository: UserRepository = Depends(get_user_repository),
@@ -479,12 +495,14 @@ def get_refresh_access_token_use_case(
         request_context=request_context,
     )
 
+
 def get_role_repository(
     session: Session = Depends(get_session),
 ) -> RoleRepository:
     return SQLAlchemyRoleRepository(
         session=session,
     )
+
 
 def get_user_role_repository(
     session: Session = Depends(get_session),
@@ -493,6 +511,7 @@ def get_user_role_repository(
         session=session,
     )
 
+
 def get_permission_repository(
     session: Session = Depends(get_session),
 ) -> PermissionRepository:
@@ -500,12 +519,14 @@ def get_permission_repository(
         session=session,
     )
 
+
 def get_role_permission_repository(
     session: Session = Depends(get_session),
 ) -> RolePermissionRepository:
     return SQLAlchemyRolePermissionRepository(
         session=session,
     )
+
 
 def get_authorization_service(
     user_repository: UserRepository = Depends(
@@ -539,6 +560,7 @@ def get_authorization_service(
         role_permissions=role_permission_repository,
         clock=clock,
     )
+
 
 def get_assign_role_use_case(
     user_repository: UserRepository = Depends(

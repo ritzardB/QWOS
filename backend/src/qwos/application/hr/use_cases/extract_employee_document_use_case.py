@@ -91,9 +91,7 @@ class ExtractEmployeeDocumentUseCase:
         *,
         employee_document_repository: EmployeeDocumentRepository,
         document_definition_repository: DocumentDefinitionRepository,
-        document_definition_field_repository: (
-            DocumentDefinitionFieldRepository
-        ),
+        document_definition_field_repository: (DocumentDefinitionFieldRepository),
         document_extraction_result_repository: DocumentExtractionResultRepository,
         authorization_service: AuthorizationService,
         document_storage: DocumentStorage,
@@ -101,18 +99,10 @@ class ExtractEmployeeDocumentUseCase:
         id_generator: IdGenerator,
         unit_of_work: UnitOfWork,
     ) -> None:
-        self._employee_document_repository = (
-            employee_document_repository
-        )
-        self._document_definition_repository = (
-            document_definition_repository
-        )
-        self._document_definition_field_repository = (
-            document_definition_field_repository
-        )
-        self._document_extraction_result_repository = (
-            document_extraction_result_repository
-        )
+        self._employee_document_repository = employee_document_repository
+        self._document_definition_repository = document_definition_repository
+        self._document_definition_field_repository = document_definition_field_repository
+        self._document_extraction_result_repository = document_extraction_result_repository
         self._authorization_service = authorization_service
         self._document_storage = document_storage
         self._document_intelligence = document_intelligence
@@ -127,9 +117,7 @@ class ExtractEmployeeDocumentUseCase:
         Extract structured fields from an employee document.
         """
 
-        request_context: RequestContext = (
-            command.request_context
-        )
+        request_context: RequestContext = command.request_context
 
         tenant_id = request_context.tenant_id
         user_id = request_context.user_id
@@ -146,19 +134,15 @@ class ExtractEmployeeDocumentUseCase:
 
         if not allowed:
             raise ForbiddenException(
-                message=(
-                    "User is not authorized to extract employee documents."
-                ),
+                message=("User is not authorized to extract employee documents."),
             )
 
         # ------------------------------------------------------------------
         # Locate source document
         # ------------------------------------------------------------------
 
-        document = (
-            self._employee_document_repository.get_by_id(
-                command.document_id,
-            )
+        document = self._employee_document_repository.get_by_id(
+            command.document_id,
         )
 
         if document is None:
@@ -201,43 +185,34 @@ class ExtractEmployeeDocumentUseCase:
         # Initial classification
         # ------------------------------------------------------------------
 
-        classification = (
-            self._document_intelligence.classify(
-                content=stored_document.content,
-                filename=document.original_filename,
-                mime_type=document.mime_type,
-                document_family=document.document_category,
-            )
+        classification = self._document_intelligence.classify(
+            content=stored_document.content,
+            filename=document.original_filename,
+            mime_type=document.mime_type,
+            document_family=document.document_category,
         )
 
         # ------------------------------------------------------------------
         # Resolve country-specific document definition
         # ------------------------------------------------------------------
 
-        document_definition = (
-            self._document_definition_repository.get_by_family(
-                tenant_id=tenant_id,
-                country_code=classification.country_code,
-                document_family=classification.document_family,
-            )
+        document_definition = self._document_definition_repository.get_by_family(
+            tenant_id=tenant_id,
+            country_code=classification.country_code,
+            document_family=classification.document_family,
         )
 
         if document_definition is None:
             raise ResourceNotFoundException(
                 resource="DocumentDefinition",
-                identifier=(
-                    f"{classification.document_family}:"
-                    f"{classification.country_code or 'generic'}"
-                ),
+                identifier=(f"{classification.document_family}:{classification.country_code or 'generic'}"),
             )
         # ------------------------------------------------------------------
         # Load configured extraction fields
         # ------------------------------------------------------------------
 
-        definition_fields = (
-            self._document_definition_field_repository.list_by_definition_id(
-                document_definition_id=document_definition.id,
-            )
+        definition_fields = self._document_definition_field_repository.list_by_definition_id(
+            document_definition_id=document_definition.id,
         )
 
         if not definition_fields:
@@ -246,11 +221,7 @@ class ExtractEmployeeDocumentUseCase:
                 identifier=document_definition.id,
             )
 
-        configured_fields = {
-            field.field_code: field
-            for field in definition_fields
-            if field.is_extractable
-        }
+        configured_fields = {field.field_code: field for field in definition_fields if field.is_extractable}
 
         # ------------------------------------------------------------------
         # Extract structured data
@@ -260,12 +231,8 @@ class ExtractEmployeeDocumentUseCase:
             content=stored_document.content,
             filename=document.original_filename,
             mime_type=document.mime_type,
-            document_family=(
-                document_definition.document_family
-            ),
-            country_code=(
-                classification.country_code
-            ),
+            document_family=(document_definition.document_family),
+            country_code=(classification.country_code),
         )
 
         # ------------------------------------------------------------------
@@ -288,9 +255,7 @@ class ExtractEmployeeDocumentUseCase:
 
             if not DocumentFieldValidator.matches(
                 value=extracted_field.raw_value,
-                validation_pattern=(
-                    configured_field.validation_pattern
-                ),
+                validation_pattern=(configured_field.validation_pattern),
             ):
                 continue
 
@@ -298,18 +263,10 @@ class ExtractEmployeeDocumentUseCase:
                 id=self._id_generator.generate(),
                 tenant_id=tenant_id,
                 employee_document_id=document.id,
-                document_definition_field_id=(
-                    configured_field.id
-                ),
-                raw_value=(
-                    extracted_field.raw_value
-                ),
-                normalized_value=(
-                    extracted_field.normalized_value
-                ),
-                confidence=(
-                    extracted_field.confidence
-                ),
+                document_definition_field_id=(configured_field.id),
+                raw_value=(extracted_field.raw_value),
+                normalized_value=(extracted_field.normalized_value),
+                confidence=(extracted_field.confidence),
                 source=extracted_field.source,
                 created_by=user_id,
             )
@@ -334,10 +291,7 @@ class ExtractEmployeeDocumentUseCase:
         # Response
         # ------------------------------------------------------------------
 
-        definition_fields_by_id = {
-            field.id: field
-            for field in definition_fields
-        }
+        definition_fields_by_id = {field.id: field for field in definition_fields}
 
         return ExtractEmployeeDocumentResponse(
             document_id=document.id,
@@ -347,30 +301,14 @@ class ExtractEmployeeDocumentUseCase:
             fields=tuple(
                 ExtractedEmployeeDocumentField(
                     extraction_result_id=result.id,
-                    field_code=(
-                        definition_fields_by_id[
-                            result.document_definition_field_id
-                        ].field_code
-                    ),
+                    field_code=(definition_fields_by_id[result.document_definition_field_id].field_code),
                     raw_value=result.raw_value,
                     normalized_value=result.normalized_value,
                     confidence=result.confidence,
                     source=result.source,
-                    is_hr_updateable=(
-                        definition_fields_by_id[
-                            result.document_definition_field_id
-                        ].is_hr_updateable
-                    ),
-                    target_entity=(
-                        definition_fields_by_id[
-                            result.document_definition_field_id
-                        ].target_entity
-                    ),
-                    target_field=(
-                        definition_fields_by_id[
-                            result.document_definition_field_id
-                        ].target_field
-                    ),
+                    is_hr_updateable=(definition_fields_by_id[result.document_definition_field_id].is_hr_updateable),
+                    target_entity=(definition_fields_by_id[result.document_definition_field_id].target_entity),
+                    target_field=(definition_fields_by_id[result.document_definition_field_id].target_field),
                 )
                 for result in extraction_candidates
             ),

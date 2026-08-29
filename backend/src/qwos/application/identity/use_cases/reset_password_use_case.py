@@ -101,10 +101,8 @@ class ResetPasswordUseCase:
         # Locate active reset request
         # ------------------------------------------------------------------
 
-        password_reset = (
-            self._password_reset_repository.get_active_by_token_hash(
-                reset_token_hash,
-            )
+        password_reset = self._password_reset_repository.get_active_by_token_hash(
+            reset_token_hash,
         )
 
         if password_reset is None:
@@ -114,10 +112,7 @@ class ResetPasswordUseCase:
         # Tenant isolation
         # ------------------------------------------------------------------
 
-        if (
-            password_reset.tenant_id
-            != self._request_context.tenant_id
-        ):
+        if password_reset.tenant_id != self._request_context.tenant_id:
             raise ValueError("Invalid or expired password reset token.")
 
         # ------------------------------------------------------------------

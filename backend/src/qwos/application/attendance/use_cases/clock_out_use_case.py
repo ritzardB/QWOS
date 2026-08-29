@@ -74,12 +74,8 @@ class ClockOutUseCase:
         request_context: RequestContext,
     ) -> None:
         self._employee_repository = employee_repository
-        self._attendance_record_repository = (
-            attendance_record_repository
-        )
-        self._attendance_event_repository = (
-            attendance_event_repository
-        )
+        self._attendance_record_repository = attendance_record_repository
+        self._attendance_event_repository = attendance_event_repository
         self._id_generator = id_generator
         self._clock = clock
         self._unit_of_work = unit_of_work
@@ -122,13 +118,10 @@ class ClockOutUseCase:
                 "Employee does not belong to the requested tenant.",
             )
 
-        attendance_record = (
-            self._attendance_record_repository
-            .get_by_employee_and_date(
-                tenant_id=command.tenant_id,
-                employee_id=command.employee_id,
-                attendance_date=attendance_date,
-            )
+        attendance_record = self._attendance_record_repository.get_by_employee_and_date(
+            tenant_id=command.tenant_id,
+            employee_id=command.employee_id,
+            attendance_date=attendance_date,
         )
 
         if attendance_record is None:
@@ -152,13 +145,7 @@ class ClockOutUseCase:
                 "clock_out_at cannot be earlier than clock_in_at.",
             )
 
-        worked_minutes = int(
-            (
-                clock_out_at
-                - attendance_record.clock_in_at
-            ).total_seconds()
-            // 60
-        )
+        worked_minutes = int((clock_out_at - attendance_record.clock_in_at).total_seconds() // 60)
 
         attendance_record.clock_out_at = clock_out_at
         attendance_record.worked_minutes = worked_minutes
@@ -198,4 +185,3 @@ class ClockOutUseCase:
             event_type=attendance_event.event_type,
             event_at=attendance_event.event_at,
         )
-    

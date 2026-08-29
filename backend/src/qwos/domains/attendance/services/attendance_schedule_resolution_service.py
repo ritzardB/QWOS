@@ -61,9 +61,7 @@ class AttendanceScheduleResolutionService:
         work_schedule_repository: WorkScheduleRepository,
         work_schedule_day_repository: WorkScheduleDayRepository,
     ) -> None:
-        self._employee_work_schedule_repository = (
-            employee_work_schedule_repository
-        )
+        self._employee_work_schedule_repository = employee_work_schedule_repository
         self._work_schedule_repository = work_schedule_repository
         self._work_schedule_day_repository = work_schedule_day_repository
 
@@ -78,12 +76,10 @@ class AttendanceScheduleResolutionService:
         Resolve the effective schedule and weekday rule for an employee.
         """
 
-        assignment = (
-            self._employee_work_schedule_repository.get_effective_for_employee(
-                tenant_id=tenant_id,
-                employee_id=employee_id,
-                effective_date=attendance_date,
-            )
+        assignment = self._employee_work_schedule_repository.get_effective_for_employee(
+            tenant_id=tenant_id,
+            employee_id=employee_id,
+            effective_date=attendance_date,
         )
 
         if assignment is None:
@@ -99,12 +95,10 @@ class AttendanceScheduleResolutionService:
 
         day_of_week = attendance_date.isoweekday()
 
-        schedule_day = (
-            self._work_schedule_day_repository.get_by_schedule_and_day(
-                tenant_id=tenant_id,
-                work_schedule_id=assignment.work_schedule_id,
-                day_of_week=day_of_week,
-            )
+        schedule_day = self._work_schedule_day_repository.get_by_schedule_and_day(
+            tenant_id=tenant_id,
+            work_schedule_id=assignment.work_schedule_id,
+            day_of_week=day_of_week,
         )
 
         if schedule_day is None:

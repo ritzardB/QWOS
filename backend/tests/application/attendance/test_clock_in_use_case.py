@@ -130,45 +130,21 @@ def build_use_case(
     Construct the ClockInUseCase with mocked dependencies.
     """
 
-    employee_repository = (
-        employee_repository
-        or Mock()
-    )
+    employee_repository = employee_repository or Mock()
 
     attendance_record_repository = (
-        attendance_record_repository
-        or Mock()
+        attendance_record_repository or Mock()
     )
 
     attendance_event_repository = (
-        attendance_event_repository
-        or Mock()
+        attendance_event_repository or Mock()
     )
 
-    id_generator = (
-        id_generator
-        or Mock()
-    )
-
-    clock = (
-        clock
-        or Mock()
-    )
-
-    unit_of_work = (
-        unit_of_work
-        or build_unit_of_work()
-    )
-
-    validator = (
-        validator
-        or ClockInValidator()
-    )
-
-    request_context = (
-        request_context
-        or build_request_context()
-    )
+    id_generator = id_generator or Mock()
+    clock = clock or Mock()
+    unit_of_work = unit_of_work or build_unit_of_work()
+    validator = validator or ClockInValidator()
+    request_context = request_context or build_request_context()
 
     return ClockInUseCase(
         employee_repository=employee_repository,
@@ -392,9 +368,6 @@ async def test_clock_in_updates_existing_attendance_record_without_clock_in() ->
 
     assert saved_record is existing_record
 
-    # The current production use case reuses the existing record but
-    # does not explicitly assign clock_in_at. This assertion documents
-    # the intended domain behavior and will expose that gap.
     assert saved_record.clock_in_at == CLOCK_IN_AT
 
 

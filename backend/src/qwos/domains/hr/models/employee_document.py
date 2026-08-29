@@ -79,19 +79,13 @@ class EmployeeDocument(TenantEntity):
             r"[0-9a-f]{64}",
             normalized_checksum,
         ):
-            raise ValueError(
-                "checksum_sha256 must be a valid SHA-256 hexadecimal value."
-            )
+            raise ValueError("checksum_sha256 must be a valid SHA-256 hexadecimal value.")
 
         if file_size_bytes <= 0:
-            raise ValueError(
-                "file_size_bytes must be greater than zero."
-            )
+            raise ValueError("file_size_bytes must be greater than zero.")
 
         if document_version <= 0:
-            raise ValueError(
-                "document_version must be greater than zero."
-            )
+            raise ValueError("document_version must be greater than zero.")
 
         return cls(
             id=id,
@@ -99,21 +93,11 @@ class EmployeeDocument(TenantEntity):
             employee_id=employee_id,
             immigration_id=immigration_id,
             document_name=document_name.strip(),
-            document_category=(
-                document_category.strip().lower()
-            ),
+            document_category=(document_category.strip().lower()),
             original_filename=original_filename.strip(),
             stored_filename=stored_filename.strip(),
-            mime_type=(
-                mime_type.strip().lower()
-                if mime_type
-                else None
-            ),
-            file_extension=(
-                file_extension.strip().lower().lstrip(".")
-                if file_extension
-                else None
-            ),
+            mime_type=(mime_type.strip().lower() if mime_type else None),
+            file_extension=(file_extension.strip().lower().lstrip(".") if file_extension else None),
             file_size_bytes=file_size_bytes,
             storage_provider=storage_provider.strip().lower(),
             storage_key=storage_key.strip(),

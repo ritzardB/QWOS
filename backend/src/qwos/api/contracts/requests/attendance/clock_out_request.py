@@ -7,10 +7,10 @@ API Layer
 Attendance Module
 
 File:
-    clock_in_request.py
+    clock_out_request.py
 
 Description:
-    Request contract for clocking in an employee.
+    Request contract for clocking out an employee.
 
 Author:
     Richard Balabarcon
@@ -26,9 +26,9 @@ from pydantic import Field
 from qwos.api.contracts.requests.common.base_request import BaseRequest
 
 
-class ClockInRequest(BaseRequest):
+class ClockOutRequest(BaseRequest):
     """
-    Request for clocking in an employee.
+    Request for clocking out an employee.
     """
 
     employee_id: str = Field(
@@ -36,7 +36,7 @@ class ClockInRequest(BaseRequest):
         max_length=26,
     )
 
-    clock_in_at: datetime | None = None
+    clock_out_at: datetime | None = None
 
     event_source: str = Field(
         default="web",

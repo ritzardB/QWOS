@@ -51,12 +51,9 @@ class SQLAlchemyDocumentDefinitionRepository(
         Retrieve a document definition by ID.
         """
 
-        statement = (
-            select(DocumentDefinition)
-            .where(
-                DocumentDefinition.id == definition_id,
-                DocumentDefinition.deleted_at.is_(None),
-            )
+        statement = select(DocumentDefinition).where(
+            DocumentDefinition.id == definition_id,
+            DocumentDefinition.deleted_at.is_(None),
         )
 
         return self._session.scalar(statement)
@@ -88,14 +85,12 @@ class SQLAlchemyDocumentDefinitionRepository(
 
         if country_code is not None:
             conditions.append(
-                DocumentDefinition.country_code
-                == country_code.strip().upper(),
+                DocumentDefinition.country_code == country_code.strip().upper(),
             )
 
         if document_family is not None:
             conditions.append(
-                DocumentDefinition.document_family
-                == document_family.strip().lower(),
+                DocumentDefinition.document_family == document_family.strip().lower(),
             )
 
         statement = (
@@ -129,25 +124,17 @@ class SQLAlchemyDocumentDefinitionRepository(
             3. Global + Generic
         """
 
-        normalized_family = (
-            document_family.strip().lower()
-        )
+        normalized_family = document_family.strip().lower()
 
-        normalized_country = (
-            country_code.strip().upper()
-            if country_code
-            else None
-        )
+        normalized_country = country_code.strip().upper() if country_code else None
 
         if tenant_id is not None:
             statement = (
                 select(DocumentDefinition)
                 .where(
                     DocumentDefinition.tenant_id == tenant_id,
-                    DocumentDefinition.country_code
-                    == normalized_country,
-                    DocumentDefinition.document_family
-                    == normalized_family,
+                    DocumentDefinition.country_code == normalized_country,
+                    DocumentDefinition.document_family == normalized_family,
                     DocumentDefinition.is_active.is_(True),
                     DocumentDefinition.deleted_at.is_(None),
                 )
@@ -166,10 +153,8 @@ class SQLAlchemyDocumentDefinitionRepository(
                 select(DocumentDefinition)
                 .where(
                     DocumentDefinition.tenant_id.is_(None),
-                    DocumentDefinition.country_code
-                    == normalized_country,
-                    DocumentDefinition.document_family
-                    == normalized_family,
+                    DocumentDefinition.country_code == normalized_country,
+                    DocumentDefinition.document_family == normalized_family,
                     DocumentDefinition.is_active.is_(True),
                     DocumentDefinition.deleted_at.is_(None),
                 )
@@ -188,8 +173,7 @@ class SQLAlchemyDocumentDefinitionRepository(
             .where(
                 DocumentDefinition.tenant_id.is_(None),
                 DocumentDefinition.country_code.is_(None),
-                DocumentDefinition.document_family
-                == normalized_family,
+                DocumentDefinition.document_family == normalized_family,
                 DocumentDefinition.is_active.is_(True),
                 DocumentDefinition.deleted_at.is_(None),
             )

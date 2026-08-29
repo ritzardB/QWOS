@@ -284,6 +284,7 @@ def get_employee_document_repository(
     """
     return SQLAlchemyEmployeeDocumentRepository(session)
 
+
 def get_document_definition_field_repository(
     session: Session = Depends(get_session),
 ) -> DocumentDefinitionFieldRepository:
@@ -306,6 +307,7 @@ def get_document_extraction_result_repository(
     return SQLAlchemyDocumentExtractionResultRepository(
         session,
     )
+
 
 # -------------------------------------------------------------------------
 # HR Infrastructure Providers
@@ -347,8 +349,7 @@ def get_document_storage() -> DocumentStorage:
 
     if settings.DOCUMENT_STORAGE_PROVIDER != "local":
         raise RuntimeError(
-            "Unsupported document storage provider: "
-            f"{settings.DOCUMENT_STORAGE_PROVIDER}",
+            f"Unsupported document storage provider: {settings.DOCUMENT_STORAGE_PROVIDER}",
         )
 
     return LocalDocumentStorage(
@@ -375,12 +376,12 @@ def get_create_employee_profile_validator() -> CreateEmployeeProfileValidator:
     return CreateEmployeeProfileValidator()
 
 
-def get_create_employee_reporting_relationship_validator(
-) -> CreateEmployeeReportingRelationshipValidator:
+def get_create_employee_reporting_relationship_validator() -> CreateEmployeeReportingRelationshipValidator:
     """
     Return CreateEmployeeReportingRelationshipValidator.
     """
     return CreateEmployeeReportingRelationshipValidator()
+
 
 def get_document_intelligence() -> DocumentIntelligence:
     """
@@ -395,15 +396,16 @@ def get_document_intelligence() -> DocumentIntelligence:
     """
 
     return DocumentIntelligenceRouter(
-    implementations={
-        "passport": PassportDocumentIntelligence(
-            ocr=PaddleDocumentOCR(),
-        ),
-        "national id": NationalIdDocumentIntelligence(
-            ocr=PaddleDocumentOCR(),
-        ),
-    },
-)
+        implementations={
+            "passport": PassportDocumentIntelligence(
+                ocr=PaddleDocumentOCR(),
+            ),
+            "national id": NationalIdDocumentIntelligence(
+                ocr=PaddleDocumentOCR(),
+            ),
+        },
+    )
+
 
 # -------------------------------------------------------------------------
 # Employee Use Case Providers
@@ -781,6 +783,7 @@ def get_list_employee_documents_use_case(
         request_context=request_context,
     )
 
+
 def get_get_employee_document_content_use_case(
     employee_document_repository: EmployeeDocumentRepository = Depends(
         get_employee_document_repository,
@@ -802,6 +805,7 @@ def get_get_employee_document_content_use_case(
         request_context=request_context,
     )
 
+
 def get_document_definition_repository(
     session: Session = Depends(get_session),
 ) -> DocumentDefinitionRepository:
@@ -809,6 +813,7 @@ def get_document_definition_repository(
     Return DocumentDefinition repository.
     """
     return SQLAlchemyDocumentDefinitionRepository(session)
+
 
 def get_extract_employee_document_use_case(
     employee_document_repository: EmployeeDocumentRepository = Depends(
@@ -842,18 +847,15 @@ def get_extract_employee_document_use_case(
     return ExtractEmployeeDocumentUseCase(
         employee_document_repository=employee_document_repository,
         document_definition_repository=document_definition_repository,
-        document_definition_field_repository=(
-            document_definition_field_repository
-        ),
-        document_extraction_result_repository=(
-            document_extraction_result_repository
-        ),
+        document_definition_field_repository=(document_definition_field_repository),
+        document_extraction_result_repository=(document_extraction_result_repository),
         authorization_service=authorization_service,
         document_storage=document_storage,
         document_intelligence=document_intelligence,
         id_generator=id_generator,
         unit_of_work=unit_of_work,
     )
+
 
 def get_approve_employee_document_extraction_use_case(
     employee_document_repository: EmployeeDocumentRepository = Depends(
@@ -887,20 +889,15 @@ def get_approve_employee_document_extraction_use_case(
 
     return ApproveEmployeeDocumentExtractionUseCase(
         employee_document_repository=employee_document_repository,
-        document_definition_field_repository=(
-            document_definition_field_repository
-        ),
-        document_extraction_result_repository=(
-            document_extraction_result_repository
-        ),
+        document_definition_field_repository=(document_definition_field_repository),
+        document_extraction_result_repository=(document_extraction_result_repository),
         employee_profile_repository=employee_profile_repository,
-        employee_immigration_repository=(
-            employee_immigration_repository
-        ),
+        employee_immigration_repository=(employee_immigration_repository),
         authorization_service=authorization_service,
         unit_of_work=unit_of_work,
         request_context=request_context,
     )
+
 
 def get_document_definition_field_repository(
     session: Session = Depends(get_session),

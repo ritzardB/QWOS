@@ -42,13 +42,9 @@ class CreateEmployeeValidator:
     Validator for CreateEmployeeCommand.
     """
 
-    EMAIL_PATTERN = re.compile(
-        r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
-    )
+    EMAIL_PATTERN = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
 
-    IDENTIFIER_PATTERN = re.compile(
-        r"^[a-z][a-z0-9_]{1,49}$"
-    )
+    IDENTIFIER_PATTERN = re.compile(r"^[a-z][a-z0-9_]{1,49}$")
 
     def validate(
         self,
@@ -97,9 +93,7 @@ class CreateEmployeeValidator:
                 )
             )
 
-        elif not self.IDENTIFIER_PATTERN.fullmatch(
-            command.employment_status
-        ):
+        elif not self.IDENTIFIER_PATTERN.fullmatch(command.employment_status):
             errors.append(
                 ValidationError(
                     field="employment_status",
@@ -119,9 +113,7 @@ class CreateEmployeeValidator:
                 )
             )
 
-        elif not self.IDENTIFIER_PATTERN.fullmatch(
-            command.employment_type
-        ):
+        elif not self.IDENTIFIER_PATTERN.fullmatch(command.employment_type):
             errors.append(
                 ValidationError(
                     field="employment_type",
@@ -142,9 +134,7 @@ class CreateEmployeeValidator:
                     )
                 )
 
-            elif not self.EMAIL_PATTERN.fullmatch(
-                command.work_email
-            ):
+            elif not self.EMAIL_PATTERN.fullmatch(command.work_email):
                 errors.append(
                     ValidationError(
                         field="work_email",

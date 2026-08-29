@@ -40,10 +40,7 @@ class DocumentIntelligenceRouter:
             DocumentIntelligence,
         ],
     ) -> None:
-        self._implementations = {
-            key.strip().lower(): implementation
-            for key, implementation in implementations.items()
-        }
+        self._implementations = {key.strip().lower(): implementation for key, implementation in implementations.items()}
 
     def _resolve(
         self,
@@ -62,8 +59,7 @@ class DocumentIntelligenceRouter:
 
         if implementation is None:
             raise ValueError(
-                "No document intelligence implementation is registered "
-                f"for document family '{normalized_family}'.",
+                f"No document intelligence implementation is registered for document family '{normalized_family}'.",
             )
 
         return implementation

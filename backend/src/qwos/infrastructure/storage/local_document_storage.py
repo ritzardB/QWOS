@@ -41,11 +41,7 @@ class LocalDocumentStorage(DocumentStorage):
         *,
         root_path: str | Path,
     ) -> None:
-        self._root_path = (
-            Path(root_path)
-            .expanduser()
-            .resolve()
-        )
+        self._root_path = Path(root_path).expanduser().resolve()
 
         self._root_path.mkdir(
             parents=True,
@@ -69,25 +65,20 @@ class LocalDocumentStorage(DocumentStorage):
                 "Document content cannot be empty.",
             )
 
-        normalized_key = (
-            storage_key.strip().lstrip("/")
-        )
+        normalized_key = storage_key.strip().lstrip("/")
 
         if not normalized_key:
             raise ValueError(
                 "storage_key is required.",
             )
 
-        target_path = (
-            self._root_path / normalized_key
-        ).resolve()
+        target_path = (self._root_path / normalized_key).resolve()
 
         if not self._is_within_root(
             target_path,
         ):
             raise ValueError(
-                "storage_key resolves outside "
-                "the document storage root.",
+                "storage_key resolves outside the document storage root.",
             )
 
         target_path.parent.mkdir(
@@ -119,31 +110,25 @@ class LocalDocumentStorage(DocumentStorage):
         local filesystem.
         """
 
-        normalized_key = (
-            storage_key.strip().lstrip("/")
-        )
+        normalized_key = storage_key.strip().lstrip("/")
 
         if not normalized_key:
             raise ValueError(
                 "storage_key is required.",
             )
 
-        target_path = (
-            self._root_path / normalized_key
-        ).resolve()
+        target_path = (self._root_path / normalized_key).resolve()
 
         if not self._is_within_root(
             target_path,
         ):
             raise ValueError(
-                "storage_key resolves outside "
-                "the document storage root.",
+                "storage_key resolves outside the document storage root.",
             )
 
         if not target_path.is_file():
             raise FileNotFoundError(
-                f"Stored document not found: "
-                f"{normalized_key}",
+                f"Stored document not found: {normalized_key}",
             )
 
         content = target_path.read_bytes()
@@ -163,25 +148,20 @@ class LocalDocumentStorage(DocumentStorage):
         Delete a stored document.
         """
 
-        normalized_key = (
-            storage_key.strip().lstrip("/")
-        )
+        normalized_key = storage_key.strip().lstrip("/")
 
         if not normalized_key:
             raise ValueError(
                 "storage_key is required.",
             )
 
-        target_path = (
-            self._root_path / normalized_key
-        ).resolve()
+        target_path = (self._root_path / normalized_key).resolve()
 
         if not self._is_within_root(
             target_path,
         ):
             raise ValueError(
-                "storage_key resolves outside "
-                "the document storage root.",
+                "storage_key resolves outside the document storage root.",
             )
 
         if target_path.exists():

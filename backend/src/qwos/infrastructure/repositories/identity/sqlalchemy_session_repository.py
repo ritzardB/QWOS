@@ -80,11 +80,7 @@ class SQLAlchemySessionRepository(
         Retrieve all sessions belonging to a user.
         """
 
-        stmt = (
-            select(Session)
-            .where(Session.user_id == user_id)
-            .order_by(Session.signed_in_at.desc())
-        )
+        stmt = select(Session).where(Session.user_id == user_id).order_by(Session.signed_in_at.desc())
 
         return list(self._session.scalars(stmt).all())
 

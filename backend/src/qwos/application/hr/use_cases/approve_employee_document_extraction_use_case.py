@@ -91,36 +91,20 @@ class ApproveEmployeeDocumentExtractionUseCase:
         self,
         *,
         employee_document_repository: EmployeeDocumentRepository,
-        document_definition_field_repository: (
-            DocumentDefinitionFieldRepository
-        ),
-        document_extraction_result_repository: (
-            DocumentExtractionResultRepository
-        ),
+        document_definition_field_repository: (DocumentDefinitionFieldRepository),
+        document_extraction_result_repository: (DocumentExtractionResultRepository),
         employee_profile_repository: EmployeeProfileRepository,
         employee_immigration_repository: EmployeeImmigrationRepository,
         authorization_service: AuthorizationService,
         unit_of_work: UnitOfWork,
         request_context,
     ) -> None:
-        self._employee_document_repository = (
-            employee_document_repository
-        )
-        self._document_definition_field_repository = (
-            document_definition_field_repository
-        )
-        self._document_extraction_result_repository = (
-            document_extraction_result_repository
-        )
-        self._employee_profile_repository = (
-            employee_profile_repository
-        )
-        self._employee_immigration_repository = (
-            employee_immigration_repository
-        )
-        self._authorization_service = (
-            authorization_service
-        )
+        self._employee_document_repository = employee_document_repository
+        self._document_definition_field_repository = document_definition_field_repository
+        self._document_extraction_result_repository = document_extraction_result_repository
+        self._employee_profile_repository = employee_profile_repository
+        self._employee_immigration_repository = employee_immigration_repository
+        self._authorization_service = authorization_service
         self._unit_of_work = unit_of_work
         self._request_context = request_context
 
@@ -147,20 +131,15 @@ class ApproveEmployeeDocumentExtractionUseCase:
 
         if not allowed:
             raise ForbiddenException(
-                message=(
-                    "User is not authorized to approve "
-                    "employee document extraction."
-                ),
+                message=("User is not authorized to approve employee document extraction."),
             )
 
         # ------------------------------------------------------------------
         # Load document
         # ------------------------------------------------------------------
 
-        document = (
-            self._employee_document_repository.get_by_id(
-                command.document_id,
-            )
+        document = self._employee_document_repository.get_by_id(
+            command.document_id,
         )
 
         if document is None:
@@ -191,17 +170,12 @@ class ApproveEmployeeDocumentExtractionUseCase:
         # Preload document extraction evidence
         # ------------------------------------------------------------------
 
-        extraction_results = (
-            self._document_extraction_result_repository.list_by_document_id(
-                tenant_id=tenant_id,
-                employee_document_id=document.id,
-            )
+        extraction_results = self._document_extraction_result_repository.list_by_document_id(
+            tenant_id=tenant_id,
+            employee_document_id=document.id,
         )
 
-        extraction_by_id = {
-            result.id: result
-            for result in extraction_results
-        }
+        extraction_by_id = {result.id: result for result in extraction_results}
 
         # ------------------------------------------------------------------
         # Load profile / immigration targets lazily
@@ -210,9 +184,7 @@ class ApproveEmployeeDocumentExtractionUseCase:
         profile = None
         immigration = None
 
-        approved_fields: list[
-            ApprovedEmployeeDocumentField
-        ] = []
+        approved_fields: list[ApprovedEmployeeDocumentField] = []
 
         profile_updates: dict[str, object | None] = {}
         immigration_updates: dict[
@@ -241,10 +213,8 @@ class ApproveEmployeeDocumentExtractionUseCase:
                     identifier=approved.extraction_result_id,
                 )
 
-            field = (
-                self._document_definition_field_repository.get_by_id(
-                    result.document_definition_field_id,
-                )
+            field = self._document_definition_field_repository.get_by_id(
+                result.document_definition_field_id,
             )
 
             if field is None:
@@ -260,17 +230,12 @@ class ApproveEmployeeDocumentExtractionUseCase:
 
             if not field.is_hr_updateable:
                 raise ValueError(
-                    f"Document field '{field.field_code}' "
-                    "is not configured for HR updates.",
+                    f"Document field '{field.field_code}' is not configured for HR updates.",
                 )
 
-            if (
-                not field.target_entity
-                or not field.target_field
-            ):
+            if not field.target_entity or not field.target_field:
                 raise ValueError(
-                    f"Document field '{field.field_code}' "
-                    "has no valid HR target mapping.",
+                    f"Document field '{field.field_code}' has no valid HR target mapping.",
                 )
 
             target_entity = field.target_entity.strip().lower()
@@ -283,17 +248,13 @@ class ApproveEmployeeDocumentExtractionUseCase:
             if target_entity == "employee_profile":
                 if target_field not in self.SUPPORTED_PROFILE_FIELDS:
                     raise ValueError(
-                        f"Unsupported employee profile target "
-                        f"'{target_field}'.",
+                        f"Unsupported employee profile target '{target_field}'.",
                     )
 
                 if profile is None:
-                    profile = (
-                        self._employee_profile_repository
-                        .get_by_employee_id(
-                            tenant_id=tenant_id,
-                            employee_id=command.employee_id,
-                        )
+                    profile = self._employee_profile_repository.get_by_employee_id(
+                        tenant_id=tenant_id,
+                        employee_id=command.employee_id,
                     )
 
                     if profile is None:
@@ -302,9 +263,7 @@ class ApproveEmployeeDocumentExtractionUseCase:
                             identifier=command.employee_id,
                         )
 
-                profile_updates[
-                    target_field
-                ] = self._normalize_profile_value(
+                profile_updates[target_field] = self._normalize_profile_value(
                     target_field=target_field,
                     value=approved.value,
                 )
@@ -316,8 +275,7 @@ class ApproveEmployeeDocumentExtractionUseCase:
             elif target_entity == "employee_immigration":
                 if target_field not in self.SUPPORTED_IMMIGRATION_FIELDS:
                     raise ValueError(
-                        f"Unsupported employee immigration target "
-                        f"'{target_field}'.",
+                        f"Unsupported employee immigration target '{target_field}'.",
                     )
 
                 if document.immigration_id is None:
@@ -326,11 +284,8 @@ class ApproveEmployeeDocumentExtractionUseCase:
                     )
 
                 if immigration is None:
-                    immigration = (
-                        self._employee_immigration_repository
-                        .get_by_id(
-                            document.immigration_id,
-                        )
+                    immigration = self._employee_immigration_repository.get_by_id(
+                        document.immigration_id,
                     )
 
                     if immigration is None:
@@ -351,17 +306,14 @@ class ApproveEmployeeDocumentExtractionUseCase:
                             identifier=document.immigration_id,
                         )
 
-                immigration_updates[
-                    target_field
-                ] = self._normalize_immigration_value(
+                immigration_updates[target_field] = self._normalize_immigration_value(
                     target_field=target_field,
                     value=approved.value,
                 )
 
             else:
                 raise ValueError(
-                    f"Unsupported HR target entity "
-                    f"'{target_entity}'.",
+                    f"Unsupported HR target entity '{target_entity}'.",
                 )
 
             approved_fields.append(
@@ -395,32 +347,28 @@ class ApproveEmployeeDocumentExtractionUseCase:
                         immigration_updates.get(
                             "document_number",
                         )
-                        if "document_number"
-                        in immigration_updates
+                        if "document_number" in immigration_updates
                         else immigration.document_number
                     ),
                     issuing_authority=(
                         immigration_updates.get(
                             "issuing_authority",
                         )
-                        if "issuing_authority"
-                        in immigration_updates
+                        if "issuing_authority" in immigration_updates
                         else immigration.issuing_authority
                     ),
                     issue_date=(
                         immigration_updates.get(
                             "issue_date",
                         )
-                        if "issue_date"
-                        in immigration_updates
+                        if "issue_date" in immigration_updates
                         else immigration.issue_date
                     ),
                     expiry_date=(
                         immigration_updates.get(
                             "expiry_date",
                         )
-                        if "expiry_date"
-                        in immigration_updates
+                        if "expiry_date" in immigration_updates
                         else immigration.expiry_date
                     ),
                     updated_by=user_id,

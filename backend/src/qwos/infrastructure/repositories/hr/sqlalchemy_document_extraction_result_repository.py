@@ -51,12 +51,9 @@ class SQLAlchemyDocumentExtractionResultRepository(
         Retrieve an extraction result by identifier.
         """
 
-        statement = (
-            select(DocumentExtractionResult)
-            .where(
-                DocumentExtractionResult.id == result_id,
-                DocumentExtractionResult.deleted_at.is_(None),
-            )
+        statement = select(DocumentExtractionResult).where(
+            DocumentExtractionResult.id == result_id,
+            DocumentExtractionResult.deleted_at.is_(None),
         )
 
         return self._session.scalar(statement)
@@ -84,10 +81,8 @@ class SQLAlchemyDocumentExtractionResultRepository(
         statement = (
             select(DocumentExtractionResult)
             .where(
-                DocumentExtractionResult.tenant_id
-                == tenant_id,
-                DocumentExtractionResult.employee_document_id
-                == employee_document_id,
+                DocumentExtractionResult.tenant_id == tenant_id,
+                DocumentExtractionResult.employee_document_id == employee_document_id,
                 DocumentExtractionResult.deleted_at.is_(None),
             )
             .order_by(
@@ -113,10 +108,8 @@ class SQLAlchemyDocumentExtractionResultRepository(
         statement = (
             select(DocumentExtractionResult)
             .where(
-                DocumentExtractionResult.tenant_id
-                == tenant_id,
-                DocumentExtractionResult.document_definition_field_id
-                == document_definition_field_id,
+                DocumentExtractionResult.tenant_id == tenant_id,
+                DocumentExtractionResult.document_definition_field_id == document_definition_field_id,
                 DocumentExtractionResult.deleted_at.is_(None),
             )
             .order_by(

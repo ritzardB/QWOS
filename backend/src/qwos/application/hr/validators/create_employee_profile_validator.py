@@ -33,13 +33,9 @@ class CreateEmployeeProfileValidator:
     Validator for CreateEmployeeProfileCommand.
     """
 
-    EMAIL_PATTERN = re.compile(
-        r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
-    )
+    EMAIL_PATTERN = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
 
-    COUNTRY_CODE_PATTERN = re.compile(
-        r"^[A-Za-z]{2}$"
-    )
+    COUNTRY_CODE_PATTERN = re.compile(r"^[A-Za-z]{2}$")
 
     def validate(
         self,
@@ -88,9 +84,7 @@ class CreateEmployeeProfileValidator:
                     )
                 )
 
-            elif not self.EMAIL_PATTERN.fullmatch(
-                command.personal_email
-            ):
+            elif not self.EMAIL_PATTERN.fullmatch(command.personal_email):
                 errors.append(
                     ValidationError(
                         field="personal_email",
@@ -113,9 +107,7 @@ class CreateEmployeeProfileValidator:
                     )
                 )
 
-            elif not self.COUNTRY_CODE_PATTERN.fullmatch(
-                country_code
-            ):
+            elif not self.COUNTRY_CODE_PATTERN.fullmatch(country_code):
                 errors.append(
                     ValidationError(
                         field="country_code",
@@ -161,10 +153,7 @@ class CreateEmployeeProfileValidator:
                 errors.append(
                     ValidationError(
                         field="emergency_contact_phone",
-                        message=(
-                            "Emergency contact phone cannot exceed 30 "
-                            "characters."
-                        ),
+                        message=("Emergency contact phone cannot exceed 30 characters."),
                     )
                 )
 

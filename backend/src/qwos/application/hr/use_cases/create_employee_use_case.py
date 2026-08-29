@@ -118,9 +118,7 @@ class CreateEmployeeUseCase:
                 )
 
             if user.tenant_id != command.tenant_id:
-                raise ValueError(
-                    "User does not belong to the requested tenant."
-                )
+                raise ValueError("User does not belong to the requested tenant.")
 
             if self._employee_repository.exists_by_user_id(
                 tenant_id=command.tenant_id,

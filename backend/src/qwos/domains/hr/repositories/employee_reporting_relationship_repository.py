@@ -25,35 +25,30 @@ class EmployeeReportingRelationshipRepository(Protocol):
     def get_by_id(
         self,
         relationship_id: str,
-    ) -> EmployeeReportingRelationship | None:
-        ...
+    ) -> EmployeeReportingRelationship | None: ...
 
     def save(
         self,
         relationship: EmployeeReportingRelationship,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     def get_active_primary_manager(
         self,
         *,
         tenant_id: str,
         employee_id: str,
-    ) -> EmployeeReportingRelationship | None:
-        ...
+    ) -> EmployeeReportingRelationship | None: ...
 
     def exists_active_primary_manager(
         self,
         *,
         tenant_id: str,
         employee_id: str,
-    ) -> bool:
-        ...
+    ) -> bool: ...
 
     def get_active_reports(
         self,
         *,
         tenant_id: str,
         manager_employee_id: str,
-    ) -> list[EmployeeReportingRelationship]:
-        ...
+    ) -> list[EmployeeReportingRelationship]: ...

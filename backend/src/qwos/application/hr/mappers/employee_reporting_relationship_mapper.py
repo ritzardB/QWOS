@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-from qwos.api.contracts.responses.hr.get_employee_manager_response import (
-    GetEmployeeManagerResponse,
-)
-
 from qwos.api.contracts.requests.hr.create_employee_reporting_relationship_request import (
     CreateEmployeeReportingRelationshipRequest,
 )
 from qwos.api.contracts.responses.hr.create_employee_reporting_relationship_response import (
     CreateEmployeeReportingRelationshipResponse,
+)
+from qwos.api.contracts.responses.hr.get_employee_manager_response import (
+    GetEmployeeManagerResponse,
 )
 from qwos.application.common.context.request_context import RequestContext
 from qwos.application.hr.commands.create_employee_reporting_relationship_command import (

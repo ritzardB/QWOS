@@ -74,76 +74,22 @@ class EmployeeProfile(TenantEntity):
             tenant_id=tenant_id,
             employee_id=employee_id,
             date_of_birth=date_of_birth,
-            gender=(
-                gender.strip().lower()
-                if gender
-                else None
-            ),
-            nationality=(
-                nationality.strip().lower()
-                if nationality
-                else None
-            ),
-            marital_status=(
-                marital_status.strip().lower()
-                if marital_status
-                else None
-            ),
-            personal_email=(
-                personal_email.strip().lower()
-                if personal_email
-                else None
-            ),
-            personal_phone=(
-                personal_phone.strip()
-                if personal_phone
-                else None
-            ),
-            address_line_1=(
-                address_line_1.strip()
-                if address_line_1
-                else None
-            ),
-            address_line_2=(
-                address_line_2.strip()
-                if address_line_2
-                else None
-            ),
-            city=(
-                city.strip()
-                if city
-                else None
-            ),
-            state_province=(
-                state_province.strip()
-                if state_province
-                else None
-            ),
-            postal_code=(
-                postal_code.strip()
-                if postal_code
-                else None
-            ),
-            country_code=(
-                country_code.strip().upper()
-                if country_code
-                else None
-            ),
-            emergency_contact_name=(
-                emergency_contact_name.strip()
-                if emergency_contact_name
-                else None
-            ),
+            gender=(gender.strip().lower() if gender else None),
+            nationality=(nationality.strip().lower() if nationality else None),
+            marital_status=(marital_status.strip().lower() if marital_status else None),
+            personal_email=(personal_email.strip().lower() if personal_email else None),
+            personal_phone=(personal_phone.strip() if personal_phone else None),
+            address_line_1=(address_line_1.strip() if address_line_1 else None),
+            address_line_2=(address_line_2.strip() if address_line_2 else None),
+            city=(city.strip() if city else None),
+            state_province=(state_province.strip() if state_province else None),
+            postal_code=(postal_code.strip() if postal_code else None),
+            country_code=(country_code.strip().upper() if country_code else None),
+            emergency_contact_name=(emergency_contact_name.strip() if emergency_contact_name else None),
             emergency_contact_relationship=(
-                emergency_contact_relationship.strip().lower()
-                if emergency_contact_relationship
-                else None
+                emergency_contact_relationship.strip().lower() if emergency_contact_relationship else None
             ),
-            emergency_contact_phone=(
-                emergency_contact_phone.strip()
-                if emergency_contact_phone
-                else None
-            ),
+            emergency_contact_phone=(emergency_contact_phone.strip() if emergency_contact_phone else None),
             created_by=created_by,
             updated_by=created_by,
         )
@@ -177,78 +123,24 @@ class EmployeeProfile(TenantEntity):
         """
 
         self.date_of_birth = date_of_birth
-        self.gender = (
-            gender.strip().lower()
-            if gender
-            else None
-        )
-        self.nationality = (
-            nationality.strip().lower()
-            if nationality
-            else None
-        )
-        self.marital_status = (
-            marital_status.strip().lower()
-            if marital_status
-            else None
-        )
-        self.personal_email = (
-            personal_email.strip().lower()
-            if personal_email
-            else None
-        )
-        self.personal_phone = (
-            personal_phone.strip()
-            if personal_phone
-            else None
-        )
-        self.address_line_1 = (
-            address_line_1.strip()
-            if address_line_1
-            else None
-        )
-        self.address_line_2 = (
-            address_line_2.strip()
-            if address_line_2
-            else None
-        )
-        self.city = (
-            city.strip()
-            if city
-            else None
-        )
-        self.state_province = (
-            state_province.strip()
-            if state_province
-            else None
-        )
-        self.postal_code = (
-            postal_code.strip()
-            if postal_code
-            else None
-        )
-        self.country_code = (
-            country_code.strip().upper()
-            if country_code
-            else None
-        )
-        self.emergency_contact_name = (
-            emergency_contact_name.strip()
-            if emergency_contact_name
-            else None
-        )
+        self.gender = gender.strip().lower() if gender else None
+        self.nationality = nationality.strip().lower() if nationality else None
+        self.marital_status = marital_status.strip().lower() if marital_status else None
+        self.personal_email = personal_email.strip().lower() if personal_email else None
+        self.personal_phone = personal_phone.strip() if personal_phone else None
+        self.address_line_1 = address_line_1.strip() if address_line_1 else None
+        self.address_line_2 = address_line_2.strip() if address_line_2 else None
+        self.city = city.strip() if city else None
+        self.state_province = state_province.strip() if state_province else None
+        self.postal_code = postal_code.strip() if postal_code else None
+        self.country_code = country_code.strip().upper() if country_code else None
+        self.emergency_contact_name = emergency_contact_name.strip() if emergency_contact_name else None
         self.emergency_contact_relationship = (
-            emergency_contact_relationship.strip().lower()
-            if emergency_contact_relationship
-            else None
+            emergency_contact_relationship.strip().lower() if emergency_contact_relationship else None
         )
-        self.emergency_contact_phone = (
-            emergency_contact_phone.strip()
-            if emergency_contact_phone
-            else None
-        )
+        self.emergency_contact_phone = emergency_contact_phone.strip() if emergency_contact_phone else None
         self.updated_by = updated_by
-        
+
     # -------------------------------------------------------------------------
     # Ownership
     # -------------------------------------------------------------------------

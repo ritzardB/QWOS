@@ -65,9 +65,4 @@ class AttendanceTimeSegment:
         Return whether any premium-related classification applies.
         """
 
-        return (
-            self.is_holiday
-            or self.is_rest_day
-            or self.is_night_differential
-            or self.is_overtime
-        )
+        return self.is_holiday or self.is_rest_day or self.is_night_differential or self.is_overtime

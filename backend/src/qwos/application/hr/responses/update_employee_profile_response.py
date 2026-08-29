@@ -64,8 +64,6 @@ class UpdateEmployeeProfileResponse:
         self.postal_code = postal_code
         self.country_code = country_code
         self.emergency_contact_name = emergency_contact_name
-        self.emergency_contact_relationship = (
-            emergency_contact_relationship
-        )
+        self.emergency_contact_relationship = emergency_contact_relationship
         self.emergency_contact_phone = emergency_contact_phone
         self.created_at = created_at

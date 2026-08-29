@@ -59,11 +59,7 @@ class AttendanceBusinessRulesValidator:
         Validate the resolved attendance policy context.
         """
 
-        requirement = (
-            context.attendance_requirement
-            .strip()
-            .lower()
-        )
+        requirement = context.attendance_requirement.strip().lower()
 
         if requirement not in cls.VALID_REQUIREMENTS:
             raise AttendanceBusinessRuleError(

@@ -126,6 +126,7 @@ def get_unit_of_work(
 # Context Providers
 # -------------------------------------------------------------------------
 
+
 def get_request_context() -> RequestContext:
     """
     Return the current request context.

@@ -81,11 +81,7 @@ class AttendancePremiumCalculation:
                 "premium_amount cannot be negative.",
             )
 
-        if (
-            self.calculation_type
-            == AttendancePremiumCalculationType.PERCENTAGE
-            and self.rule_value > Decimal("100")
-        ):
+        if self.calculation_type == AttendancePremiumCalculationType.PERCENTAGE and self.rule_value > Decimal("100"):
             raise ValueError(
                 "percentage rule_value cannot exceed 100.",
             )
@@ -96,10 +92,7 @@ class AttendancePremiumCalculation:
         Return whether the calculation uses percentage treatment.
         """
 
-        return (
-            self.calculation_type
-            == AttendancePremiumCalculationType.PERCENTAGE
-        )
+        return self.calculation_type == AttendancePremiumCalculationType.PERCENTAGE
 
     @property
     def is_multiplier(self) -> bool:
@@ -107,10 +100,7 @@ class AttendancePremiumCalculation:
         Return whether the calculation uses multiplier treatment.
         """
 
-        return (
-            self.calculation_type
-            == AttendancePremiumCalculationType.MULTIPLIER
-        )
+        return self.calculation_type == AttendancePremiumCalculationType.MULTIPLIER
 
     @property
     def total_amount(self) -> Decimal:

@@ -68,10 +68,7 @@ class SQLAlchemyEmployeeDocumentRepository(
         ]
 
         if document_category is not None:
-            conditions.append(
-                EmployeeDocument.document_category
-                == document_category.strip().lower()
-            )
+            conditions.append(EmployeeDocument.document_category == document_category.strip().lower())
 
         stmt = (
             select(EmployeeDocument)
@@ -83,9 +80,7 @@ class SQLAlchemyEmployeeDocumentRepository(
             )
         )
 
-        return list(
-            self._session.scalars(stmt).all()
-        )
+        return list(self._session.scalars(stmt).all())
 
     def list_by_immigration_id(
         self,
@@ -111,9 +106,7 @@ class SQLAlchemyEmployeeDocumentRepository(
             )
         )
 
-        return list(
-            self._session.scalars(stmt).all()
-        )
+        return list(self._session.scalars(stmt).all())
 
     def exists_by_storage_key(
         self,
@@ -149,8 +142,7 @@ class SQLAlchemyEmployeeDocumentRepository(
         conditions = [
             EmployeeDocument.tenant_id == tenant_id,
             EmployeeDocument.employee_id == employee_id,
-            EmployeeDocument.document_category
-            == document_category.strip().lower(),
+            EmployeeDocument.document_category == document_category.strip().lower(),
             EmployeeDocument.deleted_at.is_(None),
         ]
 
@@ -179,5 +171,3 @@ class SQLAlchemyEmployeeDocumentRepository(
             return 1
 
         return int(next_version)
-
-    

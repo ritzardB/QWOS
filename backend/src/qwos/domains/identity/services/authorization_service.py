@@ -53,7 +53,7 @@ class AuthorizationService(BaseService):
         permissions: PermissionRepository,
         user_roles: UserRoleRepository,
         role_permissions: RolePermissionRepository,
-        clock: Clock
+        clock: Clock,
     ) -> None:
         super().__init__()
 
@@ -158,11 +158,9 @@ class AuthorizationService(BaseService):
 
         normalized_code = permission_code.strip().upper()
 
-        effective_permissions = (
-            await self.get_effective_permissions(
-                tenant_id=tenant_id,
-                user_id=user_id,
-            )
+        effective_permissions = await self.get_effective_permissions(
+            tenant_id=tenant_id,
+            user_id=user_id,
         )
 
         return normalized_code in effective_permissions
@@ -180,10 +178,8 @@ class AuthorizationService(BaseService):
 
         now = self._clock.now()
 
-        role_assignments = (
-            self._user_roles.list_active_roles(
-                user_id=user_id,
-            )
+        role_assignments = self._user_roles.list_active_roles(
+            user_id=user_id,
         )
 
         permission_codes: set[str] = set()
@@ -206,16 +202,10 @@ class AuthorizationService(BaseService):
             if user_role.deleted_at is not None:
                 continue
 
-            if (
-                user_role.effective_from is not None
-                and user_role.effective_from > now
-            ):
+            if user_role.effective_from is not None and user_role.effective_from > now:
                 continue
 
-            if (
-                user_role.effective_until is not None
-                and user_role.effective_until < now
-            ):
+            if user_role.effective_until is not None and user_role.effective_until < now:
                 continue
 
             # -----------------------------------------------------------------
@@ -242,10 +232,8 @@ class AuthorizationService(BaseService):
             # Resolve role permissions
             # -----------------------------------------------------------------
 
-            role_permissions = (
-                self._role_permissions.list_active_permissions(
-                    role_id=role.id,
-                )
+            role_permissions = self._role_permissions.list_active_permissions(
+                role_id=role.id,
             )
 
             for role_permission in role_permissions:
@@ -266,16 +254,10 @@ class AuthorizationService(BaseService):
                 if role_permission.deleted_at is not None:
                     continue
 
-                if (
-                    role_permission.effective_from is not None
-                    and role_permission.effective_from > now
-                ):
+                if role_permission.effective_from is not None and role_permission.effective_from > now:
                     continue
 
-                if (
-                    role_permission.effective_until is not None
-                    and role_permission.effective_until < now
-                ):
+                if role_permission.effective_until is not None and role_permission.effective_until < now:
                     continue
 
                 # -------------------------------------------------------------
@@ -295,9 +277,7 @@ class AuthorizationService(BaseService):
                 if not permission.is_active:
                     continue
 
-                normalized_permission_code = (
-                    permission.code.strip().upper()
-                )
+                normalized_permission_code = permission.code.strip().upper()
 
                 permission_codes.add(
                     normalized_permission_code,

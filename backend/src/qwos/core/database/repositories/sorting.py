@@ -76,12 +76,11 @@ class Sort:
             raise ValueError("field must not be empty")
 
     def __repr__(self) -> str:
-        return f"Sort(field={self.field!r}, " f"direction={self.direction.value!r})"
+        return f"Sort(field={self.field!r}, direction={self.direction.value!r})"
 
 
 @dataclass(frozen=True, slots=True)
 class SortCollection:
-
     items: tuple[Sort, ...] = field(default_factory=tuple)
 
     @classmethod

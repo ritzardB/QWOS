@@ -65,12 +65,8 @@ class PassportDocumentIntelligence:
         parser: PassportMRZParser | None = None,
     ) -> None:
         self._ocr = ocr
-        self._detector = (
-            detector or PassportMRZDetector()
-        )
-        self._parser = (
-            parser or PassportMRZParser()
-        )
+        self._detector = detector or PassportMRZDetector()
+        self._parser = parser or PassportMRZParser()
 
     def _extract_mrz(
         self,
@@ -103,7 +99,7 @@ class PassportDocumentIntelligence:
         content: bytes,
         filename: str,
         mime_type: str | None = None,
-        document_family: str | None = None, 
+        document_family: str | None = None,
     ) -> DocumentClassification:
         """
         Classify a passport document.
@@ -130,14 +126,9 @@ class PassportDocumentIntelligence:
         Extract structured passport fields.
         """
 
-        if (
-            document_family is not None
-            and document_family.strip().lower()
-            != "passport"
-        ):
+        if document_family is not None and document_family.strip().lower() != "passport":
             raise ValueError(
-                "PassportDocumentIntelligence only supports "
-                "the passport document family.",
+                "PassportDocumentIntelligence only supports the passport document family.",
             )
 
         extraction = self._extract_mrz(
@@ -146,14 +137,9 @@ class PassportDocumentIntelligence:
             mime_type=mime_type,
         )
 
-        if (
-            country_code is not None
-            and extraction.classification.country_code
-            != country_code.strip().upper()
-        ):
+        if country_code is not None and extraction.classification.country_code != country_code.strip().upper():
             raise ValueError(
-                "Passport MRZ country does not match the requested "
-                "country code.",
+                "Passport MRZ country does not match the requested country code.",
             )
 
         return extraction

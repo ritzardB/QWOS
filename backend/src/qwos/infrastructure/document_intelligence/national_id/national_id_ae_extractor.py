@@ -112,11 +112,7 @@ class NationalIdAEExtractor:
                 country_code=self.COUNTRY_CODE,
                 confidence=ocr_result.confidence,
             ),
-            fields=tuple(
-                field
-                for field in fields
-                if field is not None
-            ),
+            fields=tuple(field for field in fields if field is not None),
         )
 
     def _extract_document_number(

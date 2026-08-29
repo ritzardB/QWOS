@@ -50,10 +50,7 @@ class ClockInValidator:
                 message="employee_id is required.",
             )
 
-        if (
-            command.clock_in_at is not None
-            and command.clock_in_at.tzinfo is None
-        ):
+        if command.clock_in_at is not None and command.clock_in_at.tzinfo is None:
             result.add_error(
                 field="clock_in_at",
                 message="clock_in_at must be timezone-aware.",

@@ -97,18 +97,8 @@ class SQLAlchemyUserRoleRepository(
                 UserRole.user_id == user_id,
                 UserRole.is_enabled.is_(True),
                 UserRole.deleted_at.is_(None),
-                (
-                    UserRole.effective_from.is_(None)
-                    | (
-                        UserRole.effective_from <= now
-                    )
-                ),
-                (
-                    UserRole.effective_until.is_(None)
-                    | (
-                        UserRole.effective_until >= now
-                    )
-                ),
+                (UserRole.effective_from.is_(None) | (UserRole.effective_from <= now)),
+                (UserRole.effective_until.is_(None) | (UserRole.effective_until >= now)),
             )
             .order_by(
                 UserRole.is_primary.desc(),
@@ -116,9 +106,7 @@ class SQLAlchemyUserRoleRepository(
             )
         )
 
-        return list(
-            self._session.scalars(stmt).all()
-        )
+        return list(self._session.scalars(stmt).all())
 
     def exists_assignment(
         self,

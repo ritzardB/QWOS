@@ -69,18 +69,14 @@ class CreateEmployeeWorkArrangementUseCase:
         self,
         *,
         employee_repository: EmployeeRepository,
-        employee_work_arrangement_repository: (
-            EmployeeWorkArrangementRepository
-        ),
+        employee_work_arrangement_repository: (EmployeeWorkArrangementRepository),
         id_generator: IdGenerator,
         unit_of_work: UnitOfWork,
         validator: CreateEmployeeWorkArrangementValidator,
         request_context: RequestContext,
     ) -> None:
         self._employee_repository = employee_repository
-        self._employee_work_arrangement_repository = (
-            employee_work_arrangement_repository
-        )
+        self._employee_work_arrangement_repository = employee_work_arrangement_repository
         self._id_generator = id_generator
         self._unit_of_work = unit_of_work
         self._validator = validator
@@ -122,9 +118,7 @@ class CreateEmployeeWorkArrangementUseCase:
         # ------------------------------------------------------------------
 
         if employee.tenant_id != command.tenant_id:
-            raise ValueError(
-                "Employee does not belong to the requested tenant."
-            )
+            raise ValueError("Employee does not belong to the requested tenant.")
 
         # ------------------------------------------------------------------
         # Duplicate start date check

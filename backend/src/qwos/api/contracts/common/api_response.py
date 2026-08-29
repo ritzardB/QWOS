@@ -8,7 +8,6 @@ T = TypeVar("T")
 
 
 class ApiResponse(BaseModel, Generic[T]):
-
     success: bool = True
 
     message: str | None = None

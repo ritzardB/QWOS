@@ -27,6 +27,9 @@ from fastapi import APIRouter, Depends, status
 from qwos.api.contracts.requests.attendance.clock_in_request import (
     ClockInRequest,
 )
+from qwos.api.contracts.requests.attendance.clock_out_request import (
+    ClockOutRequest,
+)
 from qwos.api.contracts.requests.attendance.create_employee_work_arrangement_request import (
     CreateEmployeeWorkArrangementRequest,
 )
@@ -38,6 +41,9 @@ from qwos.api.contracts.requests.attendance.create_work_schedule_day_request imp
 )
 from qwos.api.contracts.responses.attendance.clock_in_response import (
     ClockInResponse,
+)
+from qwos.api.contracts.responses.attendance.clock_out_response import (
+    ClockOutResponse,
 )
 from qwos.api.contracts.responses.attendance.create_employee_work_arrangement_response import (
     CreateEmployeeWorkArrangementResponse,
@@ -60,6 +66,9 @@ from qwos.api.contracts.responses.attendance.list_work_schedules_response import
 from qwos.application.attendance.mappers.clock_in_mapper import (
     ClockInMapper,
 )
+from qwos.application.attendance.mappers.clock_out_mapper import (
+    ClockOutMapper,
+)
 from qwos.application.attendance.mappers.employee_work_arrangement_mapper import (
     EmployeeWorkArrangementMapper,
 )
@@ -74,6 +83,9 @@ from qwos.application.attendance.mappers.work_schedule_mapper import (
 )
 from qwos.application.attendance.use_cases.clock_in_use_case import (
     ClockInUseCase,
+)
+from qwos.application.attendance.use_cases.clock_out_use_case import (
+    ClockOutUseCase,
 )
 from qwos.application.attendance.use_cases.create_employee_work_arrangement_use_case import (
     CreateEmployeeWorkArrangementUseCase,
@@ -98,6 +110,7 @@ from qwos.application.common.context.request_context import (
 )
 from qwos.application.common.dependencies.attendance import (
     get_clock_in_use_case,
+    get_clock_out_use_case,
     get_create_employee_work_arrangement_use_case,
     get_create_employee_work_schedule_use_case,
     get_create_work_schedule_day_use_case,
@@ -153,6 +166,46 @@ async def clock_in(
         application_response,
     )
 
+
+# -------------------------------------------------------------------------
+# Clock Out
+# -------------------------------------------------------------------------
+
+
+@router.post(
+    "/clock-out",
+    response_model=ClockOutResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Clock Out",
+    description="Clock out an employee.",
+)
+async def clock_out(
+    request: ClockOutRequest,
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+    use_case: ClockOutUseCase = Depends(
+        get_clock_out_use_case,
+    ),
+) -> ClockOutResponse:
+    """
+    Clock out an employee.
+    """
+
+    command = ClockOutMapper.to_command(
+        request=request,
+        request_context=request_context,
+    )
+
+    application_response = await use_case.execute(
+        command,
+    )
+
+    return ClockOutMapper.to_response(
+        application_response,
+    )
+
+
 # -------------------------------------------------------------------------
 # Create Employee Work Arrangement
 # -------------------------------------------------------------------------
@@ -193,6 +246,7 @@ async def create_employee_work_arrangement(
         application_response,
     )
 
+
 # -------------------------------------------------------------------------
 # Create Employee Work Schedule
 # -------------------------------------------------------------------------
@@ -203,10 +257,7 @@ async def create_employee_work_arrangement(
     response_model=CreateEmployeeWorkScheduleResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Create Employee Work Schedule",
-    description=(
-        "Create an effective-dated work schedule assignment "
-        "for an employee."
-    ),
+    description=("Create an effective-dated work schedule assignment for an employee."),
 )
 async def create_employee_work_schedule(
     employee_id: str,
@@ -235,6 +286,7 @@ async def create_employee_work_schedule(
     return EmployeeWorkScheduleMapper.to_create_response(
         application_response,
     )
+
 
 # -------------------------------------------------------------------------
 # Create Work Schedule Day
@@ -276,6 +328,7 @@ async def create_work_schedule_day(
         application_response,
     )
 
+
 # -------------------------------------------------------------------------
 # List Work Schedules
 # -------------------------------------------------------------------------
@@ -305,6 +358,7 @@ async def list_work_schedules(
     return WorkScheduleMapper.to_list_response(
         application_response,
     )
+
 
 # -------------------------------------------------------------------------
 # Get Work Schedule
@@ -338,6 +392,7 @@ async def get_work_schedule(
     return WorkScheduleMapper.to_get_response(
         application_response,
     )
+
 
 # -------------------------------------------------------------------------
 # List Work Schedule Days

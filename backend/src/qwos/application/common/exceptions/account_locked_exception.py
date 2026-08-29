@@ -21,6 +21,4 @@ class AccountLockedException(BusinessRuleException):
     """
 
     def __init__(self) -> None:
-        super().__init__(
-            "The account is locked."
-        )
+        super().__init__("The account is locked.")

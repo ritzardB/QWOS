@@ -20,6 +20,9 @@ from fastapi import Depends
 from qwos.application.attendance.use_cases.clock_in_use_case import (
     ClockInUseCase,
 )
+from qwos.application.attendance.use_cases.clock_out_use_case import (
+    ClockOutUseCase,
+)
 from qwos.application.attendance.use_cases.create_employee_work_arrangement_use_case import (
     CreateEmployeeWorkArrangementUseCase,
 )
@@ -40,6 +43,9 @@ from qwos.application.attendance.use_cases.list_work_schedules_use_case import (
 )
 from qwos.application.attendance.validators.clock_in_validator import (
     ClockInValidator,
+)
+from qwos.application.attendance.validators.clock_out_validator import (
+    ClockOutValidator,
 )
 from qwos.application.attendance.validators.create_employee_work_arrangement_validator import (
     CreateEmployeeWorkArrangementValidator,
@@ -87,6 +93,29 @@ def get_clock_in_use_case(
     )
 
 
+def get_clock_out_use_case(
+    unit_of_work: UnitOfWork = Depends(get_unit_of_work),
+    clock: Clock = Depends(get_clock),
+    id_generator: IdGenerator = Depends(get_id_generator),
+    validator: ClockOutValidator = Depends(),
+    request_context: RequestContext = Depends(get_request_context),
+) -> ClockOutUseCase:
+    """
+    Provide the ClockOutUseCase instance.
+    """
+
+    return ClockOutUseCase(
+        employee_repository=unit_of_work.employee_repository,
+        attendance_record_repository=(unit_of_work.attendance_record_repository),
+        attendance_event_repository=(unit_of_work.attendance_event_repository),
+        id_generator=id_generator,
+        clock=clock,
+        unit_of_work=unit_of_work,
+        validator=validator,
+        request_context=request_context,
+    )
+
+
 def get_create_employee_work_arrangement_use_case(
     unit_of_work: UnitOfWork = Depends(get_unit_of_work),
     id_generator: IdGenerator = Depends(get_id_generator),
@@ -106,6 +135,7 @@ def get_create_employee_work_arrangement_use_case(
         request_context=request_context,
     )
 
+
 def get_create_employee_work_schedule_use_case(
     unit_of_work: UnitOfWork = Depends(get_unit_of_work),
     id_generator: IdGenerator = Depends(get_id_generator),
@@ -118,17 +148,14 @@ def get_create_employee_work_schedule_use_case(
 
     return CreateEmployeeWorkScheduleUseCase(
         employee_repository=unit_of_work.employee_repository,
-        work_schedule_repository=(
-            unit_of_work.work_schedule_repository
-        ),
-        employee_work_schedule_repository=(
-            unit_of_work.employee_work_schedule_repository
-        ),
+        work_schedule_repository=(unit_of_work.work_schedule_repository),
+        employee_work_schedule_repository=(unit_of_work.employee_work_schedule_repository),
         id_generator=id_generator,
         unit_of_work=unit_of_work,
         validator=validator,
         request_context=request_context,
     )
+
 
 def get_create_work_schedule_day_use_case(
     unit_of_work: UnitOfWork = Depends(get_unit_of_work),
@@ -142,14 +169,13 @@ def get_create_work_schedule_day_use_case(
 
     return CreateWorkScheduleDayUseCase(
         work_schedule_repository=unit_of_work.work_schedule_repository,
-        work_schedule_day_repository=(
-            unit_of_work.work_schedule_day_repository
-        ),
+        work_schedule_day_repository=(unit_of_work.work_schedule_day_repository),
         id_generator=id_generator,
         unit_of_work=unit_of_work,
         validator=validator,
         request_context=request_context,
     )
+
 
 def get_list_work_schedules_use_case(
     unit_of_work: UnitOfWork = Depends(get_unit_of_work),
@@ -164,6 +190,7 @@ def get_list_work_schedules_use_case(
         request_context=request_context,
     )
 
+
 def get_work_schedule_use_case(
     unit_of_work: UnitOfWork = Depends(get_unit_of_work),
     request_context: RequestContext = Depends(get_request_context),
@@ -177,6 +204,7 @@ def get_work_schedule_use_case(
         request_context=request_context,
     )
 
+
 def get_list_work_schedule_days_use_case(
     unit_of_work: UnitOfWork = Depends(get_unit_of_work),
     request_context: RequestContext = Depends(get_request_context),
@@ -187,8 +215,6 @@ def get_list_work_schedule_days_use_case(
 
     return ListWorkScheduleDaysUseCase(
         work_schedule_repository=unit_of_work.work_schedule_repository,
-        work_schedule_day_repository=(
-            unit_of_work.work_schedule_day_repository
-        ),
+        work_schedule_day_repository=(unit_of_work.work_schedule_day_repository),
         request_context=request_context,
     )

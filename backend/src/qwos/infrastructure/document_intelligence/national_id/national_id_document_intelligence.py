@@ -48,9 +48,7 @@ class NationalIdDocumentIntelligence:
         ae_extractor: NationalIdAEExtractor | None = None,
     ) -> None:
         self._ocr = ocr
-        self._ae_extractor = (
-            ae_extractor or NationalIdAEExtractor()
-        )
+        self._ae_extractor = ae_extractor or NationalIdAEExtractor()
 
     def _extract_ocr(
         self,
@@ -112,11 +110,7 @@ class NationalIdDocumentIntelligence:
             document_family,
         )
 
-        normalized_country = (
-            country_code.strip().upper()
-            if country_code
-            else None
-        )
+        normalized_country = country_code.strip().upper() if country_code else None
 
         ocr_result = self._extract_ocr(
             content=content,
@@ -128,16 +122,11 @@ class NationalIdDocumentIntelligence:
             ocr_result.text,
         )
 
-        effective_country = (
-            normalized_country
-            or detected_country
-        )
+        effective_country = normalized_country or detected_country
 
         if effective_country == "AE":
-            extraction = (
-                self._ae_extractor.extract(
-                    ocr_result=ocr_result,
-                )
+            extraction = self._ae_extractor.extract(
+                ocr_result=ocr_result,
             )
 
             return DocumentExtraction(
@@ -150,22 +139,16 @@ class NationalIdDocumentIntelligence:
             )
 
         raise ValueError(
-            "No National ID extraction strategy is registered "
-            f"for country code '{effective_country}'.",
+            f"No National ID extraction strategy is registered for country code '{effective_country}'.",
         )
 
     @staticmethod
     def _validate_document_family(
         document_family: str | None,
     ) -> None:
-        if (
-            document_family is not None
-            and document_family.strip().lower()
-            != "national id"
-        ):
+        if document_family is not None and document_family.strip().lower() != "national id":
             raise ValueError(
-                "NationalIdDocumentIntelligence only supports "
-                "the national id document family.",
+                "NationalIdDocumentIntelligence only supports the national id document family.",
             )
 
     @staticmethod
@@ -174,10 +157,7 @@ class NationalIdDocumentIntelligence:
     ) -> str | None:
         normalized = text.upper()
 
-        if (
-            "UNITEDARABEMIRATES" in normalized
-            or "UNITEDARABEMIRATES" in normalized
-        ):
+        if "UNITEDARABEMIRATES" in normalized or "UNITEDARABEMIRATES" in normalized:
             return "AE"
 
         return None

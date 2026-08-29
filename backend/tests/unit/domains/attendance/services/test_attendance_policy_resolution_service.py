@@ -23,7 +23,6 @@ from qwos.domains.attendance.services.attendance_policy_resolution_service impor
     AttendancePolicyResolutionService,
 )
 
-
 EFFECTIVE_DATE = date(2026, 9, 15)
 
 

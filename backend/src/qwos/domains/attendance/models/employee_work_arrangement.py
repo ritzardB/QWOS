@@ -81,40 +81,28 @@ class EmployeeWorkArrangement(TenantEntity):
         Create a normalized employee work arrangement.
         """
 
-        normalized_arrangement = (
-            work_arrangement.strip().lower()
-        )
+        normalized_arrangement = work_arrangement.strip().lower()
 
         if not normalized_arrangement:
             raise ValueError(
                 "work_arrangement is required.",
             )
 
-        if normalized_arrangement not in {
-            arrangement.value
-            for arrangement in WorkArrangement
-        }:
+        if normalized_arrangement not in {arrangement.value for arrangement in WorkArrangement}:
             raise ValueError(
-                "work_arrangement must be one of: "
-                "office, hybrid, remote.",
+                "work_arrangement must be one of: office, hybrid, remote.",
             )
 
-        if (
-            effective_until is not None
-            and effective_until < effective_from
-        ):
+        if effective_until is not None and effective_until < effective_from:
             raise ValueError(
-                "effective_until cannot be earlier than "
-                "effective_from.",
+                "effective_until cannot be earlier than effective_from.",
             )
 
         return cls(
             id=id,
             tenant_id=tenant_id,
             employee_id=employee_id,
-            work_arrangement=(
-                normalized_arrangement
-            ),
+            work_arrangement=(normalized_arrangement),
             effective_from=effective_from,
             effective_until=effective_until,
             is_active=is_active,

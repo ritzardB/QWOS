@@ -69,6 +69,5 @@ class DocumentFieldValidator:
             )
         except re.error as exc:
             raise ValueError(
-                "Invalid document field validation pattern: "
-                f"{validation_pattern}",
+                f"Invalid document field validation pattern: {validation_pattern}",
             ) from exc

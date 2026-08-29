@@ -27,7 +27,6 @@ from qwos.domains.identity.enums.user_type import UserType
 
 
 class CreateUserRequest(BaseRequest):
-
     email: EmailStr
 
     username: str = Field(
@@ -62,6 +61,4 @@ class CreateUserRequest(BaseRequest):
 
     user_type: UserType = UserType.EMPLOYEE
 
-    authentication_provider: AuthenticationProvider = (
-        AuthenticationProvider.LOCAL
-    )
+    authentication_provider: AuthenticationProvider = AuthenticationProvider.LOCAL

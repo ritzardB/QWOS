@@ -102,10 +102,6 @@ class SQLAlchemyPasswordResetRepository(
         Retrieve password reset requests belonging to a user.
         """
 
-        stmt = (
-            select(PasswordReset)
-            .where(PasswordReset.user_id == user_id)
-            .order_by(PasswordReset.requested_at.desc())
-        )
+        stmt = select(PasswordReset).where(PasswordReset.user_id == user_id).order_by(PasswordReset.requested_at.desc())
 
         return list(self._session.scalars(stmt).all())

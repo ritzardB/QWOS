@@ -66,9 +66,7 @@ class DocumentExtractionResult(TenantEntity):
                 "source is required.",
             )
 
-        if confidence is not None and not (
-            0.0 <= confidence <= 1.0
-        ):
+        if confidence is not None and not (0.0 <= confidence <= 1.0):
             raise ValueError(
                 "confidence must be between 0.0 and 1.0.",
             )
@@ -77,17 +75,12 @@ class DocumentExtractionResult(TenantEntity):
             id=id,
             tenant_id=tenant_id,
             employee_document_id=employee_document_id,
-            document_definition_field_id=(
-                document_definition_field_id
-            ),
+            document_definition_field_id=(document_definition_field_id),
             raw_value=raw_value,
             normalized_value=normalized_value,
             confidence=confidence,
             source=normalized_source,
-            extracted_at=(
-                extracted_at
-                or datetime.now(timezone.utc)
-            ),
+            extracted_at=(extracted_at or datetime.now(timezone.utc)),
             created_by=created_by,
             updated_by=created_by,
         )

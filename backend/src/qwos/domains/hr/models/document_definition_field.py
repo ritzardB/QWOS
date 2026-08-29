@@ -64,17 +64,9 @@ class DocumentDefinitionField(TenantEntity):
         normalized_label = field_label.strip()
         normalized_type = data_type.strip().lower()
 
-        normalized_target_entity = (
-            target_entity.strip().lower()
-            if target_entity
-            else None
-        )
+        normalized_target_entity = target_entity.strip().lower() if target_entity else None
 
-        normalized_target_field = (
-            target_field.strip().lower()
-            if target_field
-            else None
-        )
+        normalized_target_field = target_field.strip().lower() if target_field else None
 
         if not normalized_code:
             raise ValueError(
@@ -99,14 +91,12 @@ class DocumentDefinitionField(TenantEntity):
         if is_hr_updateable:
             if not normalized_target_entity:
                 raise ValueError(
-                    "target_entity is required when "
-                    "is_hr_updateable is true.",
+                    "target_entity is required when is_hr_updateable is true.",
                 )
 
             if not normalized_target_field:
                 raise ValueError(
-                    "target_field is required when "
-                    "is_hr_updateable is true.",
+                    "target_field is required when is_hr_updateable is true.",
                 )
         else:
             normalized_target_entity = None
@@ -125,11 +115,7 @@ class DocumentDefinitionField(TenantEntity):
             target_entity=normalized_target_entity,
             target_field=normalized_target_field,
             sort_order=sort_order,
-            validation_pattern=(
-                validation_pattern.strip()
-                if validation_pattern
-                else None
-            ),
+            validation_pattern=(validation_pattern.strip() if validation_pattern else None),
             is_active=is_active,
             created_by=created_by,
             updated_by=created_by,

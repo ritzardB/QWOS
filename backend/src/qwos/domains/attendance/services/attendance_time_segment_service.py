@@ -94,8 +94,7 @@ class AttendanceTimeSegmentService:
                 AttendanceTimeSegment(
                     start_at=segment_start,
                     end_at=segment_end,
-                    is_overnight=segment_end.date()
-                    > segment_start.date(),
+                    is_overnight=segment_end.date() > segment_start.date(),
                     is_holiday=is_holiday,
                     is_rest_day=is_rest_day,
                     is_night_differential=night_differential,
@@ -169,7 +168,4 @@ class AttendanceTimeSegmentService:
         if night_end > night_start:
             return night_start <= current_time < night_end
 
-        return (
-            current_time >= night_start
-            or current_time < night_end
-        )
+        return current_time >= night_start or current_time < night_end

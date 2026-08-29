@@ -119,25 +119,20 @@ class AttendancePremiumCalculationService:
         Calculate the premium contribution of a single rule.
         """
 
-        if rule.calculation_type == (
-            AttendancePremiumCalculationType.PERCENTAGE
-        ):
+        if rule.calculation_type == (AttendancePremiumCalculationType.PERCENTAGE):
             return self._calculate_percentage_premium(
                 base_amount=base_amount,
                 percentage=rule.value,
             )
 
-        if rule.calculation_type == (
-            AttendancePremiumCalculationType.MULTIPLIER
-        ):
+        if rule.calculation_type == (AttendancePremiumCalculationType.MULTIPLIER):
             return self._calculate_multiplier_premium(
                 base_amount=base_amount,
                 multiplier=rule.value,
             )
 
         raise ValueError(
-            f"Unsupported premium calculation type: "
-            f"{rule.calculation_type!s}",
+            f"Unsupported premium calculation type: {rule.calculation_type!s}",
         )
 
     @staticmethod

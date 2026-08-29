@@ -101,10 +101,7 @@ class CreateEmployeeWorkScheduleValidator:
             errors.append(
                 ValidationError(
                     field="effective_until",
-                    message=(
-                        "Effective until cannot be earlier than "
-                        "effective from."
-                    ),
+                    message=("Effective until cannot be earlier than effective from."),
                 )
             )
 

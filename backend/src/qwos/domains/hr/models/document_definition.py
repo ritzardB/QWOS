@@ -57,19 +57,11 @@ class DocumentDefinition(TenantEntity):
         Create a normalized document definition.
         """
 
-        normalized_family = (
-            document_family.strip().lower()
-        )
+        normalized_family = document_family.strip().lower()
 
-        normalized_country = (
-            country_code.strip().upper()
-            if country_code
-            else None
-        )
+        normalized_country = country_code.strip().upper() if country_code else None
 
-        normalized_display_name = (
-            display_name.strip()
-        )
+        normalized_display_name = display_name.strip()
 
         if not normalized_family:
             raise ValueError(
@@ -82,10 +74,7 @@ class DocumentDefinition(TenantEntity):
             )
 
         if normalized_country is not None:
-            if (
-                len(normalized_country) != 2
-                or not normalized_country.isalpha()
-            ):
+            if len(normalized_country) != 2 or not normalized_country.isalpha():
                 raise ValueError(
                     "country_code must be a valid ISO 3166-1 alpha-2 code.",
                 )

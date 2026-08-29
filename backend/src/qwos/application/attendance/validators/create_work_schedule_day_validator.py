@@ -100,10 +100,7 @@ class CreateWorkScheduleDayValidator:
             errors.append(
                 ValidationError(
                     field="day_type",
-                    message=(
-                        "Day type must be one of: "
-                        "workday, rest_day."
-                    ),
+                    message=("Day type must be one of: workday, rest_day."),
                 )
             )
 

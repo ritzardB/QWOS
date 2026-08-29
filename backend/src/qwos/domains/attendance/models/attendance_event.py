@@ -100,11 +100,7 @@ class AttendanceEvent(TenantEntity):
             event_type=normalized_event_type,
             event_at=event_at,
             event_source=normalized_event_source,
-            notes=(
-                notes.strip()
-                if notes
-                else None
-            ),
+            notes=(notes.strip() if notes else None),
             created_by=created_by,
             updated_by=created_by,
         )

@@ -112,11 +112,7 @@ class AttendanceRecord(TenantEntity):
                 "overtime_minutes cannot be negative.",
             )
 
-        if (
-            clock_in_at is not None
-            and clock_out_at is not None
-            and clock_out_at < clock_in_at
-        ):
+        if clock_in_at is not None and clock_out_at is not None and clock_out_at < clock_in_at:
             raise ValueError(
                 "clock_out_at cannot be earlier than clock_in_at.",
             )
@@ -134,11 +130,7 @@ class AttendanceRecord(TenantEntity):
             late_minutes=late_minutes,
             undertime_minutes=undertime_minutes,
             overtime_minutes=overtime_minutes,
-            notes=(
-                notes.strip()
-                if notes
-                else None
-            ),
+            notes=(notes.strip() if notes else None),
             created_by=created_by,
             updated_by=created_by,
         )

@@ -96,21 +96,21 @@ class EmployeeMapper:
 
     @staticmethod
     def to_list_response(
-            response: ListEmployeesResponse,
-        ) -> ApiListEmployeesResponse:
+        response: ListEmployeesResponse,
+    ) -> ApiListEmployeesResponse:
         return ApiListEmployeesResponse(
             employees=[
-            ApiEmployeeSummaryResponse(
-            id=employee.id,
-            employee_number=employee.employee_number,
-            user_id=employee.user_id,
-            hire_date=employee.hire_date,
-            employment_status=employee.employment_status,
-            employment_type=employee.employment_type,
-            work_email=employee.work_email,
-            work_phone=employee.work_phone,
-            created_at=employee.created_at,
-                    )
+                ApiEmployeeSummaryResponse(
+                    id=employee.id,
+                    employee_number=employee.employee_number,
+                    user_id=employee.user_id,
+                    hire_date=employee.hire_date,
+                    employment_status=employee.employment_status,
+                    employment_type=employee.employment_type,
+                    work_email=employee.work_email,
+                    work_phone=employee.work_phone,
+                    created_at=employee.created_at,
+                )
                 for employee in response.employees
             ]
         )
@@ -130,4 +130,3 @@ class EmployeeMapper:
             work_phone=response.work_phone,
             created_at=response.created_at,
         )
-

@@ -143,8 +143,7 @@ class SQLAlchemyAttendanceEventRepository(
             select(AttendanceEvent)
             .where(
                 AttendanceEvent.tenant_id == tenant_id,
-                AttendanceEvent.attendance_record_id
-                == attendance_record_id,
+                AttendanceEvent.attendance_record_id == attendance_record_id,
                 AttendanceEvent.deleted_at.is_(None),
             )
             .order_by(
@@ -170,8 +169,7 @@ class SQLAlchemyAttendanceEventRepository(
             select(AttendanceEvent)
             .where(
                 AttendanceEvent.tenant_id == tenant_id,
-                AttendanceEvent.attendance_record_id
-                == attendance_record_id,
+                AttendanceEvent.attendance_record_id == attendance_record_id,
                 AttendanceEvent.deleted_at.is_(None),
             )
             .order_by(
@@ -224,8 +222,7 @@ class SQLAlchemyAttendanceEventRepository(
             select(AttendanceEvent)
             .where(
                 AttendanceEvent.tenant_id == tenant_id,
-                AttendanceEvent.attendance_record_id
-                == attendance_record_id,
+                AttendanceEvent.attendance_record_id == attendance_record_id,
                 AttendanceEvent.deleted_at.is_(None),
             )
             .order_by(

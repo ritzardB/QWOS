@@ -144,6 +144,7 @@ async def create_user(
         created_at=application_response.created_at,
     )
 
+
 @router.post(
     "/authentication/login",
     response_model=LoginResponse,
@@ -178,6 +179,7 @@ async def login(
         expires_at=application_response.expires_at,
     )
 
+
 @router.post(
     "/authentication/refresh",
     response_model=RefreshTokenResponse,
@@ -207,6 +209,7 @@ async def refresh_access_token(
         expires_at=application_response.expires_at,
     )
 
+
 @router.post(
     "/authentication/forgot-password",
     response_model=AuthenticationResponse,
@@ -234,6 +237,7 @@ async def request_password_reset(
         success=application_response.success,
         message=application_response.message,
     )
+
 
 @router.post(
     "/authentication/reset-password",
@@ -263,6 +267,7 @@ async def reset_password(
         message=application_response.message,
     )
 
+
 @router.post(
     "/authentication/change-password",
     response_model=AuthenticationResponse,
@@ -290,6 +295,7 @@ async def change_password(
         success=application_response.success,
         message=application_response.message,
     )
+
 
 @router.post(
     "/authentication/logout",
@@ -322,6 +328,7 @@ async def logout(
         success=application_response.success,
         message=application_response.message,
     )
+
 
 @router.post(
     "/roles/assign",

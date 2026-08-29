@@ -51,12 +51,9 @@ class SQLAlchemyDocumentDefinitionFieldRepository(
         Retrieve a field by ID.
         """
 
-        statement = (
-            select(DocumentDefinitionField)
-            .where(
-                DocumentDefinitionField.id == field_id,
-                DocumentDefinitionField.deleted_at.is_(None),
-            )
+        statement = select(DocumentDefinitionField).where(
+            DocumentDefinitionField.id == field_id,
+            DocumentDefinitionField.deleted_at.is_(None),
         )
 
         return self._session.scalar(statement)
@@ -82,8 +79,7 @@ class SQLAlchemyDocumentDefinitionFieldRepository(
         """
 
         conditions = [
-            DocumentDefinitionField.document_definition_id
-            == document_definition_id,
+            DocumentDefinitionField.document_definition_id == document_definition_id,
             DocumentDefinitionField.deleted_at.is_(None),
         ]
 

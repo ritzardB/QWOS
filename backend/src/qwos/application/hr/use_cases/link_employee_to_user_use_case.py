@@ -127,9 +127,7 @@ class LinkEmployeeToUserUseCase:
         # ------------------------------------------------------------------
 
         if employee.tenant_id != command.tenant_id:
-            raise ValueError(
-                "Employee does not belong to the requested tenant."
-            )
+            raise ValueError("Employee does not belong to the requested tenant.")
 
         # ------------------------------------------------------------------
         # Employee link state
@@ -157,39 +155,25 @@ class LinkEmployeeToUserUseCase:
             )
 
         if user.tenant_id != command.tenant_id:
-            raise ValueError(
-                "User does not belong to the requested tenant."
-            )
+            raise ValueError("User does not belong to the requested tenant.")
 
         # ------------------------------------------------------------------
         # Check profile
         # ------------------------------------------------------------------
 
-        existing_profile = (
-            self._user_profile_repository.get_by_user_id(
-                command.user_id,
-            )
+        existing_profile = self._user_profile_repository.get_by_user_id(
+            command.user_id,
         )
 
         if existing_profile is not None:
             if (
                 existing_profile.first_name != command.first_name.strip()
-                or existing_profile.middle_name != (
-                    command.middle_name.strip()
-                    if command.middle_name
-                    else None
-                )
+                or existing_profile.middle_name != (command.middle_name.strip() if command.middle_name else None)
                 or existing_profile.last_name != command.last_name.strip()
-                or existing_profile.preferred_name != (
-                    command.preferred_name.strip()
-                    if command.preferred_name
-                    else None
-                )
+                or existing_profile.preferred_name
+                != (command.preferred_name.strip() if command.preferred_name else None)
             ):
-                raise ValueError(
-                    "Existing UserProfile does not match "
-                    "the supplied identity data."
-                )
+                raise ValueError("Existing UserProfile does not match the supplied identity data.")
 
             profile = existing_profile
 
@@ -205,7 +189,7 @@ class LinkEmployeeToUserUseCase:
                 last_name=command.last_name,
                 preferred_name=command.preferred_name,
             )
-     
+
         # ------------------------------------------------------------------
         # Link and persist atomically
         # ------------------------------------------------------------------

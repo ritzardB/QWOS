@@ -39,9 +39,7 @@ class EffectiveWorkScheduleResolutionService:
         *,
         employee_work_schedule_repository: EmployeeWorkScheduleRepository,
     ) -> None:
-        self._employee_work_schedule_repository = (
-            employee_work_schedule_repository
-        )
+        self._employee_work_schedule_repository = employee_work_schedule_repository
 
     def resolve(
         self,

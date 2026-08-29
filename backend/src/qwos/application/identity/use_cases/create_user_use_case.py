@@ -72,8 +72,7 @@ class CreateUserUseCase:
         clock: Clock,
         unit_of_work: UnitOfWork,
         validator: CreateUserValidator,
-        request_context: RequestContext, 
-        
+        request_context: RequestContext,
     ) -> None:
         self._user_repository = user_repository
         self._user_profile_repository = user_profile_repository
@@ -172,4 +171,5 @@ class CreateUserUseCase:
 
         return UserMapper.to_create_response(
             user=user,
-            profile=profile,)
+            profile=profile,
+        )

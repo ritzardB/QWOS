@@ -122,26 +122,20 @@ class PassportMRZParser:
         self._validate_document_type(line1)
 
         issuing_country = self._clean(
-            line1[
-                self.ISSUING_COUNTRY_START : self.ISSUING_COUNTRY_END
-            ],
+            line1[self.ISSUING_COUNTRY_START : self.ISSUING_COUNTRY_END],
         )
 
         surname, given_names = self._parse_name(
             line1[self.NAME_START :],
         )
 
-        passport_number_raw = line2[
-            self.PASSPORT_NUMBER_START : self.PASSPORT_NUMBER_END
-        ]
+        passport_number_raw = line2[self.PASSPORT_NUMBER_START : self.PASSPORT_NUMBER_END]
 
         passport_number = self._clean(
             passport_number_raw,
         )
 
-        passport_number_check = line2[
-            self.PASSPORT_NUMBER_CHECK_POSITION
-        ]
+        passport_number_check = line2[self.PASSPORT_NUMBER_CHECK_POSITION]
 
         self._validate_check_digit(
             value=passport_number_raw,
@@ -150,18 +144,12 @@ class PassportMRZParser:
         )
 
         nationality = self._clean(
-            line2[
-                self.NATIONALITY_START : self.NATIONALITY_END
-            ],
+            line2[self.NATIONALITY_START : self.NATIONALITY_END],
         )
 
-        date_of_birth_raw = line2[
-            self.DATE_OF_BIRTH_START : self.DATE_OF_BIRTH_END
-        ]
+        date_of_birth_raw = line2[self.DATE_OF_BIRTH_START : self.DATE_OF_BIRTH_END]
 
-        date_of_birth_check = line2[
-            self.DATE_OF_BIRTH_CHECK_POSITION
-        ]
+        date_of_birth_check = line2[self.DATE_OF_BIRTH_CHECK_POSITION]
 
         self._validate_check_digit(
             value=date_of_birth_raw,
@@ -178,13 +166,9 @@ class PassportMRZParser:
             line2[self.SEX_POSITION],
         )
 
-        expiry_date_raw = line2[
-            self.EXPIRY_DATE_START : self.EXPIRY_DATE_END
-        ]
+        expiry_date_raw = line2[self.EXPIRY_DATE_START : self.EXPIRY_DATE_END]
 
-        expiry_date_check = line2[
-            self.EXPIRY_DATE_CHECK_POSITION
-        ]
+        expiry_date_check = line2[self.EXPIRY_DATE_CHECK_POSITION]
 
         self._validate_check_digit(
             value=expiry_date_raw,
@@ -197,37 +181,21 @@ class PassportMRZParser:
             field_name="expiry date",
         )
 
-        optional_data = line2[
-            self.OPTIONAL_DATA_START : self.OPTIONAL_DATA_END
-        ]
+        optional_data = line2[self.OPTIONAL_DATA_START : self.OPTIONAL_DATA_END]
 
         composite_data = (
-            line2[
-                self.PASSPORT_NUMBER_START : self.PASSPORT_NUMBER_END
-            ]
-            + line2[
-                self.PASSPORT_NUMBER_CHECK_POSITION
-            ]
-            + line2[
-                self.DATE_OF_BIRTH_START : self.DATE_OF_BIRTH_END
-            ]
-            + line2[
-                self.DATE_OF_BIRTH_CHECK_POSITION
-            ]
-            + line2[
-                self.EXPIRY_DATE_START : self.EXPIRY_DATE_END
-            ]
-            + line2[
-                self.EXPIRY_DATE_CHECK_POSITION
-            ]
+            line2[self.PASSPORT_NUMBER_START : self.PASSPORT_NUMBER_END]
+            + line2[self.PASSPORT_NUMBER_CHECK_POSITION]
+            + line2[self.DATE_OF_BIRTH_START : self.DATE_OF_BIRTH_END]
+            + line2[self.DATE_OF_BIRTH_CHECK_POSITION]
+            + line2[self.EXPIRY_DATE_START : self.EXPIRY_DATE_END]
+            + line2[self.EXPIRY_DATE_CHECK_POSITION]
             + optional_data
         )
 
         self._validate_check_digit(
             value=composite_data,
-            expected_check_digit=line2[
-                self.COMPOSITE_CHECK_POSITION
-            ],
+            expected_check_digit=line2[self.COMPOSITE_CHECK_POSITION],
             field_name="composite passport data",
         )
 
@@ -287,17 +255,9 @@ class PassportMRZParser:
         Normalize and validate the two MRZ lines.
         """
 
-        normalized = (
-            mrz.replace("\r\n", "\n")
-            .replace("\r", "\n")
-            .strip()
-        )
+        normalized = mrz.replace("\r\n", "\n").replace("\r", "\n").strip()
 
-        lines = [
-            line.strip().upper()
-            for line in normalized.split("\n")
-            if line.strip()
-        ]
+        lines = [line.strip().upper() for line in normalized.split("\n") if line.strip()]
 
         if len(lines) != self.REQUIRED_LINE_COUNT:
             raise PassportMRZParseError(
@@ -307,14 +267,10 @@ class PassportMRZParser:
         for index, line in enumerate(lines, start=1):
             if len(line) != self.LINE_LENGTH:
                 raise PassportMRZParseError(
-                    f"Passport TD3 MRZ line {index} must contain "
-                    f"{self.LINE_LENGTH} characters; got {len(line)}.",
+                    f"Passport TD3 MRZ line {index} must contain {self.LINE_LENGTH} characters; got {len(line)}.",
                 )
 
-            if not all(
-                character.isalnum() or character == "<"
-                for character in line
-            ):
+            if not all(character.isalnum() or character == "<" for character in line):
                 raise PassportMRZParseError(
                     f"Passport TD3 MRZ line {index} contains invalid characters.",
                 )
@@ -333,9 +289,7 @@ class PassportMRZParser:
         Validate the TD3 passport document type.
         """
 
-        document_type = line1[
-            self.DOCUMENT_TYPE_POSITION
-        ]
+        document_type = line1[self.DOCUMENT_TYPE_POSITION]
 
         if document_type != "P":
             raise PassportMRZParseError(
@@ -401,11 +355,7 @@ class PassportMRZParser:
         month = int(value[2:4])
         day = int(value[4:6])
 
-        full_year = (
-            2000 + year
-            if year <= 49
-            else 1900 + year
-        )
+        full_year = 2000 + year if year <= 49 else 1900 + year
 
         try:
             return date(
@@ -504,10 +454,7 @@ class PassportMRZParser:
                 character,
             )
 
-            total += (
-                value_number
-                * weights[index % len(weights)]
-            )
+            total += value_number * weights[index % len(weights)]
 
         return str(total % 10)
 

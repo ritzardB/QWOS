@@ -27,9 +27,7 @@ class DuplicateResourceException(BusinessRuleException):
         field: str,
         value: str,
     ) -> None:
-        super().__init__(
-            f"{resource} with {field} '{value}' already exists."
-        )
+        super().__init__(f"{resource} with {field} '{value}' already exists.")
 
         self.resource = resource
         self.field = field

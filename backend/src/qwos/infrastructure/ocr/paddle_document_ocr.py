@@ -61,8 +61,7 @@ class PaddleDocumentOCR(DocumentOCR):
             from paddleocr import PaddleOCR
         except ImportError as exc:
             raise RuntimeError(
-                "PaddleOCR is not installed. "
-                "Install QWOS with the 'ocr' extra.",
+                "PaddleOCR is not installed. Install QWOS with the 'ocr' extra.",
             ) from exc
 
         self._ocr = PaddleOCR(
@@ -166,14 +165,11 @@ class PaddleDocumentOCR(DocumentOCR):
                         str(text),
                     )
 
-                    if (
-                        isinstance(
-                            recognized_scores,
-                            list,
-                        )
-                        and index < len(
-                            recognized_scores,
-                        )
+                    if isinstance(
+                        recognized_scores,
+                        list,
+                    ) and index < len(
+                        recognized_scores,
                     ):
                         score = recognized_scores[index]
 
@@ -194,12 +190,7 @@ class PaddleDocumentOCR(DocumentOCR):
                     "OCR completed but no text was detected.",
                 )
 
-            confidence = (
-                sum(confidence_values)
-                / len(confidence_values)
-                if confidence_values
-                else None
-            )
+            confidence = sum(confidence_values) / len(confidence_values) if confidence_values else None
 
             return OCRTextResult(
                 text=text,

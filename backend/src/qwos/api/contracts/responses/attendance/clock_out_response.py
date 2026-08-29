@@ -2,10 +2,15 @@
 ===============================================================================
 Quantum Workforce OS (QWOS)
 
-Attendance Application
+API Layer
 
-Response:
-    Clock Out
+Attendance Module
+
+File:
+    clock_out_response.py
+
+Description:
+    Response contract returned after successfully clocking out an employee.
 
 Author:
     Richard Balabarcon
@@ -14,12 +19,16 @@ Author:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from datetime import date, datetime
 
+from pydantic import BaseModel
 
-@dataclass(frozen=True, slots=True)
-class ClockOutResponse:
+
+class ClockOutResponse(BaseModel):
+    """
+    API response returned after a successful clock-out.
+    """
+
     attendance_record_id: str
     attendance_event_id: str
     employee_id: str

@@ -78,12 +78,8 @@ class UploadEmployeeDocumentUseCase:
         request_context: RequestContext,
     ) -> None:
         self._employee_repository = employee_repository
-        self._employee_immigration_repository = (
-            employee_immigration_repository
-        )
-        self._employee_document_repository = (
-            employee_document_repository
-        )
+        self._employee_immigration_repository = employee_immigration_repository
+        self._employee_document_repository = employee_document_repository
         self._authorization_service = authorization_service
         self._filename_generator = filename_generator
         self._storage_key_generator = storage_key_generator
@@ -115,10 +111,7 @@ class UploadEmployeeDocumentUseCase:
 
         if not allowed:
             raise ForbiddenException(
-                message=(
-                    "User is not authorized to upload "
-                    "employee documents."
-                ),
+                message=("User is not authorized to upload employee documents."),
             )
 
         # ------------------------------------------------------------------
@@ -143,10 +136,8 @@ class UploadEmployeeDocumentUseCase:
         immigration = None
 
         if command.immigration_id is not None:
-            immigration = (
-                self._employee_immigration_repository.get_by_id(
-                    command.immigration_id,
-                )
+            immigration = self._employee_immigration_repository.get_by_id(
+                command.immigration_id,
             )
 
             if immigration is None:
@@ -171,30 +162,20 @@ class UploadEmployeeDocumentUseCase:
         # Determine document version
         # ------------------------------------------------------------------
 
-        document_version = (
-            self._employee_document_repository.get_next_version(
-                tenant_id=tenant_id,
-                employee_id=command.employee_id,
-                document_category=command.document_category,
-                immigration_id=command.immigration_id,
-            )
+        document_version = self._employee_document_repository.get_next_version(
+            tenant_id=tenant_id,
+            employee_id=command.employee_id,
+            document_category=command.document_category,
+            immigration_id=command.immigration_id,
         )
 
         # ------------------------------------------------------------------
         # Generate QWOS filename
         # ------------------------------------------------------------------
 
-        issue_date = (
-            immigration.issue_date
-            if immigration is not None
-            else None
-        )
+        issue_date = immigration.issue_date if immigration is not None else None
 
-        expiry_date = (
-            immigration.expiry_date
-            if immigration is not None
-            else None
-        )
+        expiry_date = immigration.expiry_date if immigration is not None else None
 
         stored_filename = self._filename_generator.generate(
             employee_number=employee.employee_number,

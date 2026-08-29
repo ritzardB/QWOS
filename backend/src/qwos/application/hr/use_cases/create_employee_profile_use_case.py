@@ -116,9 +116,7 @@ class CreateEmployeeProfileUseCase:
         # ------------------------------------------------------------------
 
         if employee.tenant_id != command.tenant_id:
-            raise ValueError(
-                "Employee does not belong to the requested tenant."
-            )
+            raise ValueError("Employee does not belong to the requested tenant.")
 
         # ------------------------------------------------------------------
         # Duplicate profile check
@@ -161,9 +159,7 @@ class CreateEmployeeProfileUseCase:
             postal_code=command.postal_code,
             country_code=command.country_code,
             emergency_contact_name=command.emergency_contact_name,
-            emergency_contact_relationship=(
-                command.emergency_contact_relationship
-            ),
+            emergency_contact_relationship=(command.emergency_contact_relationship),
             emergency_contact_phone=command.emergency_contact_phone,
             created_by=self._request_context.user_id,
         )
@@ -196,9 +192,7 @@ class CreateEmployeeProfileUseCase:
             postal_code=profile.postal_code,
             country_code=profile.country_code,
             emergency_contact_name=profile.emergency_contact_name,
-            emergency_contact_relationship=(
-                profile.emergency_contact_relationship
-            ),
+            emergency_contact_relationship=(profile.emergency_contact_relationship),
             emergency_contact_phone=profile.emergency_contact_phone,
             created_at=profile.created_at,
         )

@@ -38,8 +38,7 @@ class SQLAlchemyEmployeeReportingRelationshipRepository(
         stmt = select(EmployeeReportingRelationship).where(
             EmployeeReportingRelationship.tenant_id == tenant_id,
             EmployeeReportingRelationship.employee_id == employee_id,
-            EmployeeReportingRelationship.relationship_type
-            == "primary_manager",
+            EmployeeReportingRelationship.relationship_type == "primary_manager",
             EmployeeReportingRelationship.is_primary.is_(True),
             EmployeeReportingRelationship.deleted_at.is_(None),
             EmployeeReportingRelationship.effective_to.is_(None),
@@ -69,8 +68,7 @@ class SQLAlchemyEmployeeReportingRelationshipRepository(
     ) -> list[EmployeeReportingRelationship]:
         stmt = select(EmployeeReportingRelationship).where(
             EmployeeReportingRelationship.tenant_id == tenant_id,
-            EmployeeReportingRelationship.manager_employee_id
-            == manager_employee_id,
+            EmployeeReportingRelationship.manager_employee_id == manager_employee_id,
             EmployeeReportingRelationship.deleted_at.is_(None),
             EmployeeReportingRelationship.effective_to.is_(None),
         )

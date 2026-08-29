@@ -69,11 +69,7 @@ class EmployeeProfileMapper:
             gender=request.gender,
             nationality=request.nationality,
             marital_status=request.marital_status,
-            personal_email=(
-                str(request.personal_email)
-                if request.personal_email is not None
-                else None
-            ),
+            personal_email=(str(request.personal_email) if request.personal_email is not None else None),
             personal_phone=request.personal_phone,
             address_line_1=request.address_line_1,
             address_line_2=request.address_line_2,
@@ -82,9 +78,7 @@ class EmployeeProfileMapper:
             postal_code=request.postal_code,
             country_code=request.country_code,
             emergency_contact_name=request.emergency_contact_name,
-            emergency_contact_relationship=(
-                request.emergency_contact_relationship
-            ),
+            emergency_contact_relationship=(request.emergency_contact_relationship),
             emergency_contact_phone=request.emergency_contact_phone,
         )
 
@@ -112,9 +106,7 @@ class EmployeeProfileMapper:
             postal_code=response.postal_code,
             country_code=response.country_code,
             emergency_contact_name=response.emergency_contact_name,
-            emergency_contact_relationship=(
-                response.emergency_contact_relationship
-            ),
+            emergency_contact_relationship=(response.emergency_contact_relationship),
             emergency_contact_phone=response.emergency_contact_phone,
             created_at=response.created_at,
         )
@@ -144,9 +136,7 @@ class EmployeeProfileMapper:
             postal_code=response.postal_code,
             country_code=response.country_code,
             emergency_contact_name=response.emergency_contact_name,
-            emergency_contact_relationship=(
-                response.emergency_contact_relationship
-            ),
+            emergency_contact_relationship=(response.emergency_contact_relationship),
             emergency_contact_phone=response.emergency_contact_phone,
             created_at=response.created_at,
         )
@@ -169,11 +159,7 @@ class EmployeeProfileMapper:
             gender=request.gender,
             nationality=request.nationality,
             marital_status=request.marital_status,
-            personal_email=(
-                str(request.personal_email)
-                if request.personal_email is not None
-                else None
-            ),
+            personal_email=(str(request.personal_email) if request.personal_email is not None else None),
             personal_phone=request.personal_phone,
             address_line_1=request.address_line_1,
             address_line_2=request.address_line_2,
@@ -182,8 +168,6 @@ class EmployeeProfileMapper:
             postal_code=request.postal_code,
             country_code=request.country_code,
             emergency_contact_name=request.emergency_contact_name,
-            emergency_contact_relationship=(
-                request.emergency_contact_relationship
-            ),
+            emergency_contact_relationship=(request.emergency_contact_relationship),
             emergency_contact_phone=request.emergency_contact_phone,
         )

@@ -26,9 +26,7 @@ class ResourceNotFoundException(ApplicationException):
         resource: str,
         identifier: str,
     ) -> None:
-        super().__init__(
-            f"{resource} '{identifier}' was not found."
-        )
+        super().__init__(f"{resource} '{identifier}' was not found.")
 
         self.resource = resource
         self.identifier = identifier

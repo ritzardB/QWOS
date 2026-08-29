@@ -72,9 +72,7 @@ class CreateEmployeeWorkScheduleUseCase:
     ) -> None:
         self._employee_repository = employee_repository
         self._work_schedule_repository = work_schedule_repository
-        self._employee_work_schedule_repository = (
-            employee_work_schedule_repository
-        )
+        self._employee_work_schedule_repository = employee_work_schedule_repository
         self._id_generator = id_generator
         self._unit_of_work = unit_of_work
         self._validator = validator
@@ -139,13 +137,10 @@ class CreateEmployeeWorkScheduleUseCase:
         # Duplicate start date check
         # ------------------------------------------------------------------
 
-        if (
-            self._employee_work_schedule_repository
-            .exists_by_employee_and_start_date(
-                tenant_id=command.tenant_id,
-                employee_id=command.employee_id,
-                effective_from=command.effective_from,
-            )
+        if self._employee_work_schedule_repository.exists_by_employee_and_start_date(
+            tenant_id=command.tenant_id,
+            employee_id=command.employee_id,
+            effective_from=command.effective_from,
         ):
             raise DuplicateResourceException(
                 resource="EmployeeWorkSchedule",

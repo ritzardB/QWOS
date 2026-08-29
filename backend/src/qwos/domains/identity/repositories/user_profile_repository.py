@@ -32,14 +32,12 @@ class UserProfileRepository(Protocol):
     def get_by_id(
         self,
         profile_id: str,
-    ) -> UserProfile | None:
-        ...
+    ) -> UserProfile | None: ...
 
     def save(
         self,
         profile: UserProfile,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     # ------------------------------------------------------------------
     # User Profile Queries

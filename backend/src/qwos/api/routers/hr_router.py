@@ -373,9 +373,13 @@ async def upload_employee_document(
             detail="Uploaded file must have a filename.",
         )
 
-    extension = Path(
-        original_filename,
-    ).suffix.lstrip(".").lower()
+    extension = (
+        Path(
+            original_filename,
+        )
+        .suffix.lstrip(".")
+        .lower()
+    )
 
     if not extension:
         raise HTTPException(
@@ -426,23 +430,13 @@ async def get_employee_document_content(
         document_id=document_id,
     )
 
-    filename = (
-        application_response.filename
-        .replace('"', "")
-        .replace("\r", "")
-        .replace("\n", "")
-    )
+    filename = application_response.filename.replace('"', "").replace("\r", "").replace("\n", "")
 
     return Response(
         content=application_response.content,
-        media_type=(
-            application_response.mime_type
-            or "application/octet-stream"
-        ),
+        media_type=(application_response.mime_type or "application/octet-stream"),
         headers={
-            "Content-Disposition": (
-                f'inline; filename="{filename}"'
-            ),
+            "Content-Disposition": (f'inline; filename="{filename}"'),
         },
     )
 
@@ -563,12 +557,8 @@ async def update_employee_profile(
         postal_code=application_response.postal_code,
         country_code=application_response.country_code,
         emergency_contact_name=application_response.emergency_contact_name,
-        emergency_contact_relationship=(
-            application_response.emergency_contact_relationship
-        ),
-        emergency_contact_phone=(
-            application_response.emergency_contact_phone
-        ),
+        emergency_contact_relationship=(application_response.emergency_contact_relationship),
+        emergency_contact_phone=(application_response.emergency_contact_phone),
         created_at=application_response.created_at,
     )
 
@@ -583,10 +573,7 @@ async def update_employee_profile(
     response_model=LinkEmployeeToUserResponse,
     status_code=status.HTTP_200_OK,
     summary="Link Employee to User",
-    description=(
-        "Link an employee to an existing QWOS user and create the "
-        "corresponding user profile."
-    ),
+    description=("Link an employee to an existing QWOS user and create the corresponding user profile."),
 )
 async def link_employee_to_user(
     employee_id: str,
@@ -794,10 +781,7 @@ async def list_employee_immigration(
     response_model=ListExpiringEmployeeImmigrationResponse,
     status_code=status.HTTP_200_OK,
     summary="List Expiring Immigration Records",
-    description=(
-        "List immigration records expiring within a specified "
-        "number of days."
-    ),
+    description=("List immigration records expiring within a specified number of days."),
 )
 async def list_expiring_employee_immigration(
     days: int = 30,
@@ -824,14 +808,14 @@ async def list_expiring_employee_immigration(
         application_response,
     )
 
+
 @router.post(
     "/employees/{employee_id}/documents/{document_id}/extraction",
     response_model=ExtractEmployeeDocumentResponse,
     status_code=status.HTTP_200_OK,
     summary="Extract Employee Document",
     description=(
-        "Run document intelligence against an employee document and "
-        "return extraction candidates for human review."
+        "Run document intelligence against an employee document and return extraction candidates for human review."
     ),
 )
 async def extract_employee_document(
@@ -864,15 +848,13 @@ async def extract_employee_document(
         application_response,
     )
 
+
 @router.post(
     "/employees/{employee_id}/documents/{document_id}/extraction/approve",
     response_model=ApproveEmployeeDocumentExtractionResponse,
     status_code=status.HTTP_200_OK,
     summary="Approve Employee Document Extraction",
-    description=(
-        "Apply human-approved document extraction values to "
-        "supported HR records."
-    ),
+    description=("Apply human-approved document extraction values to supported HR records."),
 )
 async def approve_employee_document_extraction(
     employee_id: str,

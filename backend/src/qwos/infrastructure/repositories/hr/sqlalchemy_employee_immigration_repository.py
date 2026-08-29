@@ -71,16 +71,9 @@ class SQLAlchemyEmployeeImmigrationRepository(
             .where(
                 EmployeeImmigration.tenant_id == tenant_id,
                 EmployeeImmigration.employee_id == employee_id,
-                EmployeeImmigration.immigration_type
-                == immigration_type.strip().lower(),
+                EmployeeImmigration.immigration_type == immigration_type.strip().lower(),
                 EmployeeImmigration.deleted_at.is_(None),
-                (
-                    EmployeeImmigration.expiry_date.is_(None)
-                    | (
-                        EmployeeImmigration.expiry_date
-                        >= as_of_date
-                    )
-                ),
+                (EmployeeImmigration.expiry_date.is_(None) | (EmployeeImmigration.expiry_date >= as_of_date)),
             )
             .order_by(
                 EmployeeImmigration.expiry_date.is_(None).desc(),
@@ -109,10 +102,7 @@ class SQLAlchemyEmployeeImmigrationRepository(
         ]
 
         if immigration_type is not None:
-            conditions.append(
-                EmployeeImmigration.immigration_type
-                == immigration_type.strip().lower()
-            )
+            conditions.append(EmployeeImmigration.immigration_type == immigration_type.strip().lower())
 
         stmt = (
             select(EmployeeImmigration)
@@ -145,10 +135,7 @@ class SQLAlchemyEmployeeImmigrationRepository(
         ]
 
         if immigration_type is not None:
-            conditions.append(
-                EmployeeImmigration.immigration_type
-                == immigration_type.strip().lower()
-            )
+            conditions.append(EmployeeImmigration.immigration_type == immigration_type.strip().lower())
 
         stmt = (
             select(EmployeeImmigration)

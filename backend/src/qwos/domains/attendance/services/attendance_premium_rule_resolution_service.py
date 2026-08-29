@@ -59,31 +59,18 @@ class AttendancePremiumRuleResolutionService:
         """
 
         applicable_rules = [
-            rule
-            for rule in rules
-            if rule.rule_type == classification.rule_type
-            and rule.applies_on(effective_date)
+            rule for rule in rules if rule.rule_type == classification.rule_type and rule.applies_on(effective_date)
         ]
 
         if not applicable_rules:
             return []
 
         exclusive_rules = [
-            rule
-            for rule in applicable_rules
-            if (
-                rule.stacking_strategy
-                == AttendancePremiumStackingStrategy.EXCLUSIVE
-            )
+            rule for rule in applicable_rules if (rule.stacking_strategy == AttendancePremiumStackingStrategy.EXCLUSIVE)
         ]
 
         stacking_rules = [
-            rule
-            for rule in applicable_rules
-            if (
-                rule.stacking_strategy
-                == AttendancePremiumStackingStrategy.STACK
-            )
+            rule for rule in applicable_rules if (rule.stacking_strategy == AttendancePremiumStackingStrategy.STACK)
         ]
 
         if exclusive_rules:

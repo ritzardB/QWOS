@@ -88,8 +88,7 @@ class SQLAlchemyAttendanceRecordRepository(
         stmt = select(AttendanceRecord).where(
             AttendanceRecord.tenant_id == tenant_id,
             AttendanceRecord.employee_id == employee_id,
-            AttendanceRecord.attendance_date
-            == attendance_date,
+            AttendanceRecord.attendance_date == attendance_date,
             AttendanceRecord.deleted_at.is_(None),
         )
 
@@ -137,8 +136,7 @@ class SQLAlchemyAttendanceRecordRepository(
             .where(
                 AttendanceRecord.tenant_id == tenant_id,
                 AttendanceRecord.employee_id == employee_id,
-                AttendanceRecord.pay_period_id
-                == pay_period_id,
+                AttendanceRecord.pay_period_id == pay_period_id,
                 AttendanceRecord.deleted_at.is_(None),
             )
             .order_by(
@@ -164,8 +162,7 @@ class SQLAlchemyAttendanceRecordRepository(
             select(AttendanceRecord)
             .where(
                 AttendanceRecord.tenant_id == tenant_id,
-                AttendanceRecord.attendance_date
-                == attendance_date,
+                AttendanceRecord.attendance_date == attendance_date,
                 AttendanceRecord.deleted_at.is_(None),
             )
             .order_by(

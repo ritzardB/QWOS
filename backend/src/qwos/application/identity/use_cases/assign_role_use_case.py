@@ -152,9 +152,7 @@ class AssignRoleUseCase:
             raise DuplicateResourceException(
                 resource="UserRole",
                 field="user_id/role_id",
-                value=(
-                    f"{command.user_id}/{command.role_id}"
-                ),
+                value=(f"{command.user_id}/{command.role_id}"),
             )
 
         # ------------------------------------------------------------------

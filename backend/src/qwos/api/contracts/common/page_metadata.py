@@ -15,7 +15,6 @@ from qwos.api.contracts.responses.common.base_response import BaseResponse
 
 
 class PageMetadata(BaseResponse):
-
     page: int
 
     page_size: int

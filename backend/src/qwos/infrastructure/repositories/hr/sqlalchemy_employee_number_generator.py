@@ -60,17 +60,11 @@ class SQLAlchemyEmployeeNumberGenerator(
         )
 
         if sequence is None:
-            raise ValueError(
-                "Employee number sequence is not configured for tenant."
-            )
+            raise ValueError("Employee number sequence is not configured for tenant.")
 
         current_number = sequence.next_number
 
-        employee_number = (
-            f"{sequence.prefix}"
-            f"{sequence.separator}"
-            f"{current_number:0{sequence.padding_length}d}"
-        )
+        employee_number = f"{sequence.prefix}{sequence.separator}{current_number:0{sequence.padding_length}d}"
 
         sequence.next_number = current_number + 1
 

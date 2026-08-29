@@ -23,9 +23,7 @@ class GetEmployeeManagerUseCase:
         self,
         *,
         employee_repository: EmployeeRepository,
-        relationship_repository: (
-            EmployeeReportingRelationshipRepository
-        ),
+        relationship_repository: (EmployeeReportingRelationshipRepository),
     ) -> None:
         self._employee_repository = employee_repository
         self._relationship_repository = relationship_repository
@@ -51,11 +49,9 @@ class GetEmployeeManagerUseCase:
                 identifier=employee_id,
             )
 
-        relationship = (
-            self._relationship_repository.get_active_primary_manager(
-                tenant_id=tenant_id,
-                employee_id=employee_id,
-            )
+        relationship = self._relationship_repository.get_active_primary_manager(
+            tenant_id=tenant_id,
+            employee_id=employee_id,
         )
 
         if relationship is None:

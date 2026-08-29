@@ -94,10 +94,7 @@ class RequestPasswordResetUseCase:
         if user is None:
             return RequestPasswordResetResponse(
                 success=True,
-                message=(
-                    "If an account exists for this email address, "
-                    "a password reset request has been created."
-                ),
+                message=("If an account exists for this email address, a password reset request has been created."),
             )
 
         # ------------------------------------------------------------------
@@ -107,10 +104,7 @@ class RequestPasswordResetUseCase:
         if user.tenant_id != self._request_context.tenant_id:
             return RequestPasswordResetResponse(
                 success=True,
-                message=(
-                    "If an account exists for this email address, "
-                    "a password reset request has been created."
-                ),
+                message=("If an account exists for this email address, a password reset request has been created."),
             )
 
         # ------------------------------------------------------------------
@@ -160,8 +154,5 @@ class RequestPasswordResetUseCase:
 
         return RequestPasswordResetResponse(
             success=True,
-            message=(
-                "If an account exists for this email address, "
-                "a password reset request has been created."
-            ),
+            message=("If an account exists for this email address, a password reset request has been created."),
         )

@@ -70,32 +70,16 @@ class EmployeeImmigration(TenantEntity):
             employee_id=employee_id,
             immigration_type=immigration_type.strip().lower(),
             status=status.strip().lower(),
-            document_number=(
-                document_number.strip()
-                if document_number
-                else None
-            ),
-            sponsor_name=(
-                sponsor_name.strip()
-                if sponsor_name
-                else None
-            ),
-            issuing_authority=(
-                issuing_authority.strip()
-                if issuing_authority
-                else None
-            ),
+            document_number=(document_number.strip() if document_number else None),
+            sponsor_name=(sponsor_name.strip() if sponsor_name else None),
+            issuing_authority=(issuing_authority.strip() if issuing_authority else None),
             issue_date=issue_date,
             expiry_date=expiry_date,
-            notes=(
-                notes.strip()
-                if notes
-                else None
-            ),
+            notes=(notes.strip() if notes else None),
             created_by=created_by,
             updated_by=created_by,
         )
-    
+
     # -------------------------------------------------------------------------
     # Update
     # -------------------------------------------------------------------------
@@ -118,9 +102,7 @@ class EmployeeImmigration(TenantEntity):
         """
 
         if immigration_type is not None:
-            self.immigration_type = (
-                immigration_type.strip().lower()
-            )
+            self.immigration_type = immigration_type.strip().lower()
 
         if status is not None:
             self.status = status.strip().lower()
@@ -132,9 +114,7 @@ class EmployeeImmigration(TenantEntity):
             self.sponsor_name = sponsor_name.strip()
 
         if issuing_authority is not None:
-            self.issuing_authority = (
-                issuing_authority.strip()
-            )
+            self.issuing_authority = issuing_authority.strip()
 
         if issue_date is not None:
             self.issue_date = issue_date
@@ -145,11 +125,7 @@ class EmployeeImmigration(TenantEntity):
         if notes is not None:
             self.notes = notes.strip()
 
-        if (
-            self.issue_date is not None
-            and self.expiry_date is not None
-            and self.expiry_date < self.issue_date
-        ):
+        if self.issue_date is not None and self.expiry_date is not None and self.expiry_date < self.issue_date:
             raise ValueError(
                 "expiry_date cannot be earlier than issue_date.",
             )

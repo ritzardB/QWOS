@@ -39,13 +39,9 @@ class CreateUserValidator:
     Validator for CreateUserCommand.
     """
 
-    EMAIL_PATTERN = re.compile(
-        r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
-    )
+    EMAIL_PATTERN = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
 
-    USERNAME_PATTERN = re.compile(
-        r"^[A-Za-z0-9._-]{3,50}$"
-    )
+    USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9._-]{3,50}$")
 
     def validate(
         self,
@@ -133,10 +129,7 @@ class CreateUserValidator:
             errors.append(
                 ValidationError(
                     field="username",
-                    message=(
-                        "Username must contain 3–50 letters, "
-                        "numbers, '.', '_' or '-'."
-                    ),
+                    message=("Username must contain 3–50 letters, numbers, '.', '_' or '-'."),
                 )
             )
 

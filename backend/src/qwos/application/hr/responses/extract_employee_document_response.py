@@ -49,7 +49,4 @@ class ExtractEmployeeDocumentResponse:
     employee_id: str
     document_family: str
     country_code: str | None
-    fields: tuple[
-        ExtractedEmployeeDocumentField,
-        ...
-    ]
+    fields: tuple[ExtractedEmployeeDocumentField, ...]

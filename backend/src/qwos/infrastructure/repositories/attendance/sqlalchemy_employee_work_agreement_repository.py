@@ -100,10 +100,7 @@ class SQLAlchemyEmployeeWorkAgreementRepository(
                 EmployeeWorkAgreement.effective_from <= effective_date,
                 (
                     EmployeeWorkAgreement.effective_until.is_(None)
-                    | (
-                        EmployeeWorkAgreement.effective_until
-                        >= effective_date
-                    )
+                    | (EmployeeWorkAgreement.effective_until >= effective_date)
                 ),
                 EmployeeWorkAgreement.deleted_at.is_(None),
             )

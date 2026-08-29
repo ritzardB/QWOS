@@ -45,15 +45,9 @@ class QWOSDocumentStorageKeyGenerator:
         filename = stored_filename.strip()
 
         if not filename:
-            raise ValueError(
-                "stored_filename is required."
-            )
+            raise ValueError("stored_filename is required.")
 
-        return (
-            f"employees/{employee_token}/"
-            f"documents/{category_token.lower()}/"
-            f"{filename}"
-        )
+        return f"employees/{employee_token}/documents/{category_token.lower()}/{filename}"
 
     @staticmethod
     def _normalize_token(value: str) -> str:
@@ -68,8 +62,6 @@ class QWOSDocumentStorageKeyGenerator:
         normalized = normalized.strip("-")
 
         if not normalized:
-            raise ValueError(
-                "Storage key token cannot be empty."
-            )
+            raise ValueError("Storage key token cannot be empty.")
 
         return normalized

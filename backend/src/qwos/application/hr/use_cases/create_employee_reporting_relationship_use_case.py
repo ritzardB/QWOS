@@ -41,9 +41,7 @@ class CreateEmployeeReportingRelationshipUseCase:
         self,
         *,
         employee_repository: EmployeeRepository,
-        relationship_repository: (
-            EmployeeReportingRelationshipRepository
-        ),
+        relationship_repository: (EmployeeReportingRelationshipRepository),
         id_generator: IdGenerator,
         unit_of_work: UnitOfWork,
         validator: CreateEmployeeReportingRelationshipValidator,
@@ -86,14 +84,10 @@ class CreateEmployeeReportingRelationshipUseCase:
             )
 
         if employee.tenant_id != command.tenant_id:
-            raise ValueError(
-                "Employee does not belong to the requested tenant."
-            )
+            raise ValueError("Employee does not belong to the requested tenant.")
 
         if manager.tenant_id != command.tenant_id:
-            raise ValueError(
-                "Manager does not belong to the requested tenant."
-            )
+            raise ValueError("Manager does not belong to the requested tenant.")
 
         if command.is_primary and command.relationship_type == "primary_manager":
             if self._relationship_repository.exists_active_primary_manager(

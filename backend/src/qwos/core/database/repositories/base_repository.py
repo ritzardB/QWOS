@@ -43,10 +43,9 @@ class BaseRepository(Generic[T]):
     # Persistence
     # ------------------------------------------------------------------
 
-    def save(self, 
-             entity: T) -> None:
+    def save(self, entity: T) -> None:
         self._session.add(entity)
-        
+
         """
         Persist an entity.
 
@@ -79,11 +78,7 @@ class BaseRepository(Generic[T]):
         """
         Determine whether an entity exists.
         """
-        stmt = (
-            select(func.count())
-            .select_from(self._model)
-            .where(self._model.id == entity_id)
-        )
+        stmt = select(func.count()).select_from(self._model).where(self._model.id == entity_id)
 
         count = self._session.scalar(stmt)
 
@@ -189,4 +184,3 @@ class BaseRepository(Generic[T]):
         Detach an entity from the current session.
         """
         self._session.expunge(entity)
-
