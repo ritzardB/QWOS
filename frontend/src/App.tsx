@@ -11,6 +11,7 @@ import { LoginPage } from "../features/auth/components/LoginPage";
 import { EmployeesPage } from "../features/employees/pages/EmployeesPage";
 import { AppShell } from "../layouts/AppShell";
 import { EmployeeDetailsPage } from "../features/employees/pages/EmployeeDetailsPage";
+import { AttendancePage } from "../features/attendance/pages/AttendancePage";
 
 import {
   clearAuthentication,
@@ -106,12 +107,18 @@ function App() {
   }
 
   if (pathname === "/employees") {
-    return (
-      <EmployeesPage onLogout={handleLogout} />
-    );
-  }
+  return (
+    <EmployeesPage onLogout={handleLogout} />
+  );
+}
 
-  if (pathname.startsWith("/employees/")) {
+if (pathname === "/attendance") {
+  return (
+    <AttendancePage onLogout={handleLogout} />
+  );
+}
+
+if (pathname.startsWith("/employees/")) {
   const employeeId = pathname.split("/")[2];
 
   if (employeeId) {
