@@ -57,6 +57,9 @@ from qwos.api.contracts.responses.attendance.create_work_schedule_day_response i
 from qwos.api.contracts.responses.attendance.get_work_schedule_response import (
     GetWorkScheduleResponse,
 )
+from qwos.api.contracts.responses.attendance.list_attendance_history_response import (
+    ListAttendanceHistoryResponse,
+)
 from qwos.api.contracts.responses.attendance.list_work_schedule_days_response import (
     ListWorkScheduleDaysResponse,
 )
@@ -74,6 +77,9 @@ from qwos.application.attendance.mappers.employee_work_arrangement_mapper import
 )
 from qwos.application.attendance.mappers.employee_work_schedule_mapper import (
     EmployeeWorkScheduleMapper,
+)
+from qwos.application.attendance.mappers.list_attendance_history_mapper import (
+    ListAttendanceHistoryMapper,
 )
 from qwos.application.attendance.mappers.work_schedule_day_mapper import (
     WorkScheduleDayMapper,
@@ -99,6 +105,9 @@ from qwos.application.attendance.use_cases.create_work_schedule_day_use_case imp
 from qwos.application.attendance.use_cases.get_work_schedule_use_case import (
     GetWorkScheduleUseCase,
 )
+from qwos.application.attendance.use_cases.list_attendance_history_use_case import (
+    ListAttendanceHistoryUseCase,
+)
 from qwos.application.attendance.use_cases.list_work_schedule_days_use_case import (
     ListWorkScheduleDaysUseCase,
 )
@@ -114,6 +123,7 @@ from qwos.application.common.dependencies.attendance import (
     get_create_employee_work_arrangement_use_case,
     get_create_employee_work_schedule_use_case,
     get_create_work_schedule_day_use_case,
+    get_list_attendance_history_use_case,
     get_list_work_schedule_days_use_case,
     get_list_work_schedules_use_case,
     get_work_schedule_use_case,
@@ -424,5 +434,38 @@ async def list_work_schedule_days(
     )
 
     return WorkScheduleDayMapper.to_list_response(
+        application_response,
+    )
+
+# -------------------------------------------------------------------------
+# List Attendance History
+# -------------------------------------------------------------------------
+
+
+@router.get(
+    "/employees/{employee_id}/attendance-history",
+    response_model=ListAttendanceHistoryResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List Attendance History",
+    description="List attendance history for an employee.",
+)
+async def list_attendance_history(
+    employee_id: str,
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+    use_case: ListAttendanceHistoryUseCase = Depends(
+        get_list_attendance_history_use_case,
+    ),
+) -> ListAttendanceHistoryResponse:
+    """
+    List attendance history for an employee.
+    """
+
+    application_response = await use_case.execute(
+        employee_id=employee_id,
+    )
+
+    return ListAttendanceHistoryMapper.to_response(
         application_response,
     )

@@ -35,6 +35,9 @@ from qwos.application.attendance.use_cases.create_work_schedule_day_use_case imp
 from qwos.application.attendance.use_cases.get_work_schedule_use_case import (
     GetWorkScheduleUseCase,
 )
+from qwos.application.attendance.use_cases.list_attendance_history_use_case import (
+    ListAttendanceHistoryUseCase,
+)
 from qwos.application.attendance.use_cases.list_work_schedule_days_use_case import (
     ListWorkScheduleDaysUseCase,
 )
@@ -216,5 +219,18 @@ def get_list_work_schedule_days_use_case(
     return ListWorkScheduleDaysUseCase(
         work_schedule_repository=unit_of_work.work_schedule_repository,
         work_schedule_day_repository=(unit_of_work.work_schedule_day_repository),
+        request_context=request_context,
+    )
+
+def get_list_attendance_history_use_case(
+    unit_of_work: UnitOfWork = Depends(get_unit_of_work),
+    request_context: RequestContext = Depends(get_request_context),
+) -> ListAttendanceHistoryUseCase:
+    """
+    Provide the ListAttendanceHistoryUseCase instance.
+    """
+
+    return ListAttendanceHistoryUseCase(
+        attendance_record_repository=unit_of_work.attendance_record_repository,
         request_context=request_context,
     )

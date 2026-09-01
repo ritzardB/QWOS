@@ -21,6 +21,8 @@ from __future__ import annotations
 
 from qwos.api.contracts.responses.attendance.list_attendance_history_response import (
     AttendanceHistoryListItem,
+)
+from qwos.api.contracts.responses.attendance.list_attendance_history_response import (
     ListAttendanceHistoryResponse as ApiListAttendanceHistoryResponse,
 )
 from qwos.application.attendance.responses.list_attendance_history_response import (
