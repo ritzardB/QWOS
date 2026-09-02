@@ -19,41 +19,37 @@ Author:
 
 from __future__ import annotations
 
+import logging
 from uuid import uuid4
 
 from fastapi import Depends, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from qwos.application.common.context.request_context import RequestContext
-from qwos.application.common.dependencies.common import (
-    get_token_provider,
-)
+from qwos.application.common.dependencies.common import get_token_provider
 from qwos.application.common.ports.token_provider import TokenProvider
+
+
+logger = logging.getLogger(__name__)
+
+bearer_scheme = HTTPBearer(auto_error=False)
 
 
 async def get_authenticated_request_context(
     request: Request,
-    token_provider: TokenProvider = Depends(
-        get_token_provider,
-    ),
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    token_provider: TokenProvider = Depends(get_token_provider),
 ) -> RequestContext:
-    """
-    Build RequestContext from the authenticated bearer token.
-    """
-
-    authorization = request.headers.get(
-        "Authorization",
-    )
-
-    if not authorization:
+    if credentials is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication required.",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    scheme, _, token = authorization.partition(" ")
+    token = credentials.credentials
 
-    if scheme.lower() != "bearer" or not token.strip():
+    if not token.strip():
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication header.",
@@ -61,20 +57,31 @@ async def get_authenticated_request_context(
         )
 
     try:
-        payload = await token_provider.validate_token(
-            token.strip(),
-        )
+        payload = await token_provider.validate_token(token.strip())
     except Exception as exc:
+        logger.exception(
+            "AUTH DEBUG: JWT validation failed: %s",
+            exc,
+        )
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired access token.",
             headers={"WWW-Authenticate": "Bearer"},
         ) from exc
 
+    logger.warning(
+        "AUTH DEBUG: JWT payload type=%r sub=%r tenant_id=%r session_id=%r",
+        payload.get("type"),
+        payload.get("sub"),
+        payload.get("tenant_id"),
+        payload.get("session_id"),
+    )
+
     if payload.get("type") != "access":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid access token.",
+            detail="Invalid token type.",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -84,14 +91,14 @@ async def get_authenticated_request_context(
     if not isinstance(user_id, str) or not user_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Access token does not contain a user identity.",
+            detail="Invalid token subject.",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
     if not isinstance(tenant_id, str) or not tenant_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Access token does not contain a tenant identity.",
+            detail="Invalid token tenant.",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -111,8 +118,10 @@ async def get_authenticated_request_context(
             "en-US",
         ),
         timezone="UTC",
-        ip_address=(request.client.host if request.client is not None else None),
-        user_agent=request.headers.get(
-            "User-Agent",
+        ip_address=(
+            request.client.host
+            if request.client is not None
+            else None
         ),
+        user_agent=request.headers.get("User-Agent"),
     )

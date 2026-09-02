@@ -24,6 +24,7 @@ from qwos.application.attendance.responses.list_attendance_history_response impo
     ListAttendanceHistoryResponse,
 )
 from qwos.application.common.context.request_context import RequestContext
+from qwos.application.common.exceptions.resource_not_found_exception import ResourceNotFoundException
 from qwos.domains.attendance.repositories.attendance_record_repository import (
     AttendanceRecordRepository,
 )
@@ -47,11 +48,27 @@ class ListAttendanceHistoryUseCase:
 
     async def execute(
         self,
-        employee_id: str,
+        employee_id: str | None = None,
     ) -> ListAttendanceHistoryResponse:
-        """
-        List attendance history for an employee.
-        """
+
+        if employee_id is None:
+            if self._request_context.user_id is None:
+                raise ValueError(
+                    "Authenticated user is required.",
+                )
+
+            employee = self._employee_repository.get_by_user_id(
+                tenant_id=self._request_context.tenant_id,
+                user_id=self._request_context.user_id,
+            )
+
+            if employee is None:
+                raise ResourceNotFoundException(
+                    resource="Employee",
+                    identifier=self._request_context.user_id,
+                )
+
+            employee_id = employee.id
 
         records = (
             self._attendance_record_repository.list_by_employee(

@@ -20,7 +20,7 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import Any
 
-from sqlalchemy import Date, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Date, DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from qwos.core.database.entity_base import TenantEntity
@@ -141,10 +141,6 @@ class AttendanceRecord(TenantEntity):
 
     employee_id: Mapped[str] = mapped_column(
         ULID,
-        ForeignKey(
-            "employees.id",
-            ondelete="RESTRICT",
-        ),
         nullable=False,
     )
 
@@ -154,10 +150,6 @@ class AttendanceRecord(TenantEntity):
 
     pay_period_id: Mapped[str | None] = mapped_column(
         ULID,
-        ForeignKey(
-            "pay_periods.id",
-            ondelete="RESTRICT",
-        ),
         nullable=True,
     )
 

@@ -238,6 +238,7 @@ class AuthenticateUserUseCase:
         access_token = await self._token_provider.create_access_token(
             subject=user.id,
             claims={
+                "type": "access",
                 "tenant_id": user.tenant_id,
                 "user_type": str(user.user_type),
                 "session_id": session_id,

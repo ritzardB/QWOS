@@ -10,6 +10,10 @@ JWT Token Provider
 
 from __future__ import annotations
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -47,14 +51,18 @@ class JWTTokenProvider(TokenProvider):
         claims: dict[str, Any],
         expires_in: timedelta,
     ) -> str:
-        """
-        Create a signed JWT access token.
-        """
-
         now = datetime.now(timezone.utc)
         expires_at = now + expires_in
 
-        payload: dict[str, Any] = {
+        logger.warning(
+            "JWT ACCESS DEBUG: now=%s expires_at=%s expires_in=%s subject=%s",
+            now,
+            expires_at,
+            expires_in,
+            subject,
+        )
+
+        payload = {
             "sub": subject,
             "type": "access",
             "iat": now,
@@ -62,11 +70,17 @@ class JWTTokenProvider(TokenProvider):
             **claims,
         }
 
-        return jwt.encode(
+        token = jwt.encode(
             payload,
             self._secret_key,
             algorithm=self._algorithm,
         )
+
+        logger.warning(
+            "JWT ACCESS DEBUG: token generated successfully"
+        )
+
+        return token
 
     async def create_refresh_token(
         self,

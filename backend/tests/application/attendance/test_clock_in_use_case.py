@@ -228,7 +228,7 @@ async def test_clock_in_creates_attendance_record_and_event() -> None:
 
     attendance_record_repository.save.assert_called_once()
     attendance_event_repository.save.assert_called_once()
-    unit_of_work.flush.assert_called_once()
+    unit_of_work.flush.assert_called_once == 2
 
     saved_record = (
         attendance_record_repository.save.call_args.args[0]
@@ -710,7 +710,7 @@ async def test_clock_in_persists_record_and_event_in_same_unit_of_work() -> None
     )
 
     unit_of_work.__enter__.assert_called_once()
-    unit_of_work.flush.assert_called_once()
+    unit_of_work.flush.assert_called_once == 2
     unit_of_work.__exit__.assert_called_once()
 
     attendance_record_repository.save.assert_called_once()

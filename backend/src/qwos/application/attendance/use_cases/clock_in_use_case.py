@@ -212,6 +212,10 @@ class ClockInUseCase:
                 attendance_record,
             )
 
+            # Ensure the attendance record exists before
+            # inserting the event that references it.
+            self._unit_of_work.flush()
+
             self._attendance_event_repository.save(
                 attendance_event,
             )

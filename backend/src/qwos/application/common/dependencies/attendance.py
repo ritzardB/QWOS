@@ -71,7 +71,39 @@ from qwos.application.common.dependencies.common import (
 from qwos.application.common.persistence.unit_of_work import UnitOfWork
 from qwos.application.common.ports.clock import Clock
 from qwos.application.common.ports.id_generator import IdGenerator
+from qwos.domains.identity.models.session import Session
+from qwos.infrastructure.repositories.attendance.sqlalchemy_attendance_event_repository import (
+    SQLAlchemyAttendanceEventRepository,
+)
+from qwos.infrastructure.repositories.attendance.sqlalchemy_attendance_record_repository import (
+    SQLAlchemyAttendanceRecordRepository,
+)
+from qwos.infrastructure.repositories.hr.sqlalchemy_employee_repository import (
+    SQLAlchemyEmployeeRepository,
+)
 
+
+def __init__(
+    self,
+    session: Session,
+) -> None:
+    self._session = session
+
+    self.employee_repository = SQLAlchemyEmployeeRepository(
+        session,
+    )
+
+    self.attendance_record_repository = (
+        SQLAlchemyAttendanceRecordRepository(
+            session,
+        )
+    )
+
+    self.attendance_event_repository = (
+        SQLAlchemyAttendanceEventRepository(
+            session,
+        )
+    )
 
 def get_clock_in_use_case(
     unit_of_work: UnitOfWork = Depends(get_unit_of_work),
