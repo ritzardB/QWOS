@@ -11,8 +11,7 @@ import { LoginPage } from "../features/auth/components/LoginPage";
 import { EmployeesPage } from "../features/employees/pages/EmployeesPage";
 import { AppShell } from "../layouts/AppShell";
 import { EmployeeDetailsPage } from "../features/employees/pages/EmployeeDetailsPage";
-import { AttendancePage } from "../features/attendance/pages/AttendancePage";
-
+import AttendancePage from "../features/attendance/pages/AttendancePage";
 import {
   clearAuthentication,
   getRefreshToken,
@@ -114,7 +113,9 @@ function App() {
 
 if (pathname === "/attendance") {
   return (
-    <AttendancePage onLogout={handleLogout} />
+    <AppShell onLogout={handleLogout}>
+      <AttendancePage />
+    </AppShell>
   );
 }
 

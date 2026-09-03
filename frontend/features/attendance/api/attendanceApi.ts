@@ -16,7 +16,9 @@ import type {
   CreateWorkScheduleDayResponse,
   WorkSchedule,
   WorkScheduleDay,
+  ListAttendanceHistoryResponse,
 } from "../types/attendance";
+
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ??
@@ -156,4 +158,37 @@ export async function createWorkScheduleDay(
       body: JSON.stringify(request),
     },
   );
+  
+}
+
+export async function listAttendanceHistory(
+  employeeId: string,
+): Promise<ListAttendanceHistoryResponse> {
+  return attendanceRequest<ListAttendanceHistoryResponse>(
+    `/employees/${employeeId}/attendance-history`,
+  );
+}
+
+export async function getMyAttendanceHistory(): Promise<ListAttendanceHistoryResponse> {
+  return attendanceRequest<ListAttendanceHistoryResponse>(
+    "/me/history",
+  );
+}
+
+export async function clockInMe(
+  request: ClockInRequest = {},
+): Promise<ClockInResponse> {
+  return attendanceRequest<ClockInResponse>("/me/clock-in", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+}
+
+export async function clockOutMe(
+  request: ClockOutRequest = {},
+): Promise<ClockOutResponse> {
+  return attendanceRequest<ClockOutResponse>("/me/clock-out", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
 }

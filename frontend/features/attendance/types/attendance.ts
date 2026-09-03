@@ -1,12 +1,10 @@
 export type ClockInRequest = {
-  employee_id: string;
   clock_in_at?: string | null;
   event_source?: string;
   notes?: string | null;
 };
 
 export type ClockOutRequest = {
-  employee_id: string;
   clock_out_at?: string | null;
   event_source?: string;
   notes?: string | null;
@@ -111,3 +109,21 @@ export type CreateWorkScheduleDayResponse = {
   is_overnight: boolean;
   created_at: string;
 };
+
+export interface AttendanceHistoryItem {
+  attendance_record_id: string;
+  employee_id: string;
+  attendance_date: string;
+  status: string;
+  clock_in_at: string | null;
+  clock_out_at: string | null;
+  worked_minutes: number;
+  late_minutes: number;
+  undertime_minutes: number;
+  overtime_minutes: number;
+  notes: string | null;
+}
+export interface ListAttendanceHistoryResponse {
+  items: AttendanceHistoryItem[];
+  total: number;
+}

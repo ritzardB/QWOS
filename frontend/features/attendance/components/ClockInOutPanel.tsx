@@ -1,8 +1,8 @@
 import { useState } from "react";
 
 import {
-  clockIn,
-  clockOut,
+  clockInMe,
+  clockOutMe,
 } from "../api/attendanceApi";
 
 import type {
@@ -10,13 +10,7 @@ import type {
   ClockOutResponse,
 } from "../types/attendance";
 
-type ClockInOutPanelProps = {
-  employeeId: string;
-};
-
-export function ClockInOutPanel({
-  employeeId,
-}: ClockInOutPanelProps) {
+export function ClockInOutPanel() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -32,12 +26,12 @@ export function ClockInOutPanel({
     setError("");
 
     try {
-      const response = await clockIn({
-        employee_id: employeeId,
+      const response = await clockInMe({
         event_source: "web",
       });
 
       setAttendance(response);
+
       setMessage(
         `Clocked in successfully at ${formatDateTime(
           response.event_at,
@@ -56,12 +50,12 @@ export function ClockInOutPanel({
     setError("");
 
     try {
-      const response = await clockOut({
-        employee_id: employeeId,
+      const response = await clockOutMe({
         event_source: "web",
       });
 
       setAttendance(response);
+
       setMessage(
         `Clocked out successfully at ${formatDateTime(
           response.clock_out_at,
@@ -80,7 +74,7 @@ export function ClockInOutPanel({
         <div>
           <h2>Attendance</h2>
           <p>
-            Record the employee's working time.
+            Record your working time.
           </p>
         </div>
 

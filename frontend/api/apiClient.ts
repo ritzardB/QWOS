@@ -5,6 +5,13 @@ export function getAuthenticatedHeaders(
 ): HeadersInit {
   const accessToken = getAccessToken();
 
+  console.log(
+    "AUTH DEBUG:",
+    accessToken
+      ? "Access token exists"
+      : "NO ACCESS TOKEN",
+  );
+
   return {
     Accept: "application/json",
     ...headers,
