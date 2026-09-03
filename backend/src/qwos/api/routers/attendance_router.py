@@ -25,9 +25,11 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, status
 
 from qwos.api.contracts.requests.attendance.clock_in_request import (
+    ClockInMeRequest,
     ClockInRequest,
 )
 from qwos.api.contracts.requests.attendance.clock_out_request import (
+    ClockOutMeRequest,
     ClockOutRequest,
 )
 from qwos.api.contracts.requests.attendance.create_employee_work_arrangement_request import (
@@ -118,6 +120,7 @@ from qwos.application.common.context.request_context import (
     RequestContext,
 )
 from qwos.application.common.dependencies.attendance import (
+    get_authenticated_employee_id,
     get_clock_in_use_case,
     get_clock_out_use_case,
     get_create_employee_work_arrangement_use_case,
@@ -467,5 +470,122 @@ async def list_attendance_history(
     )
 
     return ListAttendanceHistoryMapper.to_response(
+        application_response,
+    )
+
+# -------------------------------------------------------------------------
+# My Attendance History
+# -------------------------------------------------------------------------
+
+
+@router.get(
+    "/me/history",
+    response_model=ListAttendanceHistoryResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List My Attendance History",
+    description="List attendance history for the authenticated employee.",
+)
+async def list_my_attendance_history(
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+    use_case: ListAttendanceHistoryUseCase = Depends(
+        get_list_attendance_history_use_case,
+    ),
+) -> ListAttendanceHistoryResponse:
+    """
+    List attendance history for the authenticated employee.
+    """
+
+    application_response = await use_case.execute()
+
+    return ListAttendanceHistoryMapper.to_response(
+        application_response,
+    )
+
+# -------------------------------------------------------------------------
+# My Attendance - Clock In
+# -------------------------------------------------------------------------
+
+
+@router.post(
+    "/me/clock-in",
+    response_model=ClockInResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Clock In",
+    description="Clock in the authenticated employee.",
+)
+async def clock_in_me(
+    request: ClockInMeRequest,
+    employee_id: str = Depends(
+        get_authenticated_employee_id,
+    ),
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+    use_case: ClockInUseCase = Depends(
+        get_clock_in_use_case,
+    ),
+) -> ClockInResponse:
+    """
+    Clock in the authenticated employee.
+    """
+
+    request.employee_id = employee_id
+
+    command = ClockInMapper.to_command(
+        request=request,
+        request_context=request_context,
+    )
+
+    application_response = await use_case.execute(
+        command,
+    )
+
+    return ClockInMapper.to_response(
+        application_response,
+    )
+
+
+# -------------------------------------------------------------------------
+# My Attendance - Clock Out
+# -------------------------------------------------------------------------
+
+
+@router.post(
+    "/me/clock-out",
+    response_model=ClockOutResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Clock Out",
+    description="Clock out the authenticated employee.",
+)
+async def clock_out_me(
+    request: ClockOutMeRequest,
+    employee_id: str = Depends(
+        get_authenticated_employee_id,
+    ),
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+    use_case: ClockOutUseCase = Depends(
+        get_clock_out_use_case,
+    ),
+) -> ClockOutResponse:
+    """
+    Clock out the authenticated employee.
+    """
+
+    request.employee_id = employee_id
+
+    command = ClockOutMapper.to_command(
+        request=request,
+        request_context=request_context,
+    )
+
+    application_response = await use_case.execute(
+        command,
+    )
+
+    return ClockOutMapper.to_response(
         application_response,
     )

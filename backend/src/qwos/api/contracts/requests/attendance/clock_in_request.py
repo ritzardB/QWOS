@@ -48,3 +48,8 @@ class ClockInRequest(BaseRequest):
         default=None,
         max_length=500,
     )
+
+class ClockInMeRequest(BaseRequest):
+    clock_in_at: datetime | None = None
+    event_source: str = "web"
+    notes: str | None = None

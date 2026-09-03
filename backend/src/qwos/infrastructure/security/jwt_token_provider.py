@@ -11,9 +11,6 @@ JWT Token Provider
 from __future__ import annotations
 
 import logging
-
-logger = logging.getLogger(__name__)
-
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -22,7 +19,7 @@ import jwt
 from qwos.application.common.ports.token_provider import TokenProvider
 from qwos.core.config.settings import settings
 
-
+logger = logging.getLogger(__name__)
 class JWTTokenProvider(TokenProvider):
     """
     PyJWT implementation of the TokenProvider contract.

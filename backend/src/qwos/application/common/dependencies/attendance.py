@@ -62,11 +62,15 @@ from qwos.application.attendance.validators.create_work_schedule_day_validator i
 from qwos.application.common.context.request_context import (
     RequestContext,
 )
+from qwos.application.common.dependencies.authentication import get_authenticated_request_context
 from qwos.application.common.dependencies.common import (
     get_clock,
     get_id_generator,
     get_request_context,
     get_unit_of_work,
+)
+from qwos.application.common.exceptions.resource_not_found_exception import (
+    ResourceNotFoundException,
 )
 from qwos.application.common.persistence.unit_of_work import UnitOfWork
 from qwos.application.common.ports.clock import Clock
@@ -150,6 +154,27 @@ def get_clock_out_use_case(
         request_context=request_context,
     )
 
+def get_authenticated_employee_id(
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context
+    ),
+    unit_of_work: UnitOfWork = Depends(get_unit_of_work),
+) -> str:
+    if request_context.user_id is None:
+        raise ValueError("Authenticated user is required.")
+
+    employee = unit_of_work.employee_repository.get_by_user_id(
+        tenant_id=request_context.tenant_id,
+        user_id=request_context.user_id,
+    )
+
+    if employee is None:
+        raise ResourceNotFoundException(
+            resource="Employee",
+            identifier=request_context.user_id,
+        )
+
+    return employee.id
 
 def get_create_employee_work_arrangement_use_case(
     unit_of_work: UnitOfWork = Depends(get_unit_of_work),
@@ -264,5 +289,6 @@ def get_list_attendance_history_use_case(
 
     return ListAttendanceHistoryUseCase(
         attendance_record_repository=unit_of_work.attendance_record_repository,
+        employee_repository=unit_of_work.employee_repository,
         request_context=request_context,
     )

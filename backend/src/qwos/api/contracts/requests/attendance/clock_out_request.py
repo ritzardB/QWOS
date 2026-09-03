@@ -48,3 +48,8 @@ class ClockOutRequest(BaseRequest):
         default=None,
         max_length=500,
     )
+
+class ClockOutMeRequest(BaseRequest):
+    clock_out_at: datetime | None = None
+    event_source: str = "web"
+    notes: str | None = None

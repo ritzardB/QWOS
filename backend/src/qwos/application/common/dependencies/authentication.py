@@ -29,7 +29,6 @@ from qwos.application.common.context.request_context import RequestContext
 from qwos.application.common.dependencies.common import get_token_provider
 from qwos.application.common.ports.token_provider import TokenProvider
 
-
 logger = logging.getLogger(__name__)
 
 bearer_scheme = HTTPBearer(auto_error=False)

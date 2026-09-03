@@ -28,6 +28,9 @@ from qwos.application.common.exceptions.resource_not_found_exception import Reso
 from qwos.domains.attendance.repositories.attendance_record_repository import (
     AttendanceRecordRepository,
 )
+from qwos.domains.hr.repositories.employee_repository import (
+    EmployeeRepository,
+)
 
 
 class ListAttendanceHistoryUseCase:
@@ -39,11 +42,13 @@ class ListAttendanceHistoryUseCase:
         self,
         *,
         attendance_record_repository: AttendanceRecordRepository,
+        employee_repository: EmployeeRepository,
         request_context: RequestContext,
     ) -> None:
         self._attendance_record_repository = (
             attendance_record_repository
         )
+        self._employee_repository = employee_repository
         self._request_context = request_context
 
     async def execute(
