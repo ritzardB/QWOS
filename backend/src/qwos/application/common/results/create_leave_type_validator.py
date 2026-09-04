@@ -5,7 +5,6 @@ from qwos.application.leave.commands.create_leave_type_command import (
     CreateLeaveTypeCommand,
 )
 
-
 class CreateLeaveTypeValidator:
     def validate(self, command: CreateLeaveTypeCommand) -> ValidationResult:
         errors: dict[str, str] = {}
