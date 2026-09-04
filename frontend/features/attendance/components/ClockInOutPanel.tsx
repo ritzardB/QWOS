@@ -1,24 +1,78 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   clockInMe,
   clockOutMe,
+  getMyAttendanceHistory,
 } from "../api/attendanceApi";
 
 import type {
+  AttendanceHistoryItem,
   ClockInResponse,
   ClockOutResponse,
 } from "../types/attendance";
 
 export function ClockInOutPanel() {
   const [loading, setLoading] = useState(false);
+  const [loadingAttendance, setLoadingAttendance] =
+    useState(true);
+
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
   const [attendance, setAttendance] =
-    useState<ClockInResponse | ClockOutResponse | null>(
+    useState<ClockInResponse | ClockOutResponse | AttendanceHistoryItem | null>(
       null,
     );
+
+  useEffect(() => {
+    async function loadAttendance(): Promise<void> {
+      setLoadingAttendance(true);
+      setError("");
+
+      try {
+        const response = await getMyAttendanceHistory();
+
+        if (response.items.length > 0) {
+          const latest = [...response.items].sort(
+            (a, b) =>
+              new Date(b.attendance_date).getTime() -
+              new Date(a.attendance_date).getTime(),
+          )[0];
+
+          setAttendance(latest);
+        } else {
+          setAttendance(null);
+        }
+      } catch (err) {
+        setError(getErrorMessage(err));
+      } finally {
+        setLoadingAttendance(false);
+      }
+    }
+
+    void loadAttendance();
+  }, []);
+
+  async function refreshAttendance(): Promise<void> {
+    try {
+      const response = await getMyAttendanceHistory();
+
+      if (response.items.length > 0) {
+        const latest = [...response.items].sort(
+          (a, b) =>
+            new Date(b.attendance_date).getTime() -
+            new Date(a.attendance_date).getTime(),
+        )[0];
+
+        setAttendance(latest);
+      } else {
+        setAttendance(null);
+      }
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+  }
 
   async function handleClockIn(): Promise<void> {
     setLoading(true);
@@ -37,6 +91,8 @@ export function ClockInOutPanel() {
           response.event_at,
         )}.`,
       );
+
+      await refreshAttendance();
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -61,6 +117,8 @@ export function ClockInOutPanel() {
           response.clock_out_at,
         )}.`,
       );
+
+      await refreshAttendance();
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -68,11 +126,31 @@ export function ClockInOutPanel() {
     }
   }
 
+  if (loadingAttendance) {
+    return (
+      <section className="qwos-attendance-panel">
+        <div className="qwos-attendance-panel-header">
+          <div>
+            <h2>Attendance</h2>
+            <p>
+              Record your working time.
+            </p>
+          </div>
+
+          <span className="qwos-attendance-status">
+            Loading...
+          </span>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="qwos-attendance-panel">
       <div className="qwos-attendance-panel-header">
         <div>
           <h2>Attendance</h2>
+
           <p>
             Record your working time.
           </p>
@@ -128,13 +206,35 @@ export function ClockInOutPanel() {
           </div>
 
           <div>
-            <span>Event</span>
+            <span>Clock In</span>
             <strong>
-              {attendance.event_type}
+              {attendance.clock_in_at
+                ? formatDateTime(attendance.clock_in_at)
+                : "—"}
             </strong>
           </div>
 
-          {isClockOutResponse(attendance) && (
+          <div>
+            <span>Status</span>
+            <strong>
+              {attendance.status}
+            </strong>
+          </div>
+
+          {"clock_out_at" in attendance && (
+            <div>
+              <span>Clock Out</span>
+              <strong>
+                {attendance.clock_out_at
+                  ? formatDateTime(
+                      attendance.clock_out_at,
+                    )
+                  : "—"}
+              </strong>
+            </div>
+          )}
+
+          {"worked_minutes" in attendance && (
             <div>
               <span>Worked time</span>
               <strong>
@@ -148,12 +248,6 @@ export function ClockInOutPanel() {
       )}
     </section>
   );
-}
-
-function isClockOutResponse(
-  response: ClockInResponse | ClockOutResponse,
-): response is ClockOutResponse {
-  return "worked_minutes" in response;
 }
 
 function formatDateTime(

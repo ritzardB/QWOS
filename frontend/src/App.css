@@ -1745,3 +1745,552 @@
   cursor: not-allowed;
   opacity: 0.7;
 }
+
+/* ========================================
+   ATTENDANCE
+   ======================================== */
+
+.qwos-page-header {
+  margin-bottom: 32px;
+}
+
+.qwos-page-eyebrow {
+  margin: 0 0 8px;
+  color: var(--qwos-primary);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.qwos-page-header h1 {
+  margin: 0;
+  color: var(--qwos-text);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.qwos-page-header p:last-child {
+  max-width: 680px;
+  margin: 10px 0 0;
+  color: var(--qwos-text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ----------------------------------------
+   Attendance Content
+   ---------------------------------------- */
+
+.qwos-attendance-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+}
+
+/* ----------------------------------------
+   Attendance Cards
+   ---------------------------------------- */
+
+.qwos-attendance-card {
+  min-width: 0;
+  padding: 22px;
+  background: var(--qwos-surface);
+  border: 1px solid var(--qwos-border);
+  border-radius: var(--qwos-radius-lg);
+  box-shadow: var(--qwos-shadow-sm);
+}
+
+.qwos-attendance-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.qwos-attendance-card-header h2 {
+  margin: 0;
+  color: var(--qwos-text);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.qwos-attendance-card-header p {
+  margin: 6px 0 0;
+  color: var(--qwos-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* ----------------------------------------
+   Attendance Form
+   ---------------------------------------- */
+
+.qwos-attendance-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.qwos-attendance-form label {
+  color: var(--qwos-text);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.qwos-attendance-form input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid var(--qwos-border);
+  border-radius: var(--qwos-radius-md);
+  background: var(--qwos-surface);
+  color: var(--qwos-text);
+  font: inherit;
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.qwos-attendance-form input::placeholder {
+  color: var(--qwos-text-muted);
+}
+
+.qwos-attendance-form input:focus {
+  border-color: var(--qwos-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* ----------------------------------------
+   Attendance Empty / Error
+   ---------------------------------------- */
+
+.qwos-attendance-empty {
+  display: flex;
+  min-height: 100px;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  border: 1px dashed var(--qwos-border);
+  border-radius: var(--qwos-radius-md);
+  background: #fafbfc;
+  color: var(--qwos-text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.qwos-attendance-error {
+  padding: 12px 14px;
+  border: 1px solid #fecaca;
+  border-radius: var(--qwos-radius-md);
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ----------------------------------------
+   Work Schedule List
+   ---------------------------------------- */
+
+.qwos-schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qwos-schedule-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px 16px;
+  border: 1px solid var(--qwos-border);
+  border-radius: var(--qwos-radius-md);
+  background: #fafbfc;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.qwos-schedule-item:hover {
+  border-color: #cbd5e1;
+  background: var(--qwos-surface);
+  transform: translateY(-1px);
+}
+
+.qwos-schedule-item > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.qwos-schedule-item > div:last-child {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.qwos-schedule-item strong {
+  color: var(--qwos-text);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.qwos-schedule-item span {
+  color: var(--qwos-text-muted);
+  font-size: 11px;
+}
+
+.qwos-schedule-item > div:last-child span:last-child {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.qwos-schedule-item > div:last-child span:last-child:where([data-active="false"]) {
+  background: #f1f5f9;
+  color: var(--qwos-text-muted);
+}
+
+/* ----------------------------------------
+   Attendance Responsive
+   ---------------------------------------- */
+
+@media (max-width: 900px) {
+  .qwos-attendance-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .qwos-page-header h1 {
+    font-size: 28px;
+  }
+
+  .qwos-attendance-card {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 520px) {
+  .qwos-attendance-content {
+    gap: 16px;
+  }
+
+  .qwos-schedule-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .qwos-schedule-item > div:last-child {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
+/* ========================================
+   ATTENDANCE CLOCK ACTIONS
+   ======================================== */
+
+.qwos-clock-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.qwos-clock-button {
+  position: relative;
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 0;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
+}
+
+.qwos-clock-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.qwos-clock-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.qwos-clock-button:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.2);
+  outline-offset: 2px;
+}
+
+/* Clock In */
+
+.qwos-clock-in {
+  background: var(--qwos-primary);
+  color: #ffffff;
+  box-shadow:
+    0 4px 12px rgba(37, 99, 235, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.qwos-clock-in:hover:not(:disabled) {
+  box-shadow:
+    0 7px 18px rgba(37, 99, 235, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Clock Out */
+
+.qwos-clock-out {
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+
+.qwos-clock-out:hover:not(:disabled) {
+  border-color: #94a3b8;
+  box-shadow: 0 5px 14px rgba(15, 23, 42, 0.09);
+}
+
+/* Disabled */
+
+.qwos-clock-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Mobile */
+
+@media (max-width: 520px) {
+  .qwos-clock-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========================================
+   CLOCK IN / CLOCK OUT
+   ======================================== */
+
+.qwos-attendance-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.qwos-attendance-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 20px;
+  border-radius: var(--qwos-radius-md);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+/* Clock In */
+
+.qwos-attendance-button-clock-in {
+  border: 1px solid var(--qwos-primary);
+  background: var(--qwos-primary);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.18);
+}
+
+.qwos-attendance-button-clock-in:hover:not(:disabled) {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.24);
+}
+
+.qwos-attendance-button-clock-in:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.18);
+}
+
+/* Clock Out */
+
+.qwos-attendance-button-clock-out {
+  border: 1px solid var(--qwos-border);
+  background: var(--qwos-surface);
+  color: var(--qwos-text);
+  box-shadow: var(--qwos-shadow-sm);
+}
+
+.qwos-attendance-button-clock-out:hover:not(:disabled) {
+  border-color: #94a3b8;
+  background: #f8fafc;
+  color: var(--qwos-text);
+  transform: translateY(-1px);
+  box-shadow: var(--qwos-shadow-md);
+}
+
+.qwos-attendance-button-clock-out:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--qwos-shadow-sm);
+}
+
+/* Keyboard focus */
+
+.qwos-attendance-button:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.14),
+    0 4px 12px rgba(37, 99, 235, 0.12);
+}
+
+/* Disabled / processing */
+
+.qwos-attendance-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Attendance panel */
+
+.qwos-attendance-panel {
+  padding: 20px;
+  border: 1px solid var(--qwos-border);
+  border-radius: var(--qwos-radius-md);
+  background: var(--qwos-surface);
+}
+
+.qwos-attendance-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.qwos-attendance-panel-header h2 {
+  margin: 0;
+  color: var(--qwos-text);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.qwos-attendance-panel-header p {
+  margin: 5px 0 0;
+  color: var(--qwos-text-muted);
+  font-size: 12px;
+}
+
+/* Status badge */
+
+.qwos-attendance-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: var(--qwos-text-muted);
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+/* Success message */
+
+.qwos-attendance-message {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--qwos-radius-md);
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Attendance summary */
+
+.qwos-attendance-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.qwos-attendance-summary > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 14px;
+  border: 1px solid var(--qwos-border);
+  border-radius: var(--qwos-radius-md);
+  background: #fafbfc;
+}
+
+.qwos-attendance-summary span {
+  color: var(--qwos-text-muted);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.qwos-attendance-summary strong {
+  color: var(--qwos-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+  .qwos-attendance-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .qwos-attendance-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .qwos-attendance-panel-header {
+    flex-direction: column;
+  }
+
+  .qwos-attendance-status {
+    align-self: flex-start;
+  }
+}
