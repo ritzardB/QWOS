@@ -31,6 +31,12 @@ from qwos.application.common.results.create_leave_type_validator import (
 from qwos.application.leave.use_cases.create_leave_type_use_case import (
     CreateLeaveTypeUseCase,
 )
+from qwos.application.common.results.create_leave_policy_validator import (
+    CreateLeavePolicyValidator,
+)
+from qwos.application.leave.use_cases.create_leave_policy_use_case import (
+    CreateLeavePolicyUseCase,
+)
 
 
 def get_create_leave_type_use_case(
@@ -45,6 +51,20 @@ def get_create_leave_type_use_case(
 
     return CreateLeaveTypeUseCase(
         leave_type_repository=unit_of_work.leave_type_repository,
+        id_generator=id_generator,
+        unit_of_work=unit_of_work,
+        validator=validator,
+        request_context=request_context,
+    )
+
+def get_create_leave_policy_use_case(
+    unit_of_work: UnitOfWork = Depends(get_unit_of_work),
+    id_generator: IdGenerator = Depends(get_id_generator),
+    validator: CreateLeavePolicyValidator = Depends(),
+    request_context: RequestContext = Depends(get_request_context),
+) -> CreateLeavePolicyUseCase:
+    return CreateLeavePolicyUseCase(
+        leave_policy_repository=unit_of_work.leave_policy_repository,
         id_generator=id_generator,
         unit_of_work=unit_of_work,
         validator=validator,

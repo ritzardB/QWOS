@@ -30,9 +30,18 @@ from qwos.api.contracts.requests.leave.create_leave_type_request import (
 from qwos.api.contracts.responses.leave.create_leave_type_response import (
     CreateLeaveTypeResponse,
 )
+from qwos.api.contracts.responses.leave.create_leave_policy_response import (
+    CreateLeavePolicyResponse,
+)
 from qwos.application.common.context.request_context import RequestContext
 from qwos.application.common.dependencies.authentication import (
     get_authenticated_request_context,
+)
+from qwos.api.contracts.requests.leave.create_leave_policy_request import (
+    CreateLeavePolicyRequest,
+)
+from qwos.application.common.dependencies.leave import (
+    get_create_leave_policy_use_case,
 )
 from qwos.application.common.dependencies.leave import (
     get_create_leave_type_use_case,
@@ -42,6 +51,10 @@ from qwos.application.leave.mappers.leave_type_mapper import (
 )
 from qwos.application.leave.use_cases.create_leave_type_use_case import (
     CreateLeaveTypeUseCase,
+)
+from qwos.application.leave.mappers.leave_policy_mapper import LeavePolicyMapper
+from qwos.application.leave.use_cases.create_leave_policy_use_case import (
+    CreateLeavePolicyUseCase,
 )
 
 router = APIRouter(
@@ -87,3 +100,28 @@ async def create_leave_type(
     return LeaveTypeMapper.to_create_response(
         application_response,
     )
+
+@router.post(
+    "/policies",
+    response_model=CreateLeavePolicyResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create Leave Policy",
+    description="Create a tenant-defined leave policy.",
+)
+async def create_leave_policy(
+    request: CreateLeavePolicyRequest,
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context
+    ),
+    use_case: CreateLeavePolicyUseCase = Depends(
+        get_create_leave_policy_use_case
+    ),
+) -> CreateLeavePolicyResponse:
+    command = LeavePolicyMapper.to_create_command(
+        request=request,
+        request_context=request_context,
+    )
+
+    application_response = await use_case.execute(command)
+
+    return LeavePolicyMapper.to_create_response(application_response)

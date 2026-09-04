@@ -29,7 +29,9 @@ from qwos.infrastructure.repositories.hr.sqlalchemy_employee_repository import (
 from qwos.infrastructure.repositories.leave.sqlalchemy_leave_type_repository import (
     SQLAlchemyLeaveTypeRepository,
 )
-
+from qwos.infrastructure.repositories.leave.sqlalchemy_leave_policy_repository import (
+    SQLAlchemyLeavePolicyRepository,
+)
 
 class SQLAlchemyUnitOfWork(UnitOfWork):
     """
@@ -85,9 +87,8 @@ class SQLAlchemyUnitOfWork(UnitOfWork):
         # Leave repositories
         # -----------------------------------------------------------------
 
-        self.leave_type_repository = SQLAlchemyLeaveTypeRepository(
-            session,
-        )
+        self.leave_type_repository = SQLAlchemyLeaveTypeRepository(session)
+        self.leave_policy_repository = SQLAlchemyLeavePolicyRepository(session)
 
     def __enter__(self) -> "SQLAlchemyUnitOfWork":
         return self
