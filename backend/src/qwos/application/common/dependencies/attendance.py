@@ -32,6 +32,9 @@ from qwos.application.attendance.use_cases.create_employee_work_schedule_use_cas
 from qwos.application.attendance.use_cases.create_work_schedule_day_use_case import (
     CreateWorkScheduleDayUseCase,
 )
+from qwos.application.attendance.use_cases.create_work_schedule_use_case import (
+    CreateWorkScheduleUseCase,
+)
 from qwos.application.attendance.use_cases.get_work_schedule_use_case import (
     GetWorkScheduleUseCase,
 )
@@ -58,6 +61,9 @@ from qwos.application.attendance.validators.create_employee_work_schedule_valida
 )
 from qwos.application.attendance.validators.create_work_schedule_day_validator import (
     CreateWorkScheduleDayValidator,
+)
+from qwos.application.attendance.validators.create_work_schedule_validator import (
+    CreateWorkScheduleValidator,
 )
 from qwos.application.common.context.request_context import (
     RequestContext,
@@ -281,7 +287,9 @@ def get_list_work_schedule_days_use_case(
 
 def get_list_attendance_history_use_case(
     unit_of_work: UnitOfWork = Depends(get_unit_of_work),
-    request_context: RequestContext = Depends(get_request_context),
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context
+        ),
 ) -> ListAttendanceHistoryUseCase:
     """
     Provide the ListAttendanceHistoryUseCase instance.
@@ -290,5 +298,23 @@ def get_list_attendance_history_use_case(
     return ListAttendanceHistoryUseCase(
         attendance_record_repository=unit_of_work.attendance_record_repository,
         employee_repository=unit_of_work.employee_repository,
+        request_context=request_context,
+    )
+
+def get_create_work_schedule_use_case(
+    unit_of_work: UnitOfWork = Depends(get_unit_of_work),
+    id_generator: IdGenerator = Depends(get_id_generator),
+    validator: CreateWorkScheduleValidator = Depends(),
+    request_context: RequestContext = Depends(get_request_context),
+) -> CreateWorkScheduleUseCase:
+    """
+    Provide the CreateWorkScheduleUseCase instance.
+    """
+
+    return CreateWorkScheduleUseCase(
+        work_schedule_repository=unit_of_work.work_schedule_repository,
+        id_generator=id_generator,
+        unit_of_work=unit_of_work,
+        validator=validator,
         request_context=request_context,
     )

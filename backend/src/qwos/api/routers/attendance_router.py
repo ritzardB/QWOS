@@ -41,6 +41,9 @@ from qwos.api.contracts.requests.attendance.create_employee_work_schedule_reques
 from qwos.api.contracts.requests.attendance.create_work_schedule_day_request import (
     CreateWorkScheduleDayRequest,
 )
+from qwos.api.contracts.requests.attendance.create_work_schedule_request import (
+    CreateWorkScheduleRequest,
+)
 from qwos.api.contracts.responses.attendance.clock_in_response import (
     ClockInResponse,
 )
@@ -56,6 +59,9 @@ from qwos.api.contracts.responses.attendance.create_employee_work_schedule_respo
 from qwos.api.contracts.responses.attendance.create_work_schedule_day_response import (
     CreateWorkScheduleDayResponse,
 )
+from qwos.api.contracts.responses.attendance.create_work_schedule_response import (
+    CreateWorkScheduleResponse,
+)
 from qwos.api.contracts.responses.attendance.get_work_schedule_response import (
     GetWorkScheduleResponse,
 )
@@ -68,6 +74,8 @@ from qwos.api.contracts.responses.attendance.list_work_schedule_days_response im
 from qwos.api.contracts.responses.attendance.list_work_schedules_response import (
     ListWorkSchedulesResponse,
 )
+from qwos.application.attendance.commands.clock_in_command import ClockInCommand
+from qwos.application.attendance.commands.clock_out_command import ClockOutCommand
 from qwos.application.attendance.mappers.clock_in_mapper import (
     ClockInMapper,
 )
@@ -104,6 +112,9 @@ from qwos.application.attendance.use_cases.create_employee_work_schedule_use_cas
 from qwos.application.attendance.use_cases.create_work_schedule_day_use_case import (
     CreateWorkScheduleDayUseCase,
 )
+from qwos.application.attendance.use_cases.create_work_schedule_use_case import (
+    CreateWorkScheduleUseCase,
+)
 from qwos.application.attendance.use_cases.get_work_schedule_use_case import (
     GetWorkScheduleUseCase,
 )
@@ -126,6 +137,7 @@ from qwos.application.common.dependencies.attendance import (
     get_create_employee_work_arrangement_use_case,
     get_create_employee_work_schedule_use_case,
     get_create_work_schedule_day_use_case,
+    get_create_work_schedule_use_case,
     get_list_attendance_history_use_case,
     get_list_work_schedule_days_use_case,
     get_list_work_schedules_use_case,
@@ -531,12 +543,13 @@ async def clock_in_me(
     Clock in the authenticated employee.
     """
 
-    request.employee_id = employee_id
-
-    command = ClockInMapper.to_command(
-        request=request,
-        request_context=request_context,
-    )
+    command = ClockInCommand(
+    tenant_id=request_context.tenant_id,
+    employee_id=employee_id,
+    clock_in_at=request.clock_in_at,
+    event_source=request.event_source,
+    notes=request.notes,
+)
 
     application_response = await use_case.execute(
         command,
@@ -573,11 +586,53 @@ async def clock_out_me(
 ) -> ClockOutResponse:
     """
     Clock out the authenticated employee.
+
+    The employee ID is resolved server-side from
+    the authenticated user's JWT.
     """
 
-    request.employee_id = employee_id
+    command = ClockOutCommand(
+        tenant_id=request_context.tenant_id,
+        employee_id=employee_id,
+        clock_out_at=request.clock_out_at,
+        event_source=request.event_source,
+        notes=request.notes,
+    )
 
-    command = ClockOutMapper.to_command(
+    application_response = await use_case.execute(
+        command,
+    )
+
+    return ClockOutMapper.to_response(
+        application_response,
+    )
+
+# -------------------------------------------------------------------------
+# Create Work Schedule
+# -------------------------------------------------------------------------
+
+
+@router.post(
+    "/work-schedules",
+    response_model=CreateWorkScheduleResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create Work Schedule",
+    description="Create a reusable work schedule definition.",
+)
+async def create_work_schedule(
+    request: CreateWorkScheduleRequest,
+    request_context: RequestContext = Depends(
+        get_authenticated_request_context,
+    ),
+    use_case: CreateWorkScheduleUseCase = Depends(
+        get_create_work_schedule_use_case,
+    ),
+) -> CreateWorkScheduleResponse:
+    """
+    Create a master work schedule.
+    """
+
+    command = WorkScheduleMapper.to_create_command(
         request=request,
         request_context=request_context,
     )
@@ -586,6 +641,6 @@ async def clock_out_me(
         command,
     )
 
-    return ClockOutMapper.to_response(
+    return WorkScheduleMapper.to_create_response(
         application_response,
     )
