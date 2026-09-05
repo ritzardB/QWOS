@@ -35,6 +35,9 @@ from qwos.infrastructure.repositories.leave.sqlalchemy_leave_policy_repository i
 from qwos.infrastructure.repositories.leave.sqlalchemy_leave_type_repository import (
     SQLAlchemyLeaveTypeRepository,
 )
+from qwos.infrastructure.repositories.leave.sqlalchemy_employee_leave_balance_repository import (
+    SQLAlchemyEmployeeLeaveBalanceRepository,
+)
 
 
 class SQLAlchemyUnitOfWork(UnitOfWork):
@@ -95,7 +98,10 @@ class SQLAlchemyUnitOfWork(UnitOfWork):
         self.leave_policy_repository = SQLAlchemyLeavePolicyRepository(session)
         self.employee_leave_assignment_repository = (
             SQLAlchemyEmployeeLeaveAssignmentRepository(session)
-)
+        )
+        self.employee_leave_balance_repository = (
+            SQLAlchemyEmployeeLeaveBalanceRepository(session)
+        )
 
     def __enter__(self) -> "SQLAlchemyUnitOfWork":
         return self

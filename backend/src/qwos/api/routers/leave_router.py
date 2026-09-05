@@ -30,6 +30,9 @@ from qwos.api.contracts.requests.leave.create_employee_leave_assignment_request 
 from qwos.api.contracts.requests.leave.create_leave_policy_request import (
     CreateLeavePolicyRequest,
 )
+from qwos.api.contracts.requests.leave.create_employee_leave_balance_request import (
+    CreateEmployeeLeaveBalanceRequest,
+)
 from qwos.api.contracts.requests.leave.create_leave_type_request import (
     CreateLeaveTypeRequest,
 )
@@ -42,12 +45,16 @@ from qwos.api.contracts.responses.leave.create_leave_policy_response import (
 from qwos.api.contracts.responses.leave.create_leave_type_response import (
     CreateLeaveTypeResponse,
 )
+from qwos.api.contracts.responses.leave.create_employee_leave_balance_response import (
+    CreateEmployeeLeaveBalanceResponse,
+)
 from qwos.application.common.context.request_context import RequestContext
 from qwos.application.common.dependencies.authentication import (
     get_authenticated_request_context,
 )
 from qwos.application.common.dependencies.leave import (
     get_create_employee_leave_assignment_use_case,
+    get_create_employee_leave_balance_use_case,
     get_create_leave_policy_use_case,
     get_create_leave_type_use_case,
 )
@@ -56,8 +63,14 @@ from qwos.application.leave.mappers.leave_policy_mapper import LeavePolicyMapper
 from qwos.application.leave.mappers.leave_type_mapper import (
     LeaveTypeMapper,
 )
+from qwos.api.contracts.mappers.leave.create_employee_leave_balance_mapper import (
+    CreateEmployeeLeaveBalanceMapper,
+)
 from qwos.application.leave.use_cases.create_employee_leave_assignment_use_case import (
     CreateEmployeeLeaveAssignmentUseCase,
+)
+from qwos.application.leave.use_cases.create_employee_leave_balance_use_case import (
+    CreateEmployeeLeaveBalanceUseCase,
 )
 from qwos.application.leave.use_cases.create_leave_policy_use_case import (
     CreateLeavePolicyUseCase,
@@ -155,3 +168,24 @@ async def create_employee_leave_assignment(
     )
     application_response = await use_case.execute(command)
     return EmployeeLeaveAssignmentMapper.to_create_response(application_response)
+
+@router.post(
+    "/employee-balances",
+    response_model=CreateEmployeeLeaveBalanceResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create Employee Leave Balance",
+    description="Create an employee leave balance for an assignment and period.",
+)
+async def create_employee_leave_balance(
+    request: CreateEmployeeLeaveBalanceRequest,
+    request_context: RequestContext = Depends(get_authenticated_request_context),
+    use_case: CreateEmployeeLeaveBalanceUseCase = Depends(
+        get_create_employee_leave_balance_use_case
+    ),
+) -> CreateEmployeeLeaveBalanceResponse:
+    command = CreateEmployeeLeaveBalanceMapper.to_command(
+        request=request,
+        tenant_id=request_context.tenant_id,
+    )
+    application_response = await use_case.execute(command)
+    return CreateEmployeeLeaveBalanceMapper.to_response(application_response)
