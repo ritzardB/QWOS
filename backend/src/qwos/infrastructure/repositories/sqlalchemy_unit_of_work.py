@@ -26,12 +26,16 @@ from qwos.infrastructure.repositories.attendance.sqlalchemy_work_schedule_reposi
 from qwos.infrastructure.repositories.hr.sqlalchemy_employee_repository import (
     SQLAlchemyEmployeeRepository,
 )
-from qwos.infrastructure.repositories.leave.sqlalchemy_leave_type_repository import (
-    SQLAlchemyLeaveTypeRepository,
+from qwos.infrastructure.repositories.leave.sqlalchemy_employee_leave_assignment_repository import (
+    SQLAlchemyEmployeeLeaveAssignmentRepository,
 )
 from qwos.infrastructure.repositories.leave.sqlalchemy_leave_policy_repository import (
     SQLAlchemyLeavePolicyRepository,
 )
+from qwos.infrastructure.repositories.leave.sqlalchemy_leave_type_repository import (
+    SQLAlchemyLeaveTypeRepository,
+)
+
 
 class SQLAlchemyUnitOfWork(UnitOfWork):
     """
@@ -89,6 +93,9 @@ class SQLAlchemyUnitOfWork(UnitOfWork):
 
         self.leave_type_repository = SQLAlchemyLeaveTypeRepository(session)
         self.leave_policy_repository = SQLAlchemyLeavePolicyRepository(session)
+        self.employee_leave_assignment_repository = (
+            SQLAlchemyEmployeeLeaveAssignmentRepository(session)
+)
 
     def __enter__(self) -> "SQLAlchemyUnitOfWork":
         return self
